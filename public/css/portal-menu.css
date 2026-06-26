@@ -1,0 +1,78 @@
+/* Portal menu — app launcher dropdown */
+
+.portal-menu {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.portal-menu-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    padding: 0;
+    border: none;
+    border-radius: 50%;
+    background: transparent;
+    color: #fff;
+    cursor: pointer;
+    transition: background 0.15s;
+}
+
+.portal-menu-toggle:hover,
+.portal-menu-toggle[aria-expanded="true"] {
+    background: rgba(255, 255, 255, 0.18);
+}
+
+.portal-menu-toggle svg {
+    width: 20px;
+    height: 20px;
+}
+
+.portal-menu-dropdown {
+    position: absolute;
+    top: calc(100% + 10px);
+    right: 0;
+    min-width: 220px;
+    padding: 8px;
+    border-radius: 12px;
+    background: #fff;
+    border: 1px solid rgba(15, 23, 42, 0.08);
+    box-shadow: 0 12px 32px rgba(15, 23, 42, 0.18);
+    z-index: 200;
+}
+
+.portal-menu-dropdown[hidden] {
+    display: none;
+}
+
+.portal-menu-item {
+    display: block;
+    padding: 10px 14px;
+    border-radius: 8px;
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 600;
+    color: #1e293b;
+    transition: background 0.12s, color 0.12s;
+}
+
+.portal-menu-item:hover {
+    background: #f1f5f9;
+    color: #5383c3;
+}
+
+.portal-menu-item.active {
+    background: #eef4fc;
+    color: #5383c3;
+}
+
+@media (max-width: 768px) {
+    .portal-menu-dropdown {
+        right: 0;
+        min-width: 200px;
+    }
+}
