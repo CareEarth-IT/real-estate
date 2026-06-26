@@ -1,0 +1,42 @@
+steps:
+  - name: gcr.io/cloud-builders/docker
+    args:
+      - build
+      - -t
+      - ${_REGION}-docker.pkg.dev/${PROJECT_ID}/${_REPOSITORY}/${_SERVICE}:${SHORT_SHA}
+      - -t
+      - ${_REGION}-docker.pkg.dev/${PROJECT_ID}/${_REPOSITORY}/${_SERVICE}:latest
+      - .
+
+  - name: gcr.io/cloud-builders/docker
+    args:
+      - push
+      - --all-tags
+      - ${_REGION}-docker.pkg.dev/${PROJECT_ID}/${_REPOSITORY}/${_SERVICE}
+
+  - name: gcr.io/google.com/cloudsdktool/cloud-sdk
+    entrypoint: gcloud
+    args:
+      - run
+      - deploy
+      - ${_SERVICE}
+      - --image=${_REGION}-docker.pkg.dev/${PROJECT_ID}/${_REPOSITORY}/${_SERVICE}:${SHORT_SHA}
+      - --region=${_REGION}
+      - --platform=managed
+      - --allow-unauthenticated
+      - --port=8080
+      - --add-cloudsql-instances=${_SQL_INSTANCE}
+      - --set-env-vars=${_RUN_ENV_VARS}
+      - --set-secrets=${_RUN_SECRETS}
+
+substitutions:
+  _REGION: asia-northeast1
+  _REPOSITORY: real-estate
+  _SERVICE: real-estate
+  _SQL_INSTANCE: CHANGE_ME_PROJECT:asia-northeast1:real-estate-db
+  _RUN_ENV_VARS: APP_ENV=production,APP_DEBUG=false,DB_CONNECTION=mysql,DB_SOCKET=/cloudsql/CHANGE_ME_PROJECT:asia-northeast1:real-estate-db,DB_DATABASE=laravel,DB_USERNAME=laravel,LOG_CHANNEL=stderr,SESSION_DRIVER=database,SESSION_SECURE_COOKIE=true,CACHE_STORE=database,QUEUE_CONNECTION=database,ADMIN_GOOGLE_HOSTED_DOMAIN=careearth.info
+  _RUN_SECRETS: APP_KEY=real-estate-app-key:latest,DB_PASSWORD=real-estate-db-password:latest,GOOGLE_CLIENT_ID=real-estate-google-client-id:latest,GOOGLE_CLIENT_SECRET=real-estate-google-client-secret:latest
+
+images:
+  - ${_REGION}-docker.pkg.dev/${PROJECT_ID}/${_REPOSITORY}/${_SERVICE}:${SHORT_SHA}
+  - ${_REGION}-docker.pkg.dev/${PROJECT_ID}/${_REPOSITORY}/${_SERVICE}:latest
