@@ -55,15 +55,10 @@ class UserController extends Controller
     {
         $request->validate([
             'role' => ['required', 'in:'.implode(',', Role::assignableValues())],
-            'password' => ['nullable', 'string', 'min:8'],
         ]);
 
         try {
             $this->userService->updateRole($user, $request->input('role', Role::FUDOSAN));
-
-            if ($request->filled('password')) {
-                $this->userService->updatePassword($user, $request->input('password', ''));
-            }
         } catch (RuntimeException $e) {
             return back()->withErrors(['form' => $e->getMessage()]);
         }

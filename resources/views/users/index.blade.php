@@ -52,7 +52,6 @@
                 <th>ID</th>
                 <th>メールアドレス</th>
                 <th>ロール</th>
-                <th>パスワード変更</th>
                 <th></th>
             </tr>
         </thead>
@@ -72,9 +71,6 @@
                         @endforeach
                     </select>
                     @endif
-                </td>
-                <td>
-                    <input type="password" name="password" class="password-input" form="{{ $formId }}" minlength="8" placeholder="変更時のみ入力">
                 </td>
                 <td class="actions-cell">
                     <form id="{{ $formId }}" method="post" action="{{ route('users.update', $user) }}">

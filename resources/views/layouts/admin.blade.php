@@ -1,5 +1,8 @@
 <!DOCTYPE html>
-@php($adminPageLoaderEnabled = true)
+@php
+    $adminPageLoaderEnabled = true;
+    $isPropertyTradingSection = request()->routeIs('properties.*', 'reference.*', 'users.*');
+@endphp
 <html lang="ja" @class(['admin-loading' => $adminPageLoaderEnabled])>
 <head>
     <meta charset="utf-8">
@@ -258,6 +261,14 @@
             box-shadow: 0 2px 6px rgba(15, 23, 42, 0.08);
         }
 
+        .admin-header--warm {
+            background: #E2421F;
+        }
+
+        .admin-header--warm button[type="submit"]:hover {
+            color: #E2421F !important;
+        }
+
         .admin-layout-body {
             align-items: stretch;
             flex: 1;
@@ -298,7 +309,7 @@
     </div>
     @endif
 
-    <header class="admin-header">
+    <header @class(['admin-header', 'admin-header--warm' => $isPropertyTradingSection])>
         <div class="flex items-center justify-between gap-4 px-6 py-3">
             <a href="{{ route('properties.index') }}">
                 <img
