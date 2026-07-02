@@ -1,16 +1,16 @@
 <!DOCTYPE html>
-@php
-    $adminPageLoaderEnabled = true;
-    $isPropertyTradingSection = request()->routeIs('properties.*', 'reference.*', 'users.*');
-@endphp
+@php($adminPageLoaderEnabled = true)
 <html lang="ja" @class(['admin-loading' => $adminPageLoaderEnabled])>
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>@yield('title', 'Care Earth Home 賃貸-管理')</title>
+    <title>@yield('title', 'Care Earth Home')</title>
     <link rel="icon" type="image/png" href="{{ asset('images/care-earth-home-logo.png') }}">
     <link rel="apple-touch-icon" href="{{ asset('images/care-earth-home-logo.png') }}">
+    <link rel="stylesheet" href="{{ asset('css/portal-menu.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/portal-master.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/style.css') }}">
     @stack('head')
     <style>
         @if ($adminPageLoaderEnabled)
@@ -257,16 +257,22 @@
             position: sticky;
             top: 0;
             z-index: 50;
-            background: linear-gradient(to right, #85aecf 0%, #6d96c4 30%, #4a79b8 70%, #355f8f 100%);
+            background: var(--color-header-gradient);
             box-shadow: 0 2px 6px rgba(15, 23, 42, 0.08);
         }
 
-        .admin-header--warm {
-            background: #E2421F;
+        .admin-header .header-action-link,
+        .admin-header button[type="submit"].header-action-btn {
+            border: 2px solid rgba(255, 255, 255, 0.7);
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
         }
 
-        .admin-header--warm button[type="submit"]:hover {
-            color: #E2421F !important;
+        .admin-header .header-action-link:hover,
+        .admin-header button[type="submit"].header-action-btn:hover {
+            background: #fff;
+            color: #5383c3;
+            border-color: #fff;
         }
 
         .admin-layout-body {
@@ -309,7 +315,7 @@
     </div>
     @endif
 
-    <header @class(['admin-header', 'admin-header--warm' => $isPropertyTradingSection])>
+    <header class="admin-header">
         <div class="flex items-center justify-between gap-4 px-6 py-3">
             <a href="{{ route('properties.index') }}">
                 <img
@@ -320,13 +326,21 @@
             </a>
             <div class="flex items-center gap-3 flex-wrap justify-end">
                 @if (session('authenticated') || Auth::check())
+                    <a
+                        href="{{ route('applications.create') }}"
+                        target="_blank"
+                        rel="noopener"
+                        class="header-action-link rounded-lg px-4 py-1.5 text-sm font-semibold transition-colors"
+                    >
+                        賃貸申込フォーム ↗
+                    </a>
                     <x-portal-menu variant="admin" />
                     @if (session('authenticated') && ! Auth::check())
                         <form method="POST" action="{{ route('logout') }}">
                             @csrf
                             <button
                                 type="submit"
-                                class="rounded-lg border-2 border-white/70 bg-white/10 px-4 py-1.5 text-sm font-semibold text-white hover:bg-white hover:text-[#5383c3] transition-colors"
+                                class="header-action-btn rounded-lg px-4 py-1.5 text-sm font-semibold transition-colors"
                             >
                                 ログアウト
                             </button>
@@ -336,7 +350,7 @@
                             @csrf
                             <button
                                 type="submit"
-                                class="rounded-lg border-2 border-white/70 bg-white/10 px-4 py-1.5 text-sm font-semibold text-white hover:bg-white hover:text-[#5383c3] transition-colors"
+                                class="header-action-btn rounded-lg px-4 py-1.5 text-sm font-semibold transition-colors"
                             >
                                 ログアウト
                             </button>
@@ -348,32 +362,18 @@
     </header>
 
     <div class="admin-layout-body flex flex-1 min-h-[calc(100vh-var(--admin-header-height,72px))]">
-        <aside class="admin-sidebar w-52 shrink-0 bg-white border-r border-slate-200 p-4">
-            <nav class="space-y-1">
-                <a
-                    href="{{ route('admin.applications.index') }}"
-                    class="admin-nav-link block rounded-lg px-3 py-2 text-sm font-medium {{ request()->routeIs('admin.applications.*') ? 'is-active' : '' }}"
-                >
-                    申込一覧
-                </a>
-                <a
-                    href="{{ route('admin.customers.index') }}"
-                    class="admin-nav-link block rounded-lg px-3 py-2 text-sm font-medium {{ request()->routeIs('admin.customers.index') ? 'is-active' : '' }}"
-                >
-                    顧客情報
-                </a>
-                <a
-                    href="{{ route('admin.settlement-managements.index') }}"
-                    class="admin-nav-link block rounded-lg px-3 py-2 text-sm font-medium {{ request()->routeIs('admin.settlement-managements.*') ? 'is-active' : '' }}"
-                >
-                    決済金管理
-                </a>
-            </nav>
-        </aside>
+        @if (request()->routeIs('properties.*', 'reference.*', 'users.*', 'property.rental-income.*'))
+            <x-portal-sidebar />
+        @elseif (request()->routeIs('admin.*'))
+            <x-rental-sidebar />
+        @endif
 
-        <main id="admin-main-content" class="admin-main-content {{ $adminPageLoaderEnabled ? '' : 'is-visible' }} flex-1 p-8 overflow-x-auto portal-master-content">
+        <main id="admin-main-content" class="admin-main-content {{ $adminPageLoaderEnabled ? '' : 'is-visible' }} flex-1 p-8 overflow-x-auto {{ request()->routeIs('admin.*') ? '' : 'portal-master-content' }}">
             @if (session('success'))
                 <div class="mb-6 rounded-lg bg-green-50 border border-green-200 px-4 py-3 text-green-800 text-sm">{{ session('success') }}</div>
+            @endif
+            @if (session('error'))
+                <div class="mb-6 rounded-lg bg-red-50 border border-red-200 px-4 py-3 text-red-800 text-sm">{{ session('error') }}</div>
             @endif
             @yield('content')
         </main>

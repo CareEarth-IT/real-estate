@@ -9,6 +9,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\FileController;
 use App\Http\Controllers\Master\MasterDataController;
 use App\Http\Controllers\PropertyController;
+use App\Http\Controllers\PropertyRentalIncomeController;
 use App\Http\Controllers\ReferenceController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
@@ -30,8 +31,6 @@ Route::prefix('admin')->name('admin.')->group(function () {
     Route::get('/applications/{application}/customer', [AdminCustomerController::class, 'show'])->name('applications.customer.show');
     Route::patch('/applications/{application}/customer', [AdminCustomerController::class, 'update'])->name('applications.customer.update');
 
-    Route::redirect('/screening-completions', '/admin/applications');
-
     Route::get('/flow-managements', [MasterDataController::class, 'index'])
         ->defaults('table', 'flow_managements')
         ->name('flow-managements.index');
@@ -46,8 +45,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
 });
 
 // ── 物件マスター（CareEarthHome 認証） ──
-Route::get('login', [AuthController::class, 'showLoginForm'])->name('login');
-Route::post('login', [AuthController::class, 'login']);
+Route::redirect('login', '/')->name('login');
 Route::post('logout', [AuthController::class, 'logout'])->name('logout');
 
 Route::middleware('careearth.auth')->group(function () {
@@ -58,6 +56,7 @@ Route::middleware('careearth.auth')->group(function () {
     Route::get('properties/{property}/edit', [PropertyController::class, 'edit'])->name('properties.edit');
     Route::put('properties/{property}', [PropertyController::class, 'update'])->name('properties.update');
     Route::get('reference', [ReferenceController::class, 'index'])->name('reference.index');
+    Route::get('property/rental-income', [PropertyRentalIncomeController::class, 'index'])->name('property.rental-income.index');
     Route::get('files/{property}/{field}', [FileController::class, 'show'])->name('files.show');
 
     Route::middleware('careearth.admin')->group(function () {

@@ -22,8 +22,12 @@
     transition: background 0.15s;
 }
 
-.portal-menu-toggle:hover,
-.portal-menu-toggle[aria-expanded="true"] {
+.portal-menu--admin .portal-menu-toggle {
+    color: #fff;
+}
+
+.portal-menu--admin .portal-menu-toggle:hover,
+.portal-menu--admin .portal-menu-toggle[aria-expanded="true"] {
     background: rgba(255, 255, 255, 0.18);
 }
 
@@ -47,6 +51,33 @@
 
 .portal-menu-dropdown[hidden] {
     display: none;
+}
+
+.portal-menu-group-label {
+    margin: 0;
+    padding: 8px 14px 4px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: #94a3b8;
+}
+
+.portal-menu-group + .portal-menu-item,
+.portal-menu-group .portal-menu-item {
+    margin-top: 0;
+}
+
+.portal-menu-group {
+    margin-bottom: 4px;
+    padding-bottom: 4px;
+    border-bottom: 1px solid #f1f5f9;
+}
+
+.portal-menu-group:last-of-type {
+    border-bottom: none;
+    margin-bottom: 0;
+    padding-bottom: 0;
 }
 
 .portal-menu-item {

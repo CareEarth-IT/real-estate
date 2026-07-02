@@ -12,8 +12,12 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('applications', function (Blueprint $table) {
-            $table->boolean('has_broker_fee')->default(false)->after('advertising_fee')->comment('仲介手数料 あり/なし');
-            $table->integer('broker_fee')->nullable()->after('has_broker_fee')->comment('仲介手数料（金額）');
+            if (! Schema::hasColumn('applications', 'has_broker_fee')) {
+                $table->boolean('has_broker_fee')->default(false)->after('advertising_fee')->comment('仲介手数料 あり/なし');
+            }
+            if (! Schema::hasColumn('applications', 'broker_fee')) {
+                $table->integer('broker_fee')->nullable()->after('has_broker_fee')->comment('仲介手数料（金額）');
+            }
         });
     }
 

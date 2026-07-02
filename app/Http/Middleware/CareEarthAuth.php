@@ -12,13 +12,37 @@ class CareEarthAuth
 {
     public function handle(Request $request, Closure $next): Response
     {
-        if (! self::isLoggedIn($request)) {
-            return redirect()->route('login', [
-                'redirect' => $request->fullUrl(),
-            ]);
+        if (! self::ensureSession($request)) {
+            abort(403, 'アクセス可能なユーザーが設定されていません。');
         }
 
         return $next($request);
+    }
+
+    public static function ensureSession(Request $request): bool
+    {
+        if (self::isLoggedIn($request)) {
+            return true;
+        }
+
+        $user = CareEarthUser::query()
+            ->where('email', strtolower(trim((string) config('careearth.allowed_email'))))
+            ->first()
+            ?? CareEarthUser::query()->orderBy('id')->first();
+
+        if ($user === null) {
+            return false;
+        }
+
+        $request->session()->put([
+            'authenticated' => true,
+            'user_id' => $user->id,
+            'email' => $user->email,
+            'role' => $user->role,
+            'login_time' => time(),
+        ]);
+
+        return true;
     }
 
     public static function isLoggedIn(Request $request): bool

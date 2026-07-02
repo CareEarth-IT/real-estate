@@ -8,9 +8,11 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::table('customers', function (Blueprint $table) {
-            $table->boolean('customer_info_completed')->default(false)->after('emergency_contact_email')->comment('顧客情報入力済み');
-        });
+        if (! Schema::hasColumn('customers', 'customer_info_completed')) {
+            Schema::table('customers', function (Blueprint $table) {
+                $table->boolean('customer_info_completed')->default(false)->after('emergency_contact_email')->comment('顧客情報入力済み');
+            });
+        }
     }
 
     public function down(): void

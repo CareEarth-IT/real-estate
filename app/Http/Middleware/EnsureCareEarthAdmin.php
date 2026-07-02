@@ -14,10 +14,8 @@ class EnsureCareEarthAdmin
      */
     public function handle(Request $request, Closure $next): Response
     {
-        if (! CareEarthAuth::isLoggedIn($request)) {
-            return redirect()->route('login', [
-                'redirect' => $request->fullUrl(),
-            ]);
+        if (! CareEarthAuth::ensureSession($request)) {
+            abort(403, 'アクセス可能なユーザーが設定されていません。');
         }
 
         if (! CareEarthAuth::isAdmin($request)) {

@@ -1,15 +1,14 @@
 @php
     use App\Http\Middleware\CareEarthAuth;
-    use App\Support\Role;
 
     $section = match (true) {
-        request()->routeIs('users.*') => 'users',
+        request()->routeIs('users.*', 'properties.index', 'properties.show', 'properties.edit') => 'admin',
         request()->routeIs('admin.*') => 'rental',
         default => 'master',
     };
     $variant = $variant ?? 'app';
     $menuId = 'portal-menu-' . $variant;
-    $canManageUsers = CareEarthAuth::isAdmin(request());
+    $isAdmin = CareEarthAuth::isAdmin(request());
 @endphp
 
 <div class="portal-menu portal-menu--{{ $variant }}" data-portal-menu>
@@ -36,17 +35,20 @@
         hidden
         data-portal-menu-panel
     >
-        <a
-            href="{{ route('properties.index') }}"
-            role="menuitem"
-            @class(['portal-menu-item', 'active' => $section === 'master'])
-        >マスターデータ一覧</a>
-        @if ($canManageUsers)
-        <a
-            href="{{ route('users.index') }}"
-            role="menuitem"
-            @class(['portal-menu-item', 'active' => $section === 'users'])
-        >ユーザー管理</a>
+        @if ($isAdmin)
+        <div class="portal-menu-group" role="presentation">
+            <p class="portal-menu-group-label">管理者メニュー</p>
+            <a
+                href="{{ route('properties.index') }}"
+                role="menuitem"
+                @class(['portal-menu-item', 'active' => request()->routeIs('properties.index', 'properties.show', 'properties.edit')])
+            >物件マスターデータ一覧</a>
+            <a
+                href="{{ route('users.index') }}"
+                role="menuitem"
+                @class(['portal-menu-item', 'active' => request()->routeIs('users.*')])
+            >ユーザー管理</a>
+        </div>
         @endif
         <a
             href="{{ route('admin.applications.index') }}"

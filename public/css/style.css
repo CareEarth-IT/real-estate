@@ -5,6 +5,22 @@
     --color-primary-dark: #456eb0;
     --color-primary-light: #eef3fb;
     --color-header: #5383C3;
+    --color-header-gradient: linear-gradient(
+        to right,
+        #f2f7fb 0%,
+        #dfeaf5 3%,
+        #c9dced 6%,
+        #b2cce0 10%,
+        #9bbbd3 14%,
+        #86acc6 19%,
+        #739cb8 25%,
+        #648eab 30%,
+        #5780a0 36%,
+        #4a7296 41%,
+        #457aa0 46%,
+        #3E6492 50%,
+        #3E6492 100%
+    );
     --color-accent: #64748b;
     --color-bg: #f8fafc;
     --color-surface: #ffffff;
@@ -42,7 +58,7 @@ body {
 
 /* ── Header ── */
 .site-header {
-    background: var(--color-header);
+    background: var(--color-header-gradient);
     border-bottom: none;
     box-shadow: 0 2px 8px rgba(83, 131, 195, 0.35);
     position: sticky;

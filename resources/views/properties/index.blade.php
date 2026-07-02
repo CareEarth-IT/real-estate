@@ -9,7 +9,7 @@
 @section('content')
 <div class="mb-6 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
     <div>
-        <h2 class="text-2xl font-bold text-slate-900">物件マスターデータ</h2>
+        <h2 class="text-2xl font-bold text-slate-900">物件マスターデータ一覧</h2>
         <p class="mt-1 text-sm text-slate-500">登録件数: <strong class="text-slate-700">{{ count($properties) }}</strong> 件</p>
     </div>
     <div class="flex items-center gap-2 flex-wrap">
@@ -43,7 +43,7 @@
 <div class="empty-state">
     <span class="empty-icon">📋</span>
     <h2>データがありません</h2>
-    <p>「データ登録」から最初の物件データを追加してください。</p>
+    <p>「物件売買登録フォーム」から最初の物件データを追加してください。</p>
     <a href="{{ route('properties.create') }}" class="btn btn-primary">データを登録する</a>
 </div>
 @else
@@ -144,7 +144,9 @@
             const raw = localStorage.getItem(STORAGE_KEY);
             if (!raw) return [...defaultHidden];
             const parsed = JSON.parse(raw);
-            return Array.isArray(parsed) ? parsed : [...defaultHidden];
+            if (!Array.isArray(parsed)) return [...defaultHidden];
+            if (parsed.length >= checkboxes.length) return [...defaultHidden];
+            return parsed;
         } catch (e) {
             return [...defaultHidden];
         }

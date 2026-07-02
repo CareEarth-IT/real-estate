@@ -62,15 +62,20 @@
 
 @else
 
-<div class="reference-documents-list">
+<div class="reference-documents-list" id="referenceDocumentsList">
     @foreach($properties as $p)
     @php
         $docCount = $propertyService->countDocuments($p);
         $property = $p;
     @endphp
-    <section class="detail-section reference-doc-block">
-        <div class="reference-doc-header">
-            <div>
+    <section class="detail-section reference-doc-block" data-reference-doc-block>
+        <button
+            type="button"
+            class="reference-doc-header reference-doc-toggle"
+            aria-expanded="true"
+            aria-controls="reference-doc-body-{{ $p->id }}"
+        >
+            <div class="reference-doc-header-main">
                 <h2 class="reference-doc-title">{{ $p->buyer_name }}</h2>
                 <p class="reference-doc-meta">
                     {{ Format::formatDateTime($p->created_at) }}
@@ -81,15 +86,32 @@
                 </p>
             </div>
             <span class="doc-count-badge">{{ $docCount }} 件</span>
+            <span class="reference-doc-chevron" aria-hidden="true"></span>
+        </button>
+        <div class="reference-doc-body" id="reference-doc-body-{{ $p->id }}">
+            @if($docCount > 0)
+                @include('components.property-documents')
+            @else
+                <p class="doc-none">書類は未登録です</p>
+            @endif
         </div>
-        @if($docCount > 0)
-            @include('components.property-documents')
-        @else
-            <p class="doc-none">書類は未登録です</p>
-        @endif
     </section>
     @endforeach
 </div>
+
+<script>
+(function () {
+    document.querySelectorAll('[data-reference-doc-block]').forEach(function (block) {
+        const toggle = block.querySelector('.reference-doc-toggle');
+        if (!toggle) return;
+
+        toggle.addEventListener('click', function () {
+            const collapsed = block.classList.toggle('is-collapsed');
+            toggle.setAttribute('aria-expanded', collapsed ? 'false' : 'true');
+        });
+    });
+})();
+</script>
 
 @endif
 @endsection

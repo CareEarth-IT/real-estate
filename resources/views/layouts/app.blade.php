@@ -15,6 +15,7 @@
         })();
     </script>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="{{ asset('css/style.css') }}">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
     <script>
         tailwind.config = {
@@ -32,7 +33,7 @@
             position: sticky;
             top: 0;
             z-index: 50;
-            background: linear-gradient(to right, #85aecf 0%, #6d96c4 30%, #4a79b8 70%, #355f8f 100%);
+            background: var(--color-header-gradient);
             box-shadow: 0 2px 6px rgba(15, 23, 42, 0.08);
         }
 

@@ -6,13 +6,13 @@
 
 <IfModule mod_rewrite.c>
     RewriteEngine On
-    RewriteBase /CareEarthHome/
+    RewriteBase /real-estate/
 
     RewriteCond %{REQUEST_FILENAME} -f [OR]
     RewriteCond %{REQUEST_FILENAME} -d
     RewriteRule ^ - [L]
 
-    RewriteCond %{DOCUMENT_ROOT}/CareEarthHome/public/$1 -f
+    RewriteCond %{DOCUMENT_ROOT}/real-estate/public/$1 -f
     RewriteRule ^(.+)$ public/$1 [L]
 
     RewriteRule ^ index.php [L]

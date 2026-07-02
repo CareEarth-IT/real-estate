@@ -9,12 +9,19 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::table('flow_managements', function (Blueprint $table) {
-            $table->foreignId('application_id')->nullable()->after('customer_id')->constrained('applications')->nullOnDelete();
-            $table->boolean('flow_management_transition')->default(false)->after('application_id')->comment('フロー管理移行チェック');
-        });
+        if (! Schema::hasColumn('flow_managements', 'application_id')) {
+            Schema::table('flow_managements', function (Blueprint $table) {
+                $table->foreignId('application_id')->nullable()->after('customer_id')->constrained('applications')->nullOnDelete();
+            });
+        }
 
-        if (Schema::hasTable('screening_completions')) {
+        if (! Schema::hasColumn('flow_managements', 'flow_management_transition')) {
+            Schema::table('flow_managements', function (Blueprint $table) {
+                $table->boolean('flow_management_transition')->default(false)->after('application_id')->comment('フロー管理移行チェック');
+            });
+        }
+
+        if (Schema::hasTable('screening_completions') && Schema::hasColumn('flow_managements', 'screening_completion_id')) {
             DB::statement('
                 UPDATE flow_managements fm
                 INNER JOIN screening_completions sc ON fm.screening_completion_id = sc.id
@@ -23,10 +30,12 @@ return new class extends Migration
             ');
         }
 
-        Schema::table('flow_managements', function (Blueprint $table) {
-            $table->dropForeign(['screening_completion_id']);
-            $table->dropColumn('screening_completion_id');
-        });
+        if (Schema::hasColumn('flow_managements', 'screening_completion_id')) {
+            Schema::table('flow_managements', function (Blueprint $table) {
+                $table->dropForeign(['screening_completion_id']);
+                $table->dropColumn('screening_completion_id');
+            });
+        }
 
         Schema::dropIfExists('screening_completions');
     }

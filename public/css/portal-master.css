@@ -392,6 +392,91 @@
 
 .portal-master-content .back-link:hover { text-decoration: underline; }
 
+.portal-master-content .reference-documents-list {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.portal-master-content .reference-doc-block {
+    border: 2px solid #5383c3;
+    box-shadow: 0 2px 8px rgba(83, 131, 195, 0.15);
+}
+
+.portal-master-content .reference-doc-toggle {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 16px;
+    width: 100%;
+    margin: 0;
+    padding: 0 0 12px;
+    border: none;
+    border-bottom: 1px solid #e2e8f0;
+    background: transparent;
+    text-align: left;
+    cursor: pointer;
+    color: inherit;
+}
+
+.portal-master-content .reference-doc-toggle:hover {
+    color: #5383c3;
+}
+
+.portal-master-content .reference-doc-header-main {
+    flex: 1;
+    min-width: 0;
+}
+
+.portal-master-content .reference-doc-chevron {
+    flex-shrink: 0;
+    width: 20px;
+    height: 20px;
+    margin-top: 4px;
+    background: currentColor;
+    mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='currentColor'%3E%3Cpath fill-rule='evenodd' d='M5.23 7.21a.75.75 0 011.06.02L10 10.94l3.71-3.71a.75.75 0 111.06 1.06l-4.24 4.24a.75.75 0 01-1.06 0L5.21 8.29a.75.75 0 01.02-1.08z' clip-rule='evenodd'/%3E%3C/svg%3E") center / contain no-repeat;
+    -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='currentColor'%3E%3Cpath fill-rule='evenodd' d='M5.23 7.21a.75.75 0 011.06.02L10 10.94l3.71-3.71a.75.75 0 111.06 1.06l-4.24 4.24a.75.75 0 01-1.06 0L5.21 8.29a.75.75 0 01.02-1.08z' clip-rule='evenodd'/%3E%3C/svg%3E") center / contain no-repeat;
+    transition: transform 0.2s ease;
+}
+
+.portal-master-content .reference-doc-block.is-collapsed .reference-doc-chevron {
+    transform: rotate(-90deg);
+}
+
+.portal-master-content .reference-doc-block.is-collapsed .reference-doc-toggle {
+    padding-bottom: 0;
+    border-bottom: none;
+}
+
+.portal-master-content .reference-doc-body {
+    padding-top: 16px;
+}
+
+.portal-master-content .reference-doc-block.is-collapsed .reference-doc-body {
+    display: none;
+}
+
+.portal-master-content .reference-doc-title {
+    font-size: 18px;
+    font-weight: 600;
+    margin-bottom: 4px;
+}
+
+.portal-master-content .reference-doc-meta {
+    font-size: 13px;
+    color: #64748b;
+}
+
+.portal-master-content .doc-count-badge {
+    flex-shrink: 0;
+    padding: 4px 12px;
+    background: #eff6ff;
+    color: #5383c3;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+}
+
 @media (max-width: 900px) {
     .portal-master-content .form-row-2,
     .portal-master-content .form-row-3,
