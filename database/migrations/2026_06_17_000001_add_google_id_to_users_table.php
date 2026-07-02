@@ -9,11 +9,15 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::table('users', function (Blueprint $table) {
-            $table->string('google_id')->nullable()->unique()->after('email');
-        });
+        if (! Schema::hasColumn('users', 'google_id')) {
+            Schema::table('users', function (Blueprint $table) {
+                $table->string('google_id')->nullable()->unique();
+            });
+        }
 
-        DB::statement('ALTER TABLE users MODIFY password VARCHAR(255) NULL');
+        if (DB::getDriverName() !== 'sqlite') {
+            DB::statement('ALTER TABLE users MODIFY password VARCHAR(255) NULL');
+        }
     }
 
     public function down(): void
@@ -22,6 +26,8 @@ return new class extends Migration
             $table->dropColumn('google_id');
         });
 
-        DB::statement('ALTER TABLE users MODIFY password VARCHAR(255) NOT NULL');
+        if (DB::getDriverName() !== 'sqlite') {
+            DB::statement('ALTER TABLE users MODIFY password VARCHAR(255) NOT NULL');
+        }
     }
 };

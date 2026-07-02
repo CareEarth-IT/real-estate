@@ -179,7 +179,7 @@
         }
 
         .admin-header {
-            background: linear-gradient(to right, #85aecf 0%, #6d96c4 30%, #4a79b8 70%, #355f8f 100%);
+            background: linear-gradient(to right, #7599BC 0%, #3E6492 100%);
             box-shadow: 0 2px 6px rgba(15, 23, 42, 0.08);
         }
     </style>
