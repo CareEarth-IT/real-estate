@@ -1,7 +1,6 @@
 <?php
 
-use App\Models\AdminUser;
-use App\Models\CareEarthUser;
+use App\Models\User;
 
 return [
 
@@ -13,20 +12,20 @@ return [
     'guards' => [
         'web' => [
             'driver' => 'session',
-            'provider' => 'admin_users',
+            'provider' => 'users',
         ],
     ],
 
     'providers' => [
-        'admin_users' => [
+        'users' => [
             'driver' => 'eloquent',
-            'model' => AdminUser::class,
+            'model' => User::class,
         ],
     ],
 
     'passwords' => [
         'users' => [
-            'provider' => 'admin_users',
+            'provider' => 'users',
             'table' => env('AUTH_PASSWORD_RESET_TOKEN_TABLE', 'password_reset_tokens'),
             'expire' => 60,
             'throttle' => 60,

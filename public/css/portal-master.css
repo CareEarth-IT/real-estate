@@ -118,6 +118,8 @@
     margin-bottom: 6px;
 }
 
+.portal-master-content .form-group input[type="date"],
+.portal-master-content .form-group input[type="month"],
 .portal-master-content .form-group input[type="text"],
 .portal-master-content .form-group input[type="email"],
 .portal-master-content .form-group input[type="password"],
@@ -201,6 +203,42 @@
     box-shadow: 0 1px 2px rgba(15, 23, 42, 0.05);
 }
 
+.portal-master-content .table-wrapper .admin-table-scroll {
+    overflow-x: auto;
+}
+
+.portal-master-content .data-table.admin-table-sticky {
+    width: max-content;
+    min-width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+}
+
+.portal-master-content .data-table.admin-table-sticky thead .sticky-col {
+    background-color: #f1f5f9;
+}
+
+.portal-master-content .data-table.admin-table-sticky tbody .sticky-col {
+    background-color: #fff;
+}
+
+.portal-master-content .data-table.admin-table-sticky tbody tr:hover .sticky-col {
+    background-color: #f8fafc;
+}
+
+.portal-master-content .data-table.admin-table-sticky th:not(.sticky-col),
+.portal-master-content .data-table.admin-table-sticky td:not(.sticky-col) {
+    min-width: 120px;
+}
+
+.portal-master-content .data-table.admin-table-sticky [data-col="property_address"] {
+    min-width: 220px;
+}
+
+.portal-master-content .data-table.admin-table-sticky [data-col="documents"] {
+    min-width: 180px;
+}
+
 .portal-master-content .data-table {
     width: 100%;
     border-collapse: collapse;
@@ -227,6 +265,43 @@
 .portal-master-content .data-table .num { text-align: right; white-space: nowrap; }
 .portal-master-content .data-table .id-cell { white-space: nowrap; color: #64748b; }
 .portal-master-content .data-table .actions-cell { white-space: nowrap; }
+
+.portal-master-content .rental-income-month-picker {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    min-width: 140px;
+}
+
+.portal-master-content .rental-income-month-picker-label {
+    font-size: 13px;
+    font-weight: 600;
+    color: #475569;
+}
+
+.portal-master-content .rental-income-month-picker-select {
+    width: 100%;
+    padding: 8px 12px;
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    color: #0f172a;
+    background: #fff;
+    cursor: pointer;
+}
+
+.portal-master-content .rental-income-month-picker-select:focus {
+    outline: none;
+    border-color: #5383c3;
+    box-shadow: 0 0 0 3px rgba(83, 131, 195, 0.15);
+}
+
+.portal-master-content .rental-income-search-field {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
 
 .portal-master-content .doc-badge {
     display: inline-block;
@@ -487,5 +562,497 @@
     .portal-master-content .detail-row {
         grid-template-columns: 1fr;
         gap: 4px;
+    }
+}
+
+/* 家賃収入 — 入金状況による行の色（背景 + 4px枠） */
+.portal-master-content .rental-income-table {
+    border-collapse: separate;
+    border-spacing: 0 10px;
+}
+
+.portal-master-content .rental-income-sort-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.15rem;
+    color: inherit;
+    text-decoration: none;
+    border-radius: 4px;
+    padding: 0.1rem 0.2rem;
+    margin: -0.1rem -0.2rem;
+    transition: color 0.15s ease, background-color 0.15s ease;
+}
+
+.portal-master-content .rental-income-sort-link:hover {
+    color: #0f766e;
+    background-color: rgba(15, 118, 110, 0.08);
+}
+
+.portal-master-content .rental-income-sort-link.is-active {
+    color: #0f766e;
+    font-weight: 600;
+}
+
+.portal-master-content .rental-income-sort-indicator {
+    font-size: 0.75rem;
+    line-height: 1;
+    min-width: 0.75rem;
+}
+
+.portal-master-content .rental-income-table tbody tr.rental-income-row td {
+    transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+    border-top: 4px solid transparent;
+    border-bottom: 4px solid transparent;
+    vertical-align: top;
+}
+
+.portal-master-content .rental-income-table tbody tr.rental-income-row td:first-child {
+    border-left: 4px solid transparent;
+    border-top-left-radius: 10px;
+    border-bottom-left-radius: 10px;
+}
+
+.portal-master-content .rental-income-table tbody tr.rental-income-row td:last-child {
+    border-right: 4px solid transparent;
+    border-top-right-radius: 10px;
+    border-bottom-right-radius: 10px;
+}
+
+.portal-master-content .rental-income-table tbody tr.rental-income-status-unpaid td {
+    background-color: #ffffff;
+    border-color: #e2e8f0;
+    color: #0f172a;
+}
+
+.portal-master-content .rental-income-table tbody tr.rental-income-status-temporary td {
+    background-color: #ffffff;
+    border-color: #facc15;
+    color: #0f172a;
+}
+
+.portal-master-content .rental-income-table tbody tr.rental-income-status-paid td {
+    background-color: #ffffff;
+    border-color: #4ade80;
+    color: #0f172a;
+}
+
+.portal-master-content .rental-income-table tbody tr.rental-income-status-overdue td {
+    background-color: #ffffff;
+    border-color: #dc2626;
+    color: #0f172a;
+}
+
+.portal-master-content .rental-income-table tbody tr.rental-income-row .rental-income-inline-field {
+    background-color: #ffffff;
+    border-color: #cbd5e1;
+    color: #0f172a;
+}
+
+.portal-master-content .rental-income-contract-period {
+    margin-top: 20px;
+    padding: 14px 16px;
+    background: #fffbeb;
+    border: 1px solid #fcd34d;
+    border-radius: 8px;
+}
+
+.portal-master-content .rental-income-contract-period__title {
+    margin: 0 0 8px;
+    font-size: 15px;
+    font-weight: 600;
+    color: #92400e;
+}
+
+.portal-master-content .rental-income-contract-period__badge {
+    display: inline-block;
+    margin-left: 6px;
+    padding: 1px 6px;
+    border-radius: 4px;
+    background: #fef3c7;
+    font-size: 11px;
+    font-weight: 600;
+    color: #b45309;
+    vertical-align: middle;
+}
+
+.portal-master-content .rental-income-contract-period__hint {
+    margin: 0 0 12px;
+    font-size: 12px;
+    color: #78350f;
+}
+
+.portal-master-content .rental-income-contract-period__dates {
+    align-items: end;
+}
+
+.portal-master-content .rental-income-contract-period__separator-wrap {
+    position: relative;
+}
+
+.portal-master-content .rental-income-contract-period__separator {
+    position: absolute;
+    left: -18px;
+    top: 34px;
+    font-size: 14px;
+    color: #92400e;
+    font-weight: 600;
+}
+
+/* (仮)物件データ — スプレッドシート風一覧 */
+.portal-master-content .deal-draft-sheet-wrapper {
+    background: #fff;
+    border: 1px solid #94a3b8;
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.portal-master-content .deal-draft-sheet-scroll {
+    max-height: calc(100vh - 220px);
+    overflow: auto;
+}
+
+.portal-master-content .deal-draft-sheet {
+    width: max-content;
+    border-collapse: collapse;
+    font-size: 12px;
+    line-height: 1.4;
+    table-layout: auto;
+}
+
+.portal-master-content .deal-draft-sheet th,
+.portal-master-content .deal-draft-sheet td {
+    border: 1px solid #d1d5db;
+    padding: 5px 10px;
+    vertical-align: middle;
+    text-align: left;
+}
+
+.portal-master-content .deal-draft-sheet__label-col {
+    position: sticky;
+    left: 0;
+    z-index: 2;
+    width: 200px;
+    background: #f8fafc;
+    font-weight: 600;
+    color: #334155;
+    white-space: normal;
+    box-shadow: 2px 0 4px rgba(15, 23, 42, 0.06);
+}
+
+.portal-master-content .deal-draft-sheet thead th {
+    position: sticky;
+    top: 0;
+    z-index: 3;
+}
+
+.portal-master-content .deal-draft-sheet thead .deal-draft-sheet__label-col {
+    z-index: 5;
+    background: #e2e8f0;
+}
+
+.portal-master-content .deal-draft-sheet__label-col.is-indent {
+    padding-left: 20px;
+    font-weight: 500;
+    color: #475569;
+}
+
+.portal-master-content .deal-draft-sheet__case-col {
+    width: 1%;
+    white-space: nowrap;
+    background: #fff;
+    color: #0f172a;
+    padding-left: 12px;
+    padding-right: 16px;
+}
+
+.portal-master-content .deal-draft-sheet thead .deal-draft-sheet__case-col {
+    font-weight: 700;
+    background: #dbeafe;
+    color: #1e3a5f;
+}
+
+.portal-master-content .deal-draft-sheet__case-col.is-num {
+    font-variant-numeric: tabular-nums;
+}
+
+.portal-master-content .deal-draft-sheet__data-row:nth-child(even of .deal-draft-sheet__data-row) .deal-draft-sheet__case-col {
+    background: #fafafa;
+}
+
+.portal-master-content .deal-draft-sheet__group-row th,
+.portal-master-content .deal-draft-sheet__group-row td {
+    background: #e8edf2;
+    border-top: 2px solid #94a3b8;
+    font-weight: 700;
+    color: #1e293b;
+}
+
+.portal-master-content .deal-draft-sheet__group-row .deal-draft-sheet__case-col {
+    background: #e8edf2;
+}
+
+.portal-master-content .deal-draft-sheet__highlight-cost th,
+.portal-master-content .deal-draft-sheet__highlight-cost td {
+    background: #ffedd5;
+}
+
+.portal-master-content .deal-draft-sheet__highlight-cost .deal-draft-sheet__label-col {
+    background: #fed7aa;
+}
+
+.portal-master-content .deal-draft-sheet__highlight-price th,
+.portal-master-content .deal-draft-sheet__highlight-price td {
+    background: #dbeafe;
+}
+
+.portal-master-content .deal-draft-sheet__highlight-price .deal-draft-sheet__label-col {
+    background: #bfdbfe;
+}
+
+.portal-master-content .deal-draft-sheet__status {
+    display: inline-block;
+    padding: 2px 8px;
+    border: 1px solid #cbd5e1;
+    border-radius: 4px;
+    background: #fff;
+    font-size: 11px;
+    white-space: nowrap;
+}
+
+.portal-master-content .deal-draft-sheet__case-header {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+}
+
+.portal-master-content .deal-draft-sheet__edit-link {
+    font-size: 11px;
+    font-weight: 500;
+    color: #5383c3;
+    text-decoration: none;
+}
+
+.portal-master-content .deal-draft-sheet__edit-link:hover {
+    text-decoration: underline;
+}
+
+.portal-master-content .deal-draft-sheet__case-col.is-inline-select {
+    padding: 4px 6px;
+    text-align: left;
+    white-space: nowrap;
+}
+
+.portal-master-content .deal-draft-inline-field {
+    width: 100%;
+    min-width: 108px;
+    max-width: 140px;
+    padding: 4px 6px;
+    border: 1px solid #cbd5e1;
+    border-radius: 4px;
+    background: #fff;
+    font-size: 12px;
+    color: #0f172a;
+}
+
+.portal-master-content .deal-draft-inline-field:focus {
+    outline: none;
+    border-color: #5383c3;
+    box-shadow: 0 0 0 2px rgba(83, 131, 195, 0.15);
+}
+
+.portal-master-content .deal-draft-inline-field:disabled {
+    opacity: 0.6;
+    cursor: wait;
+}
+
+.portal-master-content .deal-draft-form__group-title {
+    margin: 20px 0 10px;
+    padding-bottom: 6px;
+    border-bottom: 2px solid #94a3b8;
+    font-size: 14px;
+    font-weight: 700;
+    color: #1e293b;
+}
+
+.portal-master-content .deal-draft-form__group-title:first-child {
+    margin-top: 0;
+}
+
+.portal-master-content .deal-draft-group-subtitle {
+    margin-left: 4px;
+    font-size: 12px;
+    font-weight: 500;
+    color: #64748b;
+}
+
+.portal-master-content .deal-draft-computed-note {
+    margin: 4px 0 0;
+    font-size: 11px;
+    color: #64748b;
+}
+
+.portal-master-content .deal-draft-computed-value {
+    font-size: 15px;
+    font-weight: 600;
+    color: #0f172a;
+    font-variant-numeric: tabular-nums;
+}
+
+.portal-master-content .deal-draft-form__field--computed .deal-draft-computed-value {
+    padding: 8px 10px;
+    background: #f8fafc;
+    border: 1px dashed #cbd5e1;
+    border-radius: 6px;
+}
+
+.portal-master-content .deal-draft-computed-badge {
+    margin-left: 6px;
+    padding: 1px 6px;
+    border-radius: 999px;
+    background: #e2e8f0;
+    font-size: 10px;
+    font-weight: 600;
+    color: #475569;
+    vertical-align: middle;
+}
+
+.portal-master-content .deal-draft-computed-cell {
+    font-weight: 600;
+}
+
+.portal-master-content .deal-draft-form {
+    max-width: 640px;
+}
+
+.portal-master-content .deal-draft-form__field--indent label {
+    padding-left: 12px;
+}
+
+.portal-master-content .deal-draft-form__field--cost {
+    background: #fff7ed;
+    padding: 10px 12px;
+    border-radius: 8px;
+}
+
+.portal-master-content .deal-draft-form__field--price {
+    background: #eff6ff;
+    padding: 10px 12px;
+    border-radius: 8px;
+}
+
+.portal-master-content .deal-draft-ad-fees-form {
+    margin: 0 0 16px;
+    padding: 12px 14px;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+}
+
+.portal-master-content .deal-draft-ad-fees-form__hint {
+    margin: 0 0 12px;
+    font-size: 12px;
+    color: #64748b;
+}
+
+.portal-master-content .deal-draft-ad-fees-form__list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 12px;
+}
+
+.portal-master-content .deal-draft-ad-fee-form-row {
+    display: grid;
+    grid-template-columns: 1fr 160px auto;
+    gap: 10px;
+    align-items: end;
+}
+
+.portal-master-content .deal-draft-ad-fee-form-row__remove {
+    margin-bottom: 2px;
+}
+
+.portal-master-content .deal-draft-sheet__case-col.is-ad-fees {
+    vertical-align: top;
+    padding: 8px;
+    white-space: normal;
+    min-width: 220px;
+}
+
+.portal-master-content .deal-draft-sheet__documents-row .deal-draft-sheet__label-col {
+    border-top: 2px solid #94a3b8;
+}
+
+.portal-master-content .deal-draft-sheet__case-col.is-documents {
+    white-space: normal;
+    padding: 8px 12px;
+}
+
+.portal-master-content .deal-draft-documents-link {
+    white-space: nowrap;
+}
+
+.portal-master-content .deal-draft-form__documents {
+    margin: 8px 0 16px;
+    padding: 12px 14px;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.portal-master-content .deal-draft-form__documents .deal-draft-form__group-title {
+    margin: 0;
+}
+
+.portal-master-content .deal-draft-ad-fees-cell__list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 8px;
+}
+
+.portal-master-content .deal-draft-ad-fees-cell__hint {
+    margin: 0 0 6px;
+    font-size: 11px;
+    color: #64748b;
+}
+
+.portal-master-content .deal-draft-ad-fee-item {
+    display: grid;
+    grid-template-columns: 1fr 96px auto;
+    gap: 6px;
+    align-items: center;
+}
+
+.portal-master-content .deal-draft-ad-fee-name,
+.portal-master-content .deal-draft-ad-fee-amount {
+    width: 100%;
+    padding: 4px 6px;
+    border: 1px solid #cbd5e1;
+    border-radius: 4px;
+    font-size: 12px;
+    background: #fff;
+}
+
+.portal-master-content .deal-draft-ad-fee-name:focus,
+.portal-master-content .deal-draft-ad-fee-amount:focus {
+    outline: none;
+    border-color: #5383c3;
+    box-shadow: 0 0 0 2px rgba(83, 131, 195, 0.15);
+}
+
+@media (max-width: 640px) {
+    .portal-master-content .deal-draft-ad-fee-form-row {
+        grid-template-columns: 1fr;
+    }
+
+    .portal-master-content .deal-draft-ad-fee-item {
+        grid-template-columns: 1fr;
     }
 }

@@ -1,11 +1,6 @@
 @php
     use App\Http\Middleware\CareEarthAuth;
 
-    $section = match (true) {
-        request()->routeIs('users.*', 'properties.index', 'properties.show', 'properties.edit') => 'admin',
-        request()->routeIs('admin.*') => 'rental',
-        default => 'master',
-    };
     $variant = $variant ?? 'app';
     $menuId = 'portal-menu-' . $variant;
     $isAdmin = CareEarthAuth::isAdmin(request());
@@ -50,11 +45,6 @@
             >ユーザー管理</a>
         </div>
         @endif
-        <a
-            href="{{ route('admin.applications.index') }}"
-            role="menuitem"
-            @class(['portal-menu-item', 'active' => $section === 'rental'])
-        >賃貸管理画面</a>
     </div>
 </div>
 

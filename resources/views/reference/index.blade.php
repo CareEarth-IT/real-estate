@@ -68,11 +68,11 @@
         $docCount = $propertyService->countDocuments($p);
         $property = $p;
     @endphp
-    <section class="detail-section reference-doc-block" data-reference-doc-block>
+    <section class="detail-section reference-doc-block is-collapsed" data-reference-doc-block>
         <button
             type="button"
             class="reference-doc-header reference-doc-toggle"
-            aria-expanded="true"
+            aria-expanded="false"
             aria-controls="reference-doc-body-{{ $p->id }}"
         >
             <div class="reference-doc-header-main">

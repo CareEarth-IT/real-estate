@@ -21,6 +21,22 @@
         #3E6492 50%,
         #3E6492 100%
     );
+    --color-portal-header-gradient: linear-gradient(
+        to right,
+        #fff7ed 0%,
+        #ffedd5 3%,
+        #fed7aa 6%,
+        #fdba74 10%,
+        #fb923c 14%,
+        #f97316 19%,
+        #ea580c 25%,
+        #e85d04 30%,
+        #dc4f0a 36%,
+        #d4460d 41%,
+        #c2410c 46%,
+        #c2410c 50%,
+        #c2410c 100%
+    );
     --color-accent: #64748b;
     --color-bg: #f8fafc;
     --color-surface: #ffffff;

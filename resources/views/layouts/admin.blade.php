@@ -261,6 +261,15 @@
             box-shadow: 0 2px 6px rgba(15, 23, 42, 0.08);
         }
 
+        .admin-header--portal {
+            background: var(--color-portal-header-gradient);
+        }
+
+        .admin-header--portal .header-action-link:hover,
+        .admin-header--portal button[type="submit"].header-action-btn:hover {
+            color: #c2410c;
+        }
+
         .admin-header .header-action-link,
         .admin-header button[type="submit"].header-action-btn {
             border: 2px solid rgba(255, 255, 255, 0.7);
@@ -315,7 +324,10 @@
     </div>
     @endif
 
-    <header class="admin-header">
+    <header @class([
+        'admin-header',
+        'admin-header--portal' => request()->routeIs('properties.*', 'reference.*', 'users.*', 'property.rental-income.*', 'property.deal-drafts.*'),
+    ])>
         <div class="flex items-center justify-between gap-4 px-6 py-3">
             <a href="{{ route('properties.index') }}">
                 <img
@@ -325,50 +337,19 @@
                 >
             </a>
             <div class="flex items-center gap-3 flex-wrap justify-end">
-                @if (session('authenticated') || Auth::check())
-                    <a
-                        href="{{ route('applications.create') }}"
-                        target="_blank"
-                        rel="noopener"
-                        class="header-action-link rounded-lg px-4 py-1.5 text-sm font-semibold transition-colors"
-                    >
-                        賃貸申込フォーム ↗
-                    </a>
+                @if (session('authenticated'))
                     <x-portal-menu variant="admin" />
-                    @if (session('authenticated') && ! Auth::check())
-                        <form method="POST" action="{{ route('logout') }}">
-                            @csrf
-                            <button
-                                type="submit"
-                                class="header-action-btn rounded-lg px-4 py-1.5 text-sm font-semibold transition-colors"
-                            >
-                                ログアウト
-                            </button>
-                        </form>
-                    @elseif (Auth::check())
-                        <form method="POST" action="{{ route('admin.logout') }}">
-                            @csrf
-                            <button
-                                type="submit"
-                                class="header-action-btn rounded-lg px-4 py-1.5 text-sm font-semibold transition-colors"
-                            >
-                                ログアウト
-                            </button>
-                        </form>
-                    @endif
                 @endif
             </div>
         </div>
     </header>
 
     <div class="admin-layout-body flex flex-1 min-h-[calc(100vh-var(--admin-header-height,72px))]">
-        @if (request()->routeIs('properties.*', 'reference.*', 'users.*', 'property.rental-income.*'))
+        @if (request()->routeIs('properties.*', 'reference.*', 'users.*', 'property.rental-income.*', 'property.deal-drafts.*'))
             <x-portal-sidebar />
-        @elseif (request()->routeIs('admin.*'))
-            <x-rental-sidebar />
         @endif
 
-        <main id="admin-main-content" class="admin-main-content {{ $adminPageLoaderEnabled ? '' : 'is-visible' }} flex-1 p-8 overflow-x-auto {{ request()->routeIs('admin.*') ? '' : 'portal-master-content' }}">
+        <main id="admin-main-content" class="admin-main-content {{ $adminPageLoaderEnabled ? '' : 'is-visible' }} flex-1 p-8 overflow-x-auto portal-master-content">
             @if (session('success'))
                 <div class="mb-6 rounded-lg bg-green-50 border border-green-200 px-4 py-3 text-green-800 text-sm">{{ session('success') }}</div>
             @endif

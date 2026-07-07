@@ -4,6 +4,10 @@
 
 @php
     use App\Support\Format;
+
+    $propertyStickyColumnKeys = ['id', 'created_at', 'sales_person'];
+    $propertyStickyColumnCount = count($propertyStickyColumnKeys);
+    $isPropertyStickyColumn = static fn (string $key): bool => in_array($key, $propertyStickyColumnKeys, true);
 @endphp
 
 @section('content')
@@ -49,21 +53,38 @@
 @else
 
 <div class="table-wrapper">
-    <table class="data-table" id="propertyTable">
-        <thead>
-            <tr>
-                @foreach($listColumns as $col)
-                <th data-col="{{ $col['key'] }}" class="{{ $col['thClass'] ?? '' }}">
-                    {{ $col['label'] }}
-                </th>
-                @endforeach
-            </tr>
-        </thead>
-        <tbody>
-            @foreach($properties as $p)
-            <tr>
-                @foreach($listColumns as $col)
-                <td data-col="{{ $col['key'] }}" class="{{ $col['tdClass'] ?? '' }}">
+    <div class="admin-table-scroll overflow-x-auto">
+        <table class="data-table admin-table-sticky" id="propertyTable" data-sticky-cols="{{ $propertyStickyColumnCount }}">
+            <thead>
+                <tr>
+                    @foreach($listColumns as $col)
+                    <th
+                        data-col="{{ $col['key'] }}"
+                        @class([
+                            $col['thClass'] ?? null,
+                            'sticky-col' => $isPropertyStickyColumn($col['key']),
+                            'sticky-col-last' => $col['key'] === 'sales_person',
+                            'whitespace-nowrap' => $isPropertyStickyColumn($col['key']),
+                        ])
+                    >
+                        {{ $col['label'] }}
+                    </th>
+                    @endforeach
+                </tr>
+            </thead>
+            <tbody>
+                @foreach($properties as $p)
+                <tr>
+                    @foreach($listColumns as $col)
+                    <td
+                        data-col="{{ $col['key'] }}"
+                        @class([
+                            $col['tdClass'] ?? null,
+                            'sticky-col' => $isPropertyStickyColumn($col['key']),
+                            'sticky-col-last' => $col['key'] === 'sales_person',
+                            'whitespace-nowrap' => $isPropertyStickyColumn($col['key']),
+                        ])
+                    >
                     @php $id = (int) $p->id; @endphp
                     @switch($col['key'])
                         @case('id')
@@ -123,6 +144,7 @@
             @endforeach
         </tbody>
     </table>
+    </div>
 </div>
 
 <script>
@@ -170,6 +192,7 @@
             if (!visible) hidden.push(cb.value);
         });
         saveHidden(hidden);
+        window.refreshAdminStickyColumns?.();
     }
 
     function applyFromStorage() {
@@ -179,6 +202,7 @@
             cb.checked = visible;
             setColumnVisible(cb.value, visible);
         });
+        window.refreshAdminStickyColumns?.();
     }
 
     toggleBtn.addEventListener('click', function (e) {

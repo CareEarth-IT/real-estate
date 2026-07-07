@@ -20,6 +20,12 @@
             >
                 物件売買登録
             </a>
+            <a
+                href="{{ route('property.deal-drafts.index') }}"
+                class="admin-nav-link block rounded-lg px-3 py-2 text-sm font-medium {{ request()->routeIs('property.deal-drafts.*') ? 'is-active' : '' }}"
+            >
+                (仮)物件データ
+            </a>
         </nav>
     </div>
 
@@ -28,9 +34,15 @@
         <nav class="space-y-1">
             <a
                 href="{{ route('property.rental-income.index') }}"
-                class="admin-nav-link block rounded-lg px-3 py-2 text-sm font-medium {{ request()->routeIs('property.rental-income.*') ? 'is-active' : '' }}"
+                class="admin-nav-link block rounded-lg px-3 py-2 text-sm font-medium {{ request()->routeIs('property.rental-income.index', 'property.rental-income.create', 'property.rental-income.edit') ? 'is-active' : '' }}"
             >
                 家賃収入データ
+            </a>
+            <a
+                href="{{ route('property.rental-income.all') }}"
+                class="admin-nav-link block rounded-lg px-3 py-2 text-sm font-medium {{ request()->routeIs('property.rental-income.all') ? 'is-active' : '' }}"
+            >
+                全家賃収入データ一覧
             </a>
         </nav>
     </div>
