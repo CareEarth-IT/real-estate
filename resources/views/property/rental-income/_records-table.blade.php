@@ -95,7 +95,7 @@
                                     method="post"
                                     action="{{ route('property.rental-income.destroy', $record) }}"
                                     class="inline"
-                                    onsubmit="return confirm('この家賃収入データを削除しますか？');"
+                                    onsubmit="return confirm('この月別家賃収入データを削除しますか？');"
                                 >
                                     @csrf
                                     @method('DELETE')

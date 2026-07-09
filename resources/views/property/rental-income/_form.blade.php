@@ -16,7 +16,7 @@
 
     <section class="form-section form-section-clean">
         <div class="mb-4 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-            <h2 class="section-label mb-0 border-0 pb-0">家賃収入データ</h2>
+            <h2 class="section-label mb-0 border-0 pb-0">月別家賃収入データ</h2>
             <p class="text-sm text-slate-500">
                 支払日の年月で一覧の月に振り分けられます
             </p>

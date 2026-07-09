@@ -29,6 +29,7 @@ Route::middleware('careearth.auth')->group(function () {
     Route::delete('property/deal-drafts/{propertyDealDraft}/ad-fees/{adFee}', [PropertyDealDraftController::class, 'destroyAdFee'])->name('property.deal-drafts.ad-fees.destroy');
     Route::get('property/rental-income', [PropertyRentalIncomeController::class, 'index'])->name('property.rental-income.index');
     Route::get('property/rental-income/all', [PropertyRentalIncomeController::class, 'all'])->name('property.rental-income.all');
+    Route::get('property/rental-income/contract', [PropertyRentalIncomeController::class, 'showContract'])->name('property.rental-income.contract.show');
     Route::get('property/rental-income/create', [PropertyRentalIncomeController::class, 'create'])->name('property.rental-income.create');
     Route::post('property/rental-income', [PropertyRentalIncomeController::class, 'store'])->name('property.rental-income.store');
     Route::get('property/rental-income/{propertyRentalIncome}/edit', [PropertyRentalIncomeController::class, 'edit'])->name('property.rental-income.edit');

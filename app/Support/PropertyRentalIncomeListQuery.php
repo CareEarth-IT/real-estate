@@ -68,6 +68,11 @@ final class PropertyRentalIncomeListQuery
 
     private static function resolvePaymentStatusFilter(Request $request): ?string
     {
+        return self::paymentStatusFromRequest($request);
+    }
+
+    public static function paymentStatusFromRequest(Request $request): ?string
+    {
         $value = (string) $request->query('payment_status', '');
 
         if ($value === '') {

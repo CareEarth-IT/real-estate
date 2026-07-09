@@ -36,7 +36,7 @@
                 href="{{ route('property.rental-income.index') }}"
                 class="admin-nav-link block rounded-lg px-3 py-2 text-sm font-medium {{ request()->routeIs('property.rental-income.index', 'property.rental-income.create', 'property.rental-income.edit') ? 'is-active' : '' }}"
             >
-                家賃収入データ
+                月別家賃収入データ
             </a>
             <a
                 href="{{ route('property.rental-income.all') }}"

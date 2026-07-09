@@ -30,9 +30,18 @@
         hidden
         data-portal-menu-panel
     >
+        <div class="portal-menu-group" role="presentation">
+            <p class="portal-menu-group-label">賃貸管理情報</p>
+            <a
+                href="{{ route('admin.applications.index') }}"
+                role="menuitem"
+                @class(['portal-menu-item', 'active' => request()->routeIs('admin.applications.*', 'admin.flow-managements.*', 'admin.settlement-managements.*')])
+            >賃貸管理一覧</a>
+        </div>
+
         @if ($isAdmin)
         <div class="portal-menu-group" role="presentation">
-            <p class="portal-menu-group-label">管理者メニュー</p>
+            <p class="portal-menu-group-label">物件一覧メニュー</p>
             <a
                 href="{{ route('properties.index') }}"
                 role="menuitem"
