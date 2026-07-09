@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\PropertyRentalIncome;
+use App\Support\PropertyRentalIncomeAllDisplay;
+use App\Support\PropertyRentalIncomeContract;
 use App\Support\PropertyRentalIncomeContractPeriod;
 use App\Support\PropertyRentalIncomeListQuery;
 use App\Support\PropertyRentalIncomeMonths;
@@ -20,14 +22,15 @@ class PropertyRentalIncomeController extends Controller
     {
         $requestedMonth = (int) $request->query('month');
         $activePaymentMonth = $this->resolveActivePaymentMonth($requestedMonth);
-        $paymentMonthTabs = PropertyRentalIncomeMonths::visibleTabs($activePaymentMonth);
+        $paymentMonthOptions = PropertyRentalIncomeMonths::pickerMonths($activePaymentMonth);
         $list = PropertyRentalIncomeListQuery::resolve($request, $activePaymentMonth);
 
         return view('property.rental-income.index', [
             ...$list,
+            'contractBlocks' => PropertyRentalIncomeContract::blocksFromMonthRecords($list['records']),
             'paymentMethodLabels' => config('property-rental-income.payment_methods', []),
             'paymentStatusLabels' => config('property-rental-income.payment_statuses', []),
-            'paymentMonthTabs' => $paymentMonthTabs,
+            'paymentMonthOptions' => $paymentMonthOptions,
             'activePaymentMonth' => $activePaymentMonth,
             'listRoute' => 'property.rental-income.index',
             'listParams' => array_filter([
@@ -40,28 +43,63 @@ class PropertyRentalIncomeController extends Controller
 
     public function all(Request $request): View
     {
-        $list = PropertyRentalIncomeListQuery::resolve($request);
+        $search = trim((string) $request->query('search', ''));
+        $paymentStatus = PropertyRentalIncomeListQuery::paymentStatusFromRequest($request);
+        $display = PropertyRentalIncomeAllDisplay::resolve($search, $paymentStatus);
 
         return view('property.rental-income.all', [
-            ...$list,
+            'contractBlocks' => $display['contractBlocks'],
+            'upcomingPaymentCount' => $display['upcomingPaymentCount'],
+            'displayMonth' => $display['displayMonth'],
+            'referenceDate' => $display['referenceDate'],
+            'search' => $search,
+            'paymentStatus' => $paymentStatus,
             'paymentMethodLabels' => config('property-rental-income.payment_methods', []),
             'paymentStatusLabels' => config('property-rental-income.payment_statuses', []),
             'listRoute' => 'property.rental-income.all',
             'listParams' => array_filter([
-                'search' => $list['search'] !== '' ? $list['search'] : null,
-                'payment_status' => $list['paymentStatus'],
-                'sort' => self::activeSortParam($list['sort']),
-                'direction' => self::activeSortParam($list['sort']) ? $list['sortDirection'] : null,
+                'search' => $search !== '' ? $search : null,
+                'payment_status' => $paymentStatus,
             ]),
-            'sortableColumns' => config('property-rental-income.all_sortable_columns', []),
         ]);
     }
 
-    private static function activeSortParam(string $sort): ?string
+    public function showContract(Request $request): View
     {
-        $allowed = array_keys(config('property-rental-income.all_sortable_columns', []));
+        $contractKey = trim((string) $request->query('contract', ''));
 
-        return in_array($sort, $allowed, true) ? $sort : null;
+        if ($contractKey === '') {
+            abort(404);
+        }
+
+        $records = PropertyRentalIncomeContract::recordsForContract(
+            $contractKey,
+            $request->query('contractor'),
+            $request->query('property_name'),
+        );
+
+        if ($records->isEmpty()) {
+            abort(404);
+        }
+
+        $period = PropertyRentalIncomeContract::resolvePeriodForRecords($records);
+        $representative = $records->first();
+        $requestedMonth = (int) $request->query('month');
+        $returnMonth = YearMonth::isValid($requestedMonth)
+            ? $requestedMonth
+            : ($representative->payment_month ?? (int) now()->format('Ym'));
+
+        return view('property.rental-income.show', [
+            'contractKey' => $contractKey,
+            'records' => $records,
+            'representative' => $representative,
+            'contractStartOn' => $period['start'],
+            'contractEndOn' => $period['end'],
+            'contractPeriodLabel' => PropertyRentalIncomeContract::formatContractPeriodLabel($period),
+            'returnMonth' => $returnMonth,
+            'paymentMethodLabels' => config('property-rental-income.payment_methods', []),
+            'paymentStatusLabels' => config('property-rental-income.payment_statuses', []),
+        ]);
     }
 
     public function create(Request $request): View
@@ -99,7 +137,7 @@ class PropertyRentalIncomeController extends Controller
 
         return redirect()
             ->route('property.rental-income.index', ['month' => $record->payment_month])
-            ->with('success', '家賃収入データを登録しました。');
+            ->with('success', '月別家賃収入データを登録しました。');
     }
 
     public function edit(PropertyRentalIncome $propertyRentalIncome): View
@@ -123,7 +161,7 @@ class PropertyRentalIncomeController extends Controller
 
         return redirect()
             ->route('property.rental-income.index', ['month' => $propertyRentalIncome->payment_month])
-            ->with('success', '家賃収入データを更新しました。');
+            ->with('success', '月別家賃収入データを更新しました。');
     }
 
     public function updateField(Request $request, PropertyRentalIncome $propertyRentalIncome): JsonResponse
@@ -190,7 +228,7 @@ class PropertyRentalIncomeController extends Controller
         $redirect = $request->input('redirect');
 
         if (is_string($redirect) && str_starts_with($redirect, url('/'))) {
-            return redirect($redirect)->with('success', '家賃収入データを削除しました。');
+            return redirect($redirect)->with('success', '月別家賃収入データを削除しました。');
         }
 
         $redirectMonth = PropertyRentalIncomeMonths::exists($paymentMonth)
@@ -202,7 +240,7 @@ class PropertyRentalIncomeController extends Controller
             ->route('property.rental-income.index', array_filter([
                 'month' => $redirectMonth,
             ]))
-            ->with('success', '家賃収入データを削除しました。');
+            ->with('success', '月別家賃収入データを削除しました。');
     }
 
     private function resolveActivePaymentMonth(int $requestedMonth): int
@@ -321,6 +359,12 @@ class PropertyRentalIncomeController extends Controller
                 $contractStart,
                 $paymentMonth,
             );
+            $attributes['contract_start_on'] = $contractStart;
+            $attributes['contract_end_on'] = $contractEnd;
+            $attributes['contract_key'] = PropertyRentalIncomeContract::key(
+                $attributes['contractor'] ?? null,
+                $attributes['property_name'] ?? null,
+            );
 
             PropertyRentalIncomeMonths::ensure($paymentMonth);
             PropertyRentalIncome::query()->create($attributes);
@@ -329,6 +373,6 @@ class PropertyRentalIncomeController extends Controller
 
         return redirect()
             ->route('property.rental-income.index', ['month' => $firstMonth])
-            ->with('success', count($months).'件の家賃収入データを登録しました。（契約期限一括登録）');
+            ->with('success', count($months).'件の月別家賃収入データを登録しました。（契約期限一括登録）');
     }
 }

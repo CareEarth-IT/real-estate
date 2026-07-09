@@ -43,7 +43,7 @@ class UserService
 
         $user = new CareEarthUser([
             'email' => $email,
-            'role' => $role,
+            'role' => Role::normalize($role),
         ]);
         $user->setPassword($password);
         $user->save();
@@ -53,15 +53,11 @@ class UserService
 
     public function updateRole(CareEarthUser $user, string $role): void
     {
-        if (Role::isAdmin($user->role)) {
-            throw new RuntimeException('管理者ロールは変更できません。');
-        }
-
         if (! Role::isAssignable($role)) {
             throw new RuntimeException('ロールが正しくありません。');
         }
 
-        $user->update(['role' => $role]);
+        $user->update(['role' => Role::normalize($role)]);
     }
 
     public function updatePassword(CareEarthUser $user, string $password): void

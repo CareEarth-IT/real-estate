@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use App\Support\Role;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
@@ -97,7 +98,7 @@ class ImportLegacyDataCommand extends Command
                     ['email' => $row->email],
                     [
                         'password_hash' => $row->password_hash,
-                        'role' => $row->role ?? 'fudosan',
+                        'role' => Role::normalize($row->role ?? Role::EDITOR),
                         'created_at' => $row->created_at ?? now(),
                         'updated_at' => $row->updated_at ?? now(),
                     ],

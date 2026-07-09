@@ -17,5 +17,18 @@
     <div class="alert alert-error mb-6">{{ $errors->first() }}</div>
 @endif
 
-@include('property.deal-drafts._form')
+@if ($isEdit)
+    <div class="deal-draft-edit-layout">
+        <div class="deal-draft-edit-layout__form">
+            @include('property.deal-drafts._form')
+        </div>
+        @include('property.deal-drafts._preview-panel')
+    </div>
+
+    @push('scripts')
+        @include('property.deal-drafts._preview-scripts')
+    @endpush
+@else
+    @include('property.deal-drafts._form')
+@endif
 @endsection

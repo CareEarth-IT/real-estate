@@ -35,8 +35,10 @@
     <div class="mode-tabs">
         <a href="{{ route('properties.show', array_filter(['property' => $property, 'from' => $fromReference ? 'reference' : null])) }}"
            class="mode-tab {{ !$isEdit ? 'active' : '' }}">閲覧</a>
+        @if ($canEditProperty ?? false)
         <a href="{{ route('properties.edit', array_filter(['property' => $property, 'from' => $fromReference ? 'reference' : null])) }}"
            class="mode-tab {{ $isEdit ? 'active' : '' }}">編集</a>
+        @endif
     </div>
 </div>
 

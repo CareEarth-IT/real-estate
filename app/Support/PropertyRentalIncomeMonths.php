@@ -41,6 +41,41 @@ final class PropertyRentalIncomeMonths
         return $months;
     }
 
+    /**
+     * 支払い月プルダウン用の候補月（表示タブ・登録済み月・データがある月を統合）。
+     *
+     * @return list<int>
+     */
+    public static function pickerMonths(int $activePaymentMonth): array
+    {
+        if (! YearMonth::isValid($activePaymentMonth)) {
+            $activePaymentMonth = (int) now()->format('Ym');
+        }
+
+        $months = collect(self::visibleTabs($activePaymentMonth));
+
+        $registered = PropertyRentalIncomeMonth::query()
+            ->orderByDesc('payment_month')
+            ->pluck('payment_month');
+
+        $fromData = PropertyRentalIncome::query()
+            ->whereNotNull('payment_month')
+            ->distinct()
+            ->orderByDesc('payment_month')
+            ->pluck('payment_month');
+
+        return $months
+            ->merge($registered)
+            ->merge($fromData)
+            ->push($activePaymentMonth)
+            ->map(static fn ($month): int => (int) $month)
+            ->filter(static fn (int $month): bool => YearMonth::isValid($month))
+            ->unique()
+            ->sort()
+            ->values()
+            ->all();
+    }
+
     public static function latestPaymentMonthWithData(): ?int
     {
         $latest = PropertyRentalIncome::query()

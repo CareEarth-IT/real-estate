@@ -38,7 +38,7 @@ class CareEarthAuth
             'authenticated' => true,
             'user_id' => $user->id,
             'email' => $user->email,
-            'role' => $user->role,
+            'role' => Role::normalize($user->role),
             'login_time' => time(),
         ]);
 
@@ -70,7 +70,7 @@ class CareEarthAuth
 
         $session->put([
             'email' => $user->email,
-            'role' => $user->role,
+            'role' => Role::normalize($user->role),
         ]);
 
         return $session->get('authenticated') === true;
@@ -91,7 +91,7 @@ class CareEarthAuth
             'authenticated' => true,
             'user_id' => $user->id,
             'email' => $user->email,
-            'role' => $user->role,
+            'role' => Role::normalize($user->role),
             'login_time' => time(),
         ]);
 
@@ -110,19 +110,38 @@ class CareEarthAuth
             return null;
         }
 
-        return $request->session()->get('role');
+        $role = $request->session()->get('role');
+
+        return is_string($role) ? Role::normalize($role) : null;
     }
 
-    public static function isKeiri(Request $request): bool
+    public static function canEdit(Request $request): bool
     {
         $role = self::currentRole($request);
 
-        return $role === Role::KEIRI || $role === Role::ADMIN;
+        return $role !== null && Role::canEdit($role);
     }
 
+    public static function canManageUsers(Request $request): bool
+    {
+        $role = self::currentRole($request);
+
+        return $role !== null && Role::canManageUsers($role);
+    }
+
+    public static function canAccessPropertyMaster(Request $request): bool
+    {
+        $role = self::currentRole($request);
+
+        return $role !== null && Role::canAccessPropertyMaster($role);
+    }
+
+    /** 管理者ロールか（開発用） */
     public static function isAdmin(Request $request): bool
     {
-        return self::currentRole($request) === Role::ADMIN;
+        $role = self::currentRole($request);
+
+        return $role !== null && Role::isAdmin($role);
     }
 
     public static function currentUserId(Request $request): ?int

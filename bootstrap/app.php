@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Middleware\CareEarthAuth;
+use App\Http\Middleware\EnsureCanEdit;
 use App\Http\Middleware\EnsureCareEarthAdmin;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
@@ -17,6 +18,7 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->alias([
             'careearth.auth' => CareEarthAuth::class,
             'careearth.admin' => EnsureCareEarthAdmin::class,
+            'careearth.edit' => EnsureCanEdit::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {

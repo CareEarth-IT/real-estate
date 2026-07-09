@@ -1,5 +1,27 @@
 <!DOCTYPE html>
-@php($adminPageLoaderEnabled = true)
+@php
+    use App\Http\Middleware\CareEarthAuth;
+
+    $adminPageLoaderEnabled = true;
+    $isRentalAdminPage = request()->routeIs(
+        'admin.applications.*',
+        'admin.flow-managements.*',
+        'admin.settlement-managements.*',
+    );
+    $isPortalPage = request()->routeIs(
+        'properties.*',
+        'reference.*',
+        'users.*',
+        'property.rental-income.*',
+        'property.deal-drafts.*',
+    );
+
+    if ($isRentalAdminPage && ! session('authenticated')) {
+        CareEarthAuth::ensureSession(request());
+    }
+
+    $showPortalMenu = session('authenticated');
+@endphp
 <html lang="ja" @class(['admin-loading' => $adminPageLoaderEnabled])>
 <head>
     <meta charset="utf-8">
@@ -326,10 +348,10 @@
 
     <header @class([
         'admin-header',
-        'admin-header--portal' => request()->routeIs('properties.*', 'reference.*', 'users.*', 'property.rental-income.*', 'property.deal-drafts.*'),
+        'admin-header--portal' => $isPortalPage,
     ])>
         <div class="flex items-center justify-between gap-4 px-6 py-3">
-            <a href="{{ route('properties.index') }}">
+            <a href="{{ $isRentalAdminPage ? route('admin.applications.index') : (($canAccessPropertyMaster ?? false) ? route('properties.index') : route('reference.index')) }}">
                 <img
                     src="{{ asset('images/care-earth-home-logo.png') }}"
                     alt="Care Earth Home"
@@ -337,7 +359,7 @@
                 >
             </a>
             <div class="flex items-center gap-3 flex-wrap justify-end">
-                @if (session('authenticated'))
+                @if ($showPortalMenu)
                     <x-portal-menu variant="admin" />
                 @endif
             </div>
@@ -345,11 +367,17 @@
     </header>
 
     <div class="admin-layout-body flex flex-1 min-h-[calc(100vh-var(--admin-header-height,72px))]">
-        @if (request()->routeIs('properties.*', 'reference.*', 'users.*', 'property.rental-income.*', 'property.deal-drafts.*'))
+        @if ($isPortalPage)
             <x-portal-sidebar />
+        @elseif ($isRentalAdminPage)
+            <x-rental-sidebar />
         @endif
 
-        <main id="admin-main-content" class="admin-main-content {{ $adminPageLoaderEnabled ? '' : 'is-visible' }} flex-1 p-8 overflow-x-auto portal-master-content">
+        <main id="admin-main-content" @class([
+            'admin-main-content flex-1 p-8 overflow-x-auto',
+            $adminPageLoaderEnabled ? '' : 'is-visible',
+            'portal-master-content' => $isPortalPage,
+        ])>
             @if (session('success'))
                 <div class="mb-6 rounded-lg bg-green-50 border border-green-200 px-4 py-3 text-green-800 text-sm">{{ session('success') }}</div>
             @endif

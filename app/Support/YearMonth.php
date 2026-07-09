@@ -98,6 +98,50 @@ final class YearMonth
         return sprintf('%d/%d', $year, $month);
     }
 
+    /**
+     * yy/mm・yyyy/mm などの短い表記から Ym 整数へ変換する。
+     */
+    public static function fromShortSearch(?string $value): ?int
+    {
+        if ($value === null || trim($value) === '') {
+            return null;
+        }
+
+        $trimmed = trim($value);
+
+        if (preg_match('/^(\d{2,4})[\/\-](\d{1,2})$/', $trimmed, $matches) === 1) {
+            $yearPart = (int) $matches[1];
+            $month = (int) $matches[2];
+            $year = $yearPart < 100 ? 2000 + $yearPart : $yearPart;
+
+            if ($month >= 1 && $month <= 12) {
+                return $year * 100 + $month;
+            }
+        }
+
+        $digits = preg_replace('/\D/', '', $trimmed) ?? '';
+
+        if (preg_match('/^(\d{4})(\d{1,2})$/', $digits, $matches) === 1) {
+            $year = (int) $matches[1];
+            $month = (int) $matches[2];
+
+            if ($month >= 1 && $month <= 12) {
+                return $year * 100 + $month;
+            }
+        }
+
+        if (preg_match('/^(\d{2})(\d{1,2})$/', $digits, $matches) === 1) {
+            $year = 2000 + (int) $matches[1];
+            $month = (int) $matches[2];
+
+            if ($month >= 1 && $month <= 12) {
+                return $year * 100 + $month;
+            }
+        }
+
+        return null;
+    }
+
     public static function isValid(?int $value): bool
     {
         if ($value === null || $value < 101) {
@@ -119,5 +163,29 @@ final class YearMonth
         $month = $value % 100;
 
         return (int) Carbon::create($year, $month, 1)->addMonths($months)->format('Ym');
+    }
+
+    public static function firstDay(int $value): string
+    {
+        if (! self::isValid($value)) {
+            return Carbon::today()->toDateString();
+        }
+
+        $year = intdiv($value, 100);
+        $month = $value % 100;
+
+        return Carbon::create($year, $month, 1)->toDateString();
+    }
+
+    public static function lastDay(int $value): string
+    {
+        if (! self::isValid($value)) {
+            return Carbon::today()->toDateString();
+        }
+
+        $year = intdiv($value, 100);
+        $month = $value % 100;
+
+        return Carbon::create($year, $month, 1)->endOfMonth()->toDateString();
     }
 }

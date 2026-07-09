@@ -58,10 +58,15 @@ class PropertyController extends Controller
     {
         $fromReference = $request->query('from') === 'reference';
 
+        if (! $fromReference && ! CareEarthAuth::canAccessPropertyMaster($request)) {
+            abort(403, 'このページを表示する権限がありません。');
+        }
+
         return view('properties.show', [
             'property' => $property,
             'fromReference' => $fromReference,
-            'showAccountingPrices' => ! $fromReference || CareEarthAuth::isKeiri($request),
+            'showAccountingPrices' => true,
+            'canEditProperty' => CareEarthAuth::canAccessPropertyMaster($request),
             'saved' => $request->has('saved'),
             'updated' => $request->has('updated'),
             'isEdit' => false,
@@ -74,6 +79,10 @@ class PropertyController extends Controller
 
     public function edit(Request $request, Property $property): View
     {
+        if (! CareEarthAuth::canAccessPropertyMaster($request)) {
+            abort(403, '物件データを編集する権限がありません。');
+        }
+
         return view('properties.show', array_merge(
             $this->propertyService->prepareFormContext(
                 $this->propertyService->propertyToFormData($property),
@@ -133,7 +142,8 @@ class PropertyController extends Controller
             'property' => $property,
             'submitLabel' => $submitLabel,
             'fromReference' => $fromReference,
-            'showAccountingPrices' => ! $fromReference || ($request && CareEarthAuth::isKeiri($request)),
+            'showAccountingPrices' => true,
+            'canEditProperty' => true,
             'saved' => false,
             'updated' => false,
             'pageTitle' => $isEdit ? '物件編集 #'.$property->id : 'データ登録',

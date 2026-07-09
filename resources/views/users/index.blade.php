@@ -9,7 +9,7 @@
 @section('content')
 <div class="mb-6">
     <h2 class="text-2xl font-bold text-slate-900">ユーザー管理</h2>
-    <p class="mt-1 text-sm text-slate-500">ログインユーザーのロールを変更できます（不動産 / 経理）</p>
+    <p class="mt-1 text-sm text-slate-500">ログインユーザーのロールを変更できます（管理者 / 部長 / 編集者 / 閲覧者）</p>
 </div>
 
 
@@ -34,7 +34,7 @@
                 <label for="new_role">ロール <span class="required">*</span></label>
                 <select id="new_role" name="role" required>
                     @foreach($roles as $value => $label)
-                    <option value="{{ $value }}" @selected(old('role', Role::FUDOSAN) === $value)>{{ $label }}</option>
+                    <option value="{{ $value }}" @selected(old('role', Role::EDITOR) === $value)>{{ $label }}</option>
                     @endforeach
                 </select>
             </div>
@@ -62,15 +62,11 @@
                 <td class="id-cell">{{ $user->id }}</td>
                 <td>{{ $user->email }}</td>
                 <td>
-                    @if (Role::isAdmin($user->role))
-                        {{ Role::label($user->role) }}
-                    @else
                     <select name="role" class="role-select" form="{{ $formId }}">
                         @foreach($roles as $value => $label)
-                        <option value="{{ $value }}" @selected($user->role === $value)>{{ $label }}</option>
+                        <option value="{{ $value }}" @selected(Role::normalize($user->role) === $value)>{{ $label }}</option>
                         @endforeach
                     </select>
-                    @endif
                 </td>
                 <td class="actions-cell">
                     <form id="{{ $formId }}" method="post" action="{{ route('users.update', $user) }}">
@@ -86,6 +82,10 @@
 </div>
 
 <p class="user-note">
-    ロール変更は次のページ表示から反映されます。参照一覧の詳細で「価格・費用」は<strong>経理</strong>ロールのみ表示されます。
+    ロール変更は次のページ表示から反映されます。
+    <strong>管理者</strong>は開発用ロールで、すべての画面にアクセス・編集できます（本番前に削除予定）。
+    <strong>部長</strong>は物件マスターデータ・賃貸管理・ユーザー管理まで編集できます。
+    <strong>編集者</strong>は物件マスターデータ一覧とユーザー管理以外を編集できます。
+    <strong>閲覧者</strong>は各画面の閲覧のみ可能です。
 </p>
 @endsection

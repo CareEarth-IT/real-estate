@@ -38,7 +38,7 @@ class UserController extends Controller
             $this->userService->create(
                 $request->input('email', ''),
                 $request->input('password', ''),
-                $request->input('role', Role::FUDOSAN),
+                $request->input('role', Role::EDITOR),
             );
         } catch (RuntimeException $e) {
             return back()
@@ -58,7 +58,7 @@ class UserController extends Controller
         ]);
 
         try {
-            $this->userService->updateRole($user, $request->input('role', Role::FUDOSAN));
+            $this->userService->updateRole($user, $request->input('role', Role::EDITOR));
         } catch (RuntimeException $e) {
             return back()->withErrors(['form' => $e->getMessage()]);
         }

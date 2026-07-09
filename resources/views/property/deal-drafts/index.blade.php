@@ -11,7 +11,9 @@
             <span class="text-amber-600">（試作版・採用前の確認用）</span>
         </p>
     </div>
+    @if ($canEdit ?? false)
     <a href="{{ route('property.deal-drafts.create') }}" class="btn btn-primary shrink-0">+ 新規登録</a>
+    @endif
 </div>
 
 @if (!empty($saved))
@@ -26,13 +28,17 @@
         <span class="empty-icon">📋</span>
         <h2>データがありません</h2>
         <p>「新規登録」から物件データを追加してください。</p>
+        @if ($canEdit ?? false)
         <a href="{{ route('property.deal-drafts.create') }}" class="btn btn-primary">データを登録する</a>
+        @endif
     </div>
 @else
     @include('property.deal-drafts._spreadsheet-table')
 @endif
 @endsection
 
+@if ($canEdit ?? false)
 @push('scripts')
     @include('property.deal-drafts._inline-scripts')
 @endpush
+@endif
