@@ -24,7 +24,7 @@
                 href="{{ route('property.deal-drafts.index') }}"
                 class="admin-nav-link block rounded-lg px-3 py-2 text-sm font-medium {{ request()->routeIs('property.deal-drafts.*') ? 'is-active' : '' }}"
             >
-                (仮)物件データ
+                物件データ
             </a>
         </nav>
     </div>

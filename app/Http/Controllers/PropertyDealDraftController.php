@@ -34,7 +34,7 @@ class PropertyDealDraftController extends Controller
             'propertyTypeLabels' => config('property-deal-draft.property_types', []),
             'saved' => $request->has('saved'),
             'updated' => $request->has('updated'),
-            'pageTitle' => '(仮)物件データ',
+            'pageTitle' => '物件データ',
             'currentPage' => 'deal-drafts',
         ]);
     }
@@ -246,7 +246,7 @@ class PropertyDealDraftController extends Controller
             'visibleFiscalYears' => PropertyDealDraftFiscalYear::visibleYears(),
             'statuses' => config('property-deal-draft.statuses', []),
             'propertyTypes' => config('property-deal-draft.property_types', []),
-            'pageTitle' => $isEdit ? '(仮)物件データ編集' : '(仮)物件データ登録',
+            'pageTitle' => $isEdit ? '物件データ編集' : '物件データ登録',
             'currentPage' => 'deal-drafts',
         ];
     }
