@@ -2,7 +2,15 @@
 
 @section('content')
     <div class="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <h2 class="text-2xl font-bold text-slate-900">書類管理</h2>
+        <div>
+            <h2 class="text-2xl font-bold text-slate-900">書類管理</h2>
+            <p class="mt-1 text-sm text-slate-500">
+                表示件数: <strong class="text-slate-700">{{ $flowManagements->total() }}</strong> 件
+                @if ($search !== '')
+                    <span class="text-slate-400">（「{{ $search }}」で絞り込み中）</span>
+                @endif
+            </p>
+        </div>
         <x-admin-search-form :value="$search" />
     </div>
 
@@ -15,9 +23,12 @@
             @endif
         </div>
     @else
-        <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
-            <div class="admin-table-scroll overflow-x-auto">
-                <table class="admin-table-sticky min-w-full text-sm text-left" data-sticky-cols="4">
+        @include('admin.flow-managements._cards')
+
+        @if (false)
+        <div class="application-blocks-board flow-management-blocks-board">
+            <div>
+                <table class="flow-management-blocks-grid text-sm text-left">
                     <thead class="bg-slate-100 text-slate-700">
                         <tr>
                             <th class="sticky-col px-3 py-3 font-medium whitespace-nowrap min-w-[130px]">作成日時</th>
@@ -46,18 +57,18 @@
                             <th class="px-3 py-3 font-medium whitespace-nowrap text-center">{{ $columnLabels['settlement_transition'] }}</th>
                         </tr>
                     </thead>
-                    <tbody class="divide-y divide-slate-100">
+                    <tbody>
                         @foreach ($flowManagements as $flowManagement)
                             <tr
                                 class="align-top bg-white hover:bg-slate-50 transition-colors {{ $flowManagement->settlement_transition ? 'has-sticky-highlight-blue' : '' }}"
                                 data-flow-management-id="{{ $flowManagement->id }}"
                             >
-                                <td class="sticky-col px-3 py-3 whitespace-nowrap">{{ $flowManagement->application?->created_at?->format('Y/m/d H:i') ?? '—' }}</td>
-                                <td class="sticky-col px-3 py-3 whitespace-nowrap">{{ $flowManagement->staff_in_charge ?? '—' }}</td>
-                                <td class="sticky-col px-3 py-3 whitespace-nowrap">{{ $flowManagement->property_name ?? '—' }}</td>
-                                <td class="sticky-col sticky-col-last px-3 py-3 whitespace-nowrap">{{ $flowManagement->room_number ?? '—' }}</td>
-                                <td class="px-3 py-3 whitespace-nowrap">{{ $flowManagement->application_method ?? '—' }}</td>
-                                <td class="px-3 py-3 min-w-[180px]">
+                                <td data-label="作成日時" class="sticky-col px-3 py-3 whitespace-nowrap">{{ $flowManagement->application?->created_at?->format('Y/m/d H:i') ?? '—' }}</td>
+                                <td data-label="{{ $columnLabels['staff_in_charge'] }}" class="sticky-col px-3 py-3 whitespace-nowrap">{{ $flowManagement->staff_in_charge ?? '—' }}</td>
+                                <td data-label="{{ $columnLabels['property_name'] }}" class="sticky-col px-3 py-3 whitespace-nowrap">{{ $flowManagement->property_name ?? '—' }}</td>
+                                <td data-label="{{ $columnLabels['room_number'] }}" class="sticky-col sticky-col-last px-3 py-3 whitespace-nowrap">{{ $flowManagement->room_number ?? '—' }}</td>
+                                <td data-label="{{ $columnLabels['application_method'] }}" class="px-3 py-3 whitespace-nowrap">{{ $flowManagement->application_method ?? '—' }}</td>
+                                <td data-label="{{ $columnLabels['memo'] }}" class="px-3 py-3 min-w-[180px]">
                                     <textarea
                                         class="flow-memo-field w-full min-h-[2.5rem] rounded border border-slate-200 px-2 py-1 text-sm resize-y focus:border-primary-500 focus:ring-1 focus:ring-primary-500"
                                         rows="2"
@@ -66,7 +77,7 @@
                                         @readonly(!($canEdit ?? false))
                                     >{{ $flowManagement->memo }}</textarea>
                                 </td>
-                                <td class="px-3 py-3 whitespace-nowrap">
+                                <td data-label="{{ $columnLabels['move_in_date'] }}" class="px-3 py-3 whitespace-nowrap">
                                     <input
                                         type="date"
                                         class="flow-date-field rounded border border-slate-200 px-2 py-1 text-sm focus:border-primary-500 focus:ring-1 focus:ring-primary-500"
@@ -76,7 +87,7 @@
                                         @disabled(!($canEdit ?? false))
                                     >
                                 </td>
-                                <td class="px-3 py-3 min-w-[120px]">
+                                <td data-label="{{ $columnLabels['document_deadline'] }}" class="px-3 py-3 min-w-[120px]">
                                     <input
                                         type="text"
                                         class="flow-inline-text-field w-full rounded border border-slate-200 px-2 py-1 text-sm focus:border-primary-500 focus:ring-1 focus:ring-primary-500"
@@ -87,7 +98,7 @@
                                         @readonly(!($canEdit ?? false))
                                     >
                                 </td>
-                                <td class="px-3 py-3 whitespace-nowrap">
+                                <td data-label="{{ $columnLabels['scheduled_visit_date'] }}" class="px-3 py-3 whitespace-nowrap">
                                     <input
                                         type="date"
                                         class="flow-date-field rounded border border-slate-200 px-2 py-1 text-sm focus:border-primary-500 focus:ring-1 focus:ring-primary-500"
@@ -97,7 +108,7 @@
                                         @disabled(!($canEdit ?? false))
                                     >
                                 </td>
-                                <td class="px-3 py-3 whitespace-nowrap">
+                                <td data-label="{{ $columnLabels['key_handover_date'] }}" class="px-3 py-3 whitespace-nowrap">
                                     <input
                                         type="date"
                                         class="flow-date-field rounded border border-slate-200 px-2 py-1 text-sm focus:border-primary-500 focus:ring-1 focus:ring-primary-500"
@@ -112,7 +123,7 @@
                                         @continue
                                     @endif
                                     @if ($field === 'transfer_request_to_applicant')
-                                        <td class="px-3 py-3 min-w-[110px]">
+                                        <td data-label="{{ $columnLabels['ad_fee_invoice_creation'] }}" class="px-3 py-3 min-w-[110px]">
                                             <input
                                                 type="text"
                                                 class="flow-inline-text-field w-full rounded border border-slate-200 px-2 py-1 text-sm focus:border-primary-500 focus:ring-1 focus:ring-primary-500"
@@ -125,7 +136,7 @@
                                             >
                                         </td>
                                     @endif
-                                    <td class="px-3 py-3 text-center flow-check-cell transition-colors {{ $flowManagement->{$field} ? 'admin-highlight-bg' : '' }}">
+                                    <td data-label="{{ $columnLabels[$field] }}" class="px-3 py-3 text-center flow-check-cell transition-colors {{ $flowManagement->{$field} ? 'admin-highlight-bg' : '' }}">
                                         <input
                                             type="checkbox"
                                             class="flow-field-checkbox h-4 w-4 rounded border-slate-300 text-primary-600 focus:ring-primary-500"
@@ -135,7 +146,7 @@
                                         >
                                     </td>
                                 @endforeach
-                                <td class="px-3 py-3 text-center flow-check-cell transition-colors {{ $flowManagement->has_broker_fee ? 'admin-highlight-bg' : '' }}">
+                                <td data-label="{{ $columnLabels['has_broker_fee'] }}" class="px-3 py-3 text-center flow-check-cell transition-colors {{ $flowManagement->has_broker_fee ? 'admin-highlight-bg' : '' }}">
                                     <input
                                         type="checkbox"
                                         class="flow-field-checkbox h-4 w-4 rounded border-slate-300 text-primary-600 focus:ring-primary-500"
@@ -144,7 +155,7 @@
                                         @disabled(!($canEdit ?? false))
                                     >
                                 </td>
-                                <td class="px-3 py-3 text-center flow-check-cell transition-colors {{ $flowManagement->settlement_transition ? 'admin-highlight-bg' : '' }}">
+                                <td data-label="{{ $columnLabels['settlement_transition'] }}" class="px-3 py-3 text-center flow-check-cell transition-colors {{ $flowManagement->settlement_transition ? 'admin-highlight-bg' : '' }}">
                                     <input
                                         type="checkbox"
                                         class="flow-field-checkbox h-4 w-4 rounded border-slate-300 text-primary-600 focus:ring-primary-500"
@@ -164,6 +175,7 @@
             <div class="mt-6 pb-2">
                 {{ $flowManagements->links('vendor.pagination.admin') }}
             </div>
+        @endif
         @endif
     @endif
 @endsection
@@ -193,7 +205,7 @@
         }
     }
 
-    document.querySelectorAll('tbody tr').forEach((row) => {
+    document.querySelectorAll('[data-flow-management-id]').forEach((row) => {
         updateStickyColState(row);
     });
 
@@ -202,7 +214,7 @@
 
         checkbox.addEventListener('change', async (event) => {
             const target = event.target;
-            const row = target.closest('tr');
+            const row = target.closest('[data-flow-management-id]');
             const flowManagementId = row.dataset.flowManagementId;
             const field = target.dataset.field;
             const previousChecked = !target.checked;
@@ -265,7 +277,7 @@
         const fieldLabel = field.dataset.label || fieldName;
 
         const saveField = async () => {
-            const row = field.closest('tr');
+            const row = field.closest('[data-flow-management-id]');
             const flowManagementId = row.dataset.flowManagementId;
             const value = field.value;
 
@@ -312,7 +324,7 @@
         const fieldLabel = field.dataset.label || fieldName;
 
         const saveField = async () => {
-            const row = field.closest('tr');
+            const row = field.closest('[data-flow-management-id]');
             const flowManagementId = row.dataset.flowManagementId;
             const value = field.value;
 
@@ -353,7 +365,7 @@
         let saveTimer = null;
 
         const saveMemo = async () => {
-            const row = textarea.closest('tr');
+            const row = textarea.closest('[data-flow-management-id]');
             const flowManagementId = row.dataset.flowManagementId;
             const value = textarea.value;
 
@@ -393,6 +405,7 @@
             saveTimer = setTimeout(saveMemo, 800);
         });
     });
+
 </script>
 @endpush
 @endif

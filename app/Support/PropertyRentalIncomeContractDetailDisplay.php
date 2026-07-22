@@ -3,21 +3,46 @@
 namespace App\Support;
 
 use App\Models\PropertyRentalIncome;
+use App\Models\PropertyRentalIncomeTermination;
 use Illuminate\Database\Eloquent\Collection as EloquentCollection;
-use Illuminate\Support\Collection;
 
 final class PropertyRentalIncomeContractDetailDisplay
 {
     /**
      * @param  EloquentCollection<int, PropertyRentalIncome>  $records
      * @return array{
+     *     isTerminatedPeriod: bool,
+     *     periodRecords: EloquentCollection<int, PropertyRentalIncome>,
      *     paidRecords: EloquentCollection<int, PropertyRentalIncome>,
      *     nextPaymentRecord: ?PropertyRentalIncome,
      *     remainingUnpaidRecords: EloquentCollection<int, PropertyRentalIncome>,
      * }
      */
-    public static function layout(EloquentCollection $records): array
-    {
+    public static function layout(
+        EloquentCollection $records,
+        ?PropertyRentalIncomeTermination $termination = null,
+        $contractStartOn = null,
+    ): array {
+        // 解約済み: 入金状況で分けず、契約開始月〜解約月を支払い月の降順で返す（同一月は1件）
+        if ($termination !== null) {
+            $periodRecords = PropertyRentalIncomeContract::filterRecordsThroughTerminationMonth(
+                $records,
+                $termination,
+                $contractStartOn,
+                true,
+            )
+                ->sortByDesc(fn (PropertyRentalIncome $record): string => self::sortKey($record))
+                ->values();
+
+            return [
+                'isTerminatedPeriod' => true,
+                'periodRecords' => new EloquentCollection($periodRecords->all()),
+                'paidRecords' => new EloquentCollection,
+                'nextPaymentRecord' => null,
+                'remainingUnpaidRecords' => new EloquentCollection,
+            ];
+        }
+
         $sorted = $records
             ->sortBy(fn (PropertyRentalIncome $record): string => self::sortKey($record))
             ->values();
@@ -37,6 +62,8 @@ final class PropertyRentalIncomeContractDetailDisplay
             : new EloquentCollection;
 
         return [
+            'isTerminatedPeriod' => false,
+            'periodRecords' => new EloquentCollection($sorted->all()),
             'paidRecords' => new EloquentCollection($paid->all()),
             'nextPaymentRecord' => $nextPayment,
             'remainingUnpaidRecords' => new EloquentCollection($remainingUnpaid->all()),

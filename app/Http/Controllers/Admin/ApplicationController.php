@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreApplicationRequest;
 use App\Models\Application;
+use App\Models\CareEarthUser;
 use App\Models\FlowManagement;
 use App\Support\AdminListSearch;
 use App\Support\ApplicationCreator;
@@ -33,7 +34,14 @@ class ApplicationController extends Controller
 
     public function create(): View
     {
-        return view('admin.applications.create');
+        $staffOptions = CareEarthUser::query()
+            ->whereNotNull('name')
+            ->where('name', '!=', '')
+            ->orderBy('name')
+            ->pluck('name', 'name')
+            ->all();
+
+        return view('admin.applications.create', compact('staffOptions'));
     }
 
     public function store(StoreApplicationRequest $request): RedirectResponse
@@ -66,9 +74,15 @@ class ApplicationController extends Controller
             }
         }
 
-        $application->update([
+        $updates = [
             $validated['field'] => $validated['value'],
-        ]);
+        ];
+
+        if ($validated['field'] === 'screening_ok') {
+            $updates['screening_ok_at'] = $validated['value'] ? now() : null;
+        }
+
+        $application->update($updates);
 
         if ($validated['field'] === 'screening_ok' && $validated['value']) {
             FlowManagement::syncFromApplication($application->fresh());

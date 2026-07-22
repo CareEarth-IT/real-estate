@@ -32,7 +32,12 @@
         data-portal-menu-panel
     >
         <div class="portal-menu-group" role="presentation">
-            <p class="portal-menu-group-label">賃貸管理情報</p>
+            <p class="portal-menu-group-label">メニュー</p>
+            <a
+                href="{{ route('home') }}"
+                role="menuitem"
+                @class(['portal-menu-item', 'active' => request()->routeIs('home')])
+            >ホーム</a>
             <a
                 href="{{ route('admin.applications.index') }}"
                 role="menuitem"
@@ -59,6 +64,19 @@
             @endif
         </div>
         @endif
+
+        <div class="portal-menu-group" role="presentation">
+            <p class="portal-menu-group-label">アカウント</p>
+            @if (session('email'))
+                <p class="portal-menu-item" style="cursor: default; opacity: 0.75;">{{ session('name') ?: session('email') }}</p>
+            @endif
+            <form method="post" action="{{ route('logout') }}" role="none">
+                @csrf
+                <button type="submit" class="portal-menu-item" role="menuitem" style="width: 100%; text-align: left; border: 0; background: transparent; cursor: pointer;">
+                    ログアウト
+                </button>
+            </form>
+        </div>
     </div>
 </div>
 

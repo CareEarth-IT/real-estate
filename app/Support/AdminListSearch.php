@@ -46,10 +46,15 @@ class AdminListSearch
     {
         return self::apply($query, $search, [
             'staff_in_charge',
+            'contractor',
+            'contractor_furigana',
+            'contractor_english_name',
+            'overseas_screening',
             'property_name',
             'room_number',
             'management_company_name',
             'application_method',
+            'entry_method',
             'status',
             'memo',
             'property_documents_url',
@@ -64,9 +69,14 @@ class AdminListSearch
     {
         return self::apply($query, $search, [
             'flow_managements.staff_in_charge',
+            'flow_managements.contractor',
+            'flow_managements.contractor_furigana',
+            'flow_managements.contractor_english_name',
+            'flow_managements.overseas_screening',
             'flow_managements.property_name',
             'flow_managements.room_number',
             'flow_managements.application_method',
+            'flow_managements.entry_method',
             'flow_managements.memo',
             'flow_managements.document_deadline',
             'flow_managements.ad_fee_invoice_creation',

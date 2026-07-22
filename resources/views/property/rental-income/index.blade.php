@@ -50,7 +50,9 @@
         @endif
     </div>
 @else
-    @include('property.rental-income._blocks-grid')
+    @include('property.rental-income._blocks-grid', [
+        'showTerminatedDetails' => ($paymentStatus ?? null) === 'terminated',
+    ])
 @endif
 @endsection
 

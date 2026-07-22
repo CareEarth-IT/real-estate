@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 @php
-    use App\Http\Middleware\CareEarthAuth;
-
     $adminPageLoaderEnabled = true;
+    $isUsersPage = request()->routeIs('users.*');
     $isRentalAdminPage = request()->routeIs(
+        'home',
         'admin.applications.*',
         'admin.flow-managements.*',
         'admin.settlement-managements.*',
@@ -15,10 +15,8 @@
         'property.rental-income.*',
         'property.deal-drafts.*',
     );
-
-    if ($isRentalAdminPage && ! session('authenticated')) {
-        CareEarthAuth::ensureSession(request());
-    }
+    // ユーザー管理ではサイドバーを出さない
+    $showPortalSidebar = $isPortalPage && ! $isUsersPage;
 
     $showPortalMenu = session('authenticated');
 @endphp
@@ -351,7 +349,7 @@
         'admin-header--portal' => $isPortalPage,
     ])>
         <div class="flex items-center justify-between gap-4 px-6 py-3">
-            <a href="{{ $isRentalAdminPage ? route('admin.applications.index') : (($canAccessPropertyMaster ?? false) ? route('properties.index') : route('reference.index')) }}">
+            <a href="{{ route('home') }}">
                 <img
                     src="{{ asset('images/care-earth-home-logo.png') }}"
                     alt="Care Earth Home"
@@ -367,7 +365,7 @@
     </header>
 
     <div class="admin-layout-body flex flex-1 min-h-[calc(100vh-var(--admin-header-height,72px))]">
-        @if ($isPortalPage)
+        @if ($showPortalSidebar ?? false)
             <x-portal-sidebar />
         @elseif ($isRentalAdminPage)
             <x-rental-sidebar />
@@ -376,7 +374,7 @@
         <main id="admin-main-content" @class([
             'admin-main-content flex-1 p-8 overflow-x-auto',
             $adminPageLoaderEnabled ? '' : 'is-visible',
-            'portal-master-content' => $isPortalPage,
+            'portal-master-content' => ($isPortalPage || $isRentalAdminPage || ($isUsersPage ?? false)),
         ])>
             @if (session('success'))
                 <div class="mb-6 rounded-lg bg-green-50 border border-green-200 px-4 py-3 text-green-800 text-sm">{{ session('success') }}</div>

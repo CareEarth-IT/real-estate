@@ -12,49 +12,38 @@ class CareEarthAuth
 {
     public function handle(Request $request, Closure $next): Response
     {
-        if (! self::ensureSession($request)) {
-            abort(403, 'アクセス可能なユーザーが設定されていません。');
+        if (! self::isLoggedIn($request)) {
+            if ($request->expectsJson()) {
+                return response()->json(['message' => 'Unauthenticated.'], 401);
+            }
+
+            return redirect()->guest(route('login'));
         }
 
         return $next($request);
     }
 
+    /**
+     * 後方互換: ログイン済みか確認するのみ（自動ログインは行わない）。
+     */
     public static function ensureSession(Request $request): bool
     {
-        if (self::isLoggedIn($request)) {
-            return true;
-        }
-
-        $user = CareEarthUser::query()
-            ->where('email', strtolower(trim((string) config('careearth.allowed_email'))))
-            ->first()
-            ?? CareEarthUser::query()->orderBy('id')->first();
-
-        if ($user === null) {
-            return false;
-        }
-
-        $request->session()->put([
-            'authenticated' => true,
-            'user_id' => $user->id,
-            'email' => $user->email,
-            'role' => Role::normalize($user->role),
-            'login_time' => time(),
-        ]);
-
-        return true;
+        return self::isLoggedIn($request);
     }
 
     public static function isLoggedIn(Request $request): bool
     {
         $session = $request->session();
 
-        if (! $session->get('authenticated') || ! $session->get('login_time') || ! $session->get('user_id')) {
+        if (! $session->get('authenticated') || ! $session->get('user_id')) {
             return false;
         }
 
-        $lifetime = (int) config('careearth.session_lifetime', 3600);
-        if (time() - (int) $session->get('login_time') > $lifetime) {
+        $lifetime = (int) config('careearth.session_lifetime', 7200);
+        $lastActivity = (int) ($session->get('last_activity') ?: $session->get('login_time') ?: 0);
+
+        // 放置（無操作）が lifetime を超えた場合のみ再ログインを要求
+        if ($lastActivity > 0 && (time() - $lastActivity) > $lifetime) {
             self::logout($request);
 
             return false;
@@ -68,9 +57,12 @@ class CareEarthAuth
             return false;
         }
 
+        // 操作があるたびに最終アクティビティを更新（動作中は切れない）
         $session->put([
             'email' => $user->email,
+            'name' => $user->name,
             'role' => Role::normalize($user->role),
+            'last_activity' => time(),
         ]);
 
         return $session->get('authenticated') === true;
@@ -86,13 +78,16 @@ class CareEarthAuth
             return false;
         }
 
+        $now = time();
         $request->session()->regenerate();
         $request->session()->put([
             'authenticated' => true,
             'user_id' => $user->id,
             'email' => $user->email,
+            'name' => $user->name,
             'role' => Role::normalize($user->role),
-            'login_time' => time(),
+            'login_time' => $now,
+            'last_activity' => $now,
         ]);
 
         return true;
@@ -102,6 +97,11 @@ class CareEarthAuth
     {
         $request->session()->invalidate();
         $request->session()->regenerateToken();
+    }
+
+    public static function homeRouteForRole(?string $role): string
+    {
+        return 'home';
     }
 
     public static function currentRole(Request $request): ?string

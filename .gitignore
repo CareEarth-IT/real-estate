@@ -25,3 +25,12 @@
 Homestead.json
 Homestead.yaml
 Thumbs.db
+
+# デモデータ（ローカル専用・リポジトリには含めない）
+/app/Console/Commands/SeedDemoDataCommand.php
+/database/seeders/DemoDataSeeder.php
+/database/seeders/ApplicationSampleSeeder.php
+
+# Uploaded files
+/uploads/
+

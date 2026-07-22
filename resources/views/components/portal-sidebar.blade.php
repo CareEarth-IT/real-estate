@@ -32,7 +32,7 @@
                 href="{{ route('property.deal-drafts.index') }}"
                 class="admin-nav-link block rounded-lg px-3 py-2 text-sm font-medium {{ request()->routeIs('property.deal-drafts.*') ? 'is-active' : '' }}"
             >
-                (仮)物件データ
+                物件データ
             </a>
         </nav>
     </div>
@@ -51,6 +51,12 @@
                 class="admin-nav-link block rounded-lg px-3 py-2 text-sm font-medium {{ request()->routeIs('property.rental-income.all') ? 'is-active' : '' }}"
             >
                 全家賃収入データ一覧
+            </a>
+            <a
+                href="{{ route('property.rental-income.terminated') }}"
+                class="admin-nav-link block rounded-lg px-3 py-2 text-sm font-medium {{ request()->routeIs('property.rental-income.terminated') ? 'is-active' : '' }}"
+            >
+                解約データ
             </a>
         </nav>
     </div>

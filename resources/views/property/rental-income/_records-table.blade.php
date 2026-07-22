@@ -36,7 +36,7 @@
                     @if ($showPaymentMonthColumn)
                         <th class="px-3 py-3 font-medium whitespace-nowrap min-w-[100px]">{!! $sortHeader('payment_month', '支払い月') !!}</th>
                     @endif
-                    <th class="px-3 py-3 font-medium whitespace-nowrap min-w-[100px]">家賃年月</th>
+                    <th class="px-3 py-3 font-medium whitespace-nowrap min-w-[100px]">契約日</th>
                     <th class="px-3 py-3 font-medium whitespace-nowrap min-w-[110px]">入金方法</th>
                     <th class="px-3 py-3 font-medium whitespace-nowrap min-w-[110px]">家賃</th>
                     <th class="px-3 py-3 font-medium whitespace-nowrap min-w-[130px]">入金状況</th>

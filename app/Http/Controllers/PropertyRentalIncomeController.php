@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\PropertyRentalIncome;
+use App\Models\PropertyRentalIncomeTermination;
 use App\Support\PropertyRentalIncomeAllDisplay;
 use App\Support\PropertyRentalIncomeContract;
 use App\Support\PropertyRentalIncomeContractPeriod;
@@ -13,6 +14,8 @@ use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Validation\Rule;
 use Illuminate\View\View;
 
@@ -25,11 +28,27 @@ class PropertyRentalIncomeController extends Controller
         $paymentMonthOptions = PropertyRentalIncomeMonths::pickerMonths($activePaymentMonth);
         $list = PropertyRentalIncomeListQuery::resolve($request, $activePaymentMonth);
 
+        if ($list['paymentStatus'] === 'terminated') {
+            $contractBlocks = array_values(array_filter(
+                PropertyRentalIncomeContract::terminatedBlocks($list['search']),
+                static function (array $block) use ($activePaymentMonth): bool {
+                    $terminationMonth = PropertyRentalIncomeContract::terminationCutoffMonth($block['termination'] ?? null);
+                    $recordMonth = (int) ($block['record']->payment_month ?? 0);
+
+                    return $terminationMonth === $activePaymentMonth || $recordMonth === $activePaymentMonth;
+                },
+            ));
+        } else {
+            $contractBlocks = PropertyRentalIncomeContract::excludeTerminatedBlocks(
+                PropertyRentalIncomeContract::blocksFromMonthRecords($list['records']),
+            );
+        }
+
         return view('property.rental-income.index', [
             ...$list,
-            'contractBlocks' => PropertyRentalIncomeContract::blocksFromMonthRecords($list['records']),
+            'contractBlocks' => $contractBlocks,
             'paymentMethodLabels' => config('property-rental-income.payment_methods', []),
-            'paymentStatusLabels' => config('property-rental-income.payment_statuses', []),
+            'paymentStatusLabels' => config('property-rental-income.payment_status_filters', []),
             'paymentMonthOptions' => $paymentMonthOptions,
             'activePaymentMonth' => $activePaymentMonth,
             'listRoute' => 'property.rental-income.index',
@@ -45,7 +64,21 @@ class PropertyRentalIncomeController extends Controller
     {
         $search = trim((string) $request->query('search', ''));
         $paymentStatus = PropertyRentalIncomeListQuery::paymentStatusFromRequest($request);
-        $display = PropertyRentalIncomeAllDisplay::resolve($search, $paymentStatus);
+
+        if ($paymentStatus === 'terminated') {
+            $contractBlocks = PropertyRentalIncomeContract::terminatedBlocks($search);
+            $display = [
+                'contractBlocks' => $contractBlocks,
+                'upcomingPaymentCount' => 0,
+                'displayMonth' => (int) now()->format('Ym'),
+                'referenceDate' => now()->startOfDay(),
+            ];
+        } else {
+            $display = PropertyRentalIncomeAllDisplay::resolve($search, $paymentStatus);
+            $display['contractBlocks'] = PropertyRentalIncomeContract::excludeTerminatedBlocks(
+                $display['contractBlocks'],
+            );
+        }
 
         return view('property.rental-income.all', [
             'contractBlocks' => $display['contractBlocks'],
@@ -55,11 +88,33 @@ class PropertyRentalIncomeController extends Controller
             'search' => $search,
             'paymentStatus' => $paymentStatus,
             'paymentMethodLabels' => config('property-rental-income.payment_methods', []),
-            'paymentStatusLabels' => config('property-rental-income.payment_statuses', []),
+            'paymentStatusLabels' => config('property-rental-income.payment_status_filters', []),
             'listRoute' => 'property.rental-income.all',
             'listParams' => array_filter([
                 'search' => $search !== '' ? $search : null,
                 'payment_status' => $paymentStatus,
+            ]),
+        ]);
+    }
+
+    public function terminated(Request $request): View
+    {
+        // 既存解約データに残っている解約月より後の月次を整理
+        PropertyRentalIncomeContract::pruneAllTerminatedContracts();
+
+        $search = trim((string) $request->query('search', ''));
+        $contractBlocks = PropertyRentalIncomeContract::terminatedBlocks($search);
+
+        return view('property.rental-income.terminated', [
+            'contractBlocks' => $contractBlocks,
+            'search' => $search,
+            'paymentStatus' => null,
+            'paymentMethodLabels' => config('property-rental-income.payment_methods', []),
+            'paymentStatusLabels' => config('property-rental-income.payment_statuses', []),
+            'moveOutTypeLabels' => config('property-rental-income.move_out_types', []),
+            'listRoute' => 'property.rental-income.terminated',
+            'listParams' => array_filter([
+                'search' => $search !== '' ? $search : null,
             ]),
         ]);
     }
@@ -77,13 +132,49 @@ class PropertyRentalIncomeController extends Controller
             $request->query('contractor'),
             $request->query('property_name'),
         );
+        $termination = PropertyRentalIncomeContract::terminationForContract($contractKey);
 
-        if ($records->isEmpty()) {
+        // 解約済み: 契約開始月〜解約月を入金状況に関係なく残し、解約月より後のみ削除
+        if ($termination !== null) {
+            $cutoffMonth = PropertyRentalIncomeContract::terminationCutoffMonth($termination);
+            if ($cutoffMonth !== null) {
+                PropertyRentalIncomeContract::deleteMonthsAfterTermination($records, $cutoffMonth);
+                $records = PropertyRentalIncomeContract::recordsForContract(
+                    $contractKey,
+                    $request->query('contractor'),
+                    $request->query('property_name'),
+                );
+            }
+        }
+
+        if ($records->isEmpty() && $termination === null) {
             abort(404);
         }
 
-        $period = PropertyRentalIncomeContract::resolvePeriodForRecords($records);
-        $representative = $records->first();
+        $period = $records->isNotEmpty()
+            ? PropertyRentalIncomeContract::resolvePeriodForRecords($records)
+            : ['start' => null, 'end' => null];
+
+        $terminationEnd = $termination?->terminated_on ?? $termination?->terminated_at;
+        if ($terminationEnd !== null) {
+            $period['end'] = $terminationEnd instanceof Carbon
+                ? $terminationEnd->copy()->startOfDay()
+                : Carbon::parse($terminationEnd)->startOfDay();
+        }
+
+        if ($termination !== null) {
+            $records = PropertyRentalIncomeContract::filterRecordsThroughTerminationMonth(
+                $records,
+                $termination,
+                $period['start'] ?? null,
+                true,
+            );
+        }
+        $representative = $records->first() ?? (object) [
+            'contractor' => $termination?->contractor,
+            'property_name' => $termination?->property_name,
+            'payment_month' => null,
+        ];
         $requestedMonth = (int) $request->query('month');
         $returnMonth = YearMonth::isValid($requestedMonth)
             ? $requestedMonth
@@ -96,10 +187,114 @@ class PropertyRentalIncomeController extends Controller
             'contractStartOn' => $period['start'],
             'contractEndOn' => $period['end'],
             'contractPeriodLabel' => PropertyRentalIncomeContract::formatContractPeriodLabel($period),
+            'termination' => $termination,
+            'moveOutTypeLabels' => config('property-rental-income.move_out_types', []),
             'returnMonth' => $returnMonth,
             'paymentMethodLabels' => config('property-rental-income.payment_methods', []),
             'paymentStatusLabels' => config('property-rental-income.payment_statuses', []),
         ]);
+    }
+
+    public function terminateContract(Request $request): RedirectResponse
+    {
+        $contractKey = trim((string) $request->input('contract', ''));
+
+        if ($contractKey === '') {
+            abort(404);
+        }
+
+        $records = PropertyRentalIncomeContract::recordsForContract(
+            $contractKey,
+            $request->input('contractor'),
+            $request->input('property_name'),
+        );
+
+        if ($records->isEmpty()) {
+            abort(404);
+        }
+
+        if (PropertyRentalIncomeContract::terminationForContract($contractKey) !== null) {
+            return redirect()
+                ->route('property.rental-income.contract.show', array_filter([
+                    'contract' => $contractKey,
+                    'contractor' => $request->input('contractor'),
+                    'property_name' => $request->input('property_name'),
+                    'month' => $request->input('month'),
+                ]))
+                ->with('error', 'この契約はすでに解約済みです。');
+        }
+
+        $moveOutTypes = array_keys(config('property-rental-income.move_out_types', []));
+
+        $validated = $request->validate([
+            'terminated_on' => ['required', 'date'],
+            'move_out_type' => ['required', 'string', Rule::in($moveOutTypes)],
+            'move_out_reason' => ['required', 'string', 'max:2000'],
+            'move_out_cost' => ['nullable', 'integer', 'min:0'],
+        ], [
+            'terminated_on.required' => '解約日を入力してください。',
+            'terminated_on.date' => '解約日の形式が不正です。',
+            'move_out_type.required' => '退去区分を選択してください。',
+            'move_out_type.in' => '退去区分が不正です。',
+            'move_out_reason.required' => '退去理由を入力してください。',
+            'move_out_cost.integer' => '退去費は数値で入力してください。',
+            'move_out_cost.min' => '退去費は0以上で入力してください。',
+        ]);
+
+        $representative = $records->first();
+        $terminatedOn = Carbon::parse($validated['terminated_on'])->startOfDay();
+        $cutoffMonth = (int) $terminatedOn->format('Ym');
+
+        $deletedCount = DB::transaction(function () use (
+            $contractKey,
+            $representative,
+            $records,
+            $validated,
+            $terminatedOn,
+            $cutoffMonth,
+        ): int {
+            PropertyRentalIncomeTermination::query()->create([
+                'contract_key' => $contractKey,
+                'contractor' => $representative->contractor,
+                'property_name' => $representative->property_name,
+                'move_out_type' => $validated['move_out_type'],
+                'move_out_reason' => $validated['move_out_reason'],
+                'move_out_cost' => $validated['move_out_cost'] ?? null,
+                'terminated_on' => $terminatedOn->toDateString(),
+                'terminated_at' => now(),
+            ]);
+
+            // 解約月より後のみ削除（契約日〜解約月は残す）
+            $deletedCount = PropertyRentalIncomeContract::deleteMonthsAfterTermination($records, $cutoffMonth);
+
+            $remainingIds = $records
+                ->filter(static function (PropertyRentalIncome $record) use ($cutoffMonth): bool {
+                    $month = (int) ($record->payment_month ?? 0);
+
+                    return $month > 0 && $month <= $cutoffMonth;
+                })
+                ->pluck('id')
+                ->all();
+
+            $remainingQuery = PropertyRentalIncome::query()->whereIn('id', $remainingIds);
+
+            if (Schema::hasColumn('property_rental_incomes', 'contract_end_on') && $remainingIds !== []) {
+                $remainingQuery->update([
+                    'contract_end_on' => $terminatedOn->toDateString(),
+                ]);
+            }
+
+            return $deletedCount;
+        });
+
+        $message = '契約を解約しました。';
+        if ($deletedCount > 0) {
+            $message .= " 解約月より後のデータを {$deletedCount} 件削除しました（契約開始月〜解約月は残しています）。";
+        }
+
+        return redirect()
+            ->route('property.rental-income.terminated')
+            ->with('success', $message);
     }
 
     public function create(Request $request): View
@@ -293,6 +488,8 @@ class PropertyRentalIncomeController extends Controller
             'deposit_amount' => ['nullable', 'integer'],
             'payment_on' => ['nullable', 'date'],
             'fallback_payment_month' => ['nullable', 'integer'],
+        ], [], [
+            'rent_year_month' => '契約日',
         ]);
 
         $paymentOn = $validated['payment_on'] ?? null;

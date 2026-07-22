@@ -74,6 +74,12 @@ final class PropertyRentalIncomeAllDisplay
                     ),
                 );
 
+            $termination = PropertyRentalIncomeContract::terminationForContract($contractKey);
+
+            if ($termination?->terminated_on) {
+                $period['end'] = $termination->terminated_on;
+            }
+
             $blocks[] = [
                 'key' => $contractKey,
                 'contractor' => $record->contractor,
@@ -81,6 +87,8 @@ final class PropertyRentalIncomeAllDisplay
                 'record' => $record,
                 'contract_start_on' => $period['start'],
                 'contract_end_on' => $period['end'],
+                'termination' => $termination,
+                'is_terminated' => $termination !== null,
                 'showing_next_payment' => $resolution['showing_next_payment'],
                 'in_advance_window' => $resolution['in_advance_window'],
             ];

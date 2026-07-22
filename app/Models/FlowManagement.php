@@ -15,9 +15,27 @@ class FlowManagement extends Model
         'application_id',
         'flow_management_transition',
         'staff_in_charge',
+        'contractor',
+        'contractor_furigana',
+        'contractor_english_name',
+        'overseas_screening',
+        'google_drive_url',
+        'contract_doc_resident_record_url',
+        'contract_doc_residence_card_url',
+        'contract_doc_passport_url',
+        'contract_doc_payslip_url',
+        'contract_doc_face_photo_url',
+        'contract_doc_identity_verification_url',
+        'contract_doc_resident_record_confirmed',
+        'contract_doc_residence_card_confirmed',
+        'contract_doc_passport_confirmed',
+        'contract_doc_payslip_confirmed',
+        'contract_doc_face_photo_confirmed',
+        'contract_doc_identity_verification_confirmed',
         'property_name',
         'room_number',
         'application_method',
+        'entry_method',
         'memo',
         'move_in_date',
         'document_deadline',
@@ -71,6 +89,12 @@ class FlowManagement extends Model
             'original_copy_to_applicant' => 'boolean',
             'key_receipt_return' => 'boolean',
             'contract_copy_storage' => 'boolean',
+            'contract_doc_resident_record_confirmed' => 'boolean',
+            'contract_doc_residence_card_confirmed' => 'boolean',
+            'contract_doc_passport_confirmed' => 'boolean',
+            'contract_doc_payslip_confirmed' => 'boolean',
+            'contract_doc_face_photo_confirmed' => 'boolean',
+            'contract_doc_identity_verification_confirmed' => 'boolean',
             'has_broker_fee' => 'boolean',
             'settlement_transition' => 'boolean',
         ];
@@ -92,9 +116,17 @@ class FlowManagement extends Model
 
         $flowManagement->customer_id = $application->customer_id;
         $flowManagement->staff_in_charge = $application->staff_in_charge;
+        $flowManagement->contractor = $application->contractor;
+        $flowManagement->contractor_furigana = $application->contractor_furigana;
+        $flowManagement->contractor_english_name = $application->contractor_english_name;
+        $flowManagement->overseas_screening = $application->overseas_screening;
         $flowManagement->property_name = $application->property_name;
         $flowManagement->room_number = $application->room_number;
         $flowManagement->application_method = $application->application_method;
+        $flowManagement->entry_method = $application->entry_method;
+        foreach (array_keys(self::contractDocumentFields()) as $field) {
+            $flowManagement->{$field} = $application->{$field};
+        }
         $flowManagement->flow_management_transition = true;
         if ($application->has_broker_fee === true || (int) $application->broker_fee >= 1) {
             $flowManagement->has_broker_fee = true;
@@ -123,6 +155,59 @@ class FlowManagement extends Model
     /**
      * @return array<string, string>
      */
+    public static function contractDocumentFields(): array
+    {
+        return [
+            'contract_doc_resident_record_url' => '住民票',
+            'contract_doc_residence_card_url' => '在留カード（裏表）',
+            'contract_doc_passport_url' => 'パスポート',
+            'contract_doc_payslip_url' => '給与明細（3ヶ月分）',
+            'contract_doc_face_photo_url' => '顔写真',
+            'contract_doc_identity_verification_url' => '本人確認(任意)',
+        ];
+    }
+
+    public static function contractDocumentConfirmedField(string $urlField): string
+    {
+        return preg_replace('/_url$/', '_confirmed', $urlField) ?? $urlField.'_confirmed';
+    }
+
+    /**
+     * @return list<string>
+     */
+    public static function contractDocumentConfirmedFields(): array
+    {
+        return array_map(
+            fn (string $urlField) => self::contractDocumentConfirmedField($urlField),
+            array_keys(self::contractDocumentFields())
+        );
+    }
+
+    public function contractDocumentStatus(string $urlField): string
+    {
+        if (! filled($this->{$urlField})) {
+            return '';
+        }
+
+        $confirmedField = self::contractDocumentConfirmedField($urlField);
+
+        return $this->{$confirmedField} ? '完了' : '確認中';
+    }
+
+    public function hasAnyContractDocumentUrl(): bool
+    {
+        foreach (array_keys(self::contractDocumentFields()) as $field) {
+            if (filled($this->{$field})) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * @return array<string, string>
+     */
     public static function columnLabels(): array
     {
         return [
@@ -131,9 +216,16 @@ class FlowManagement extends Model
             'application_id' => '申込ID',
             'flow_management_transition' => '書類管理移行チェック',
             'staff_in_charge' => '担当者',
+            'contractor' => '契約者',
+            'contractor_furigana' => 'フリガナ',
+            'contractor_english_name' => '英名',
+            'overseas_screening' => '海外審査',
+            'google_drive_url' => '契約書類',
+            ...self::contractDocumentFields(),
             'property_name' => '物件名',
             'room_number' => '部屋番号',
             'application_method' => '申込方法',
+            'entry_method' => '記入方法',
             'memo' => '備考',
             'move_in_date' => '入居日',
             'document_deadline' => '書類期日',

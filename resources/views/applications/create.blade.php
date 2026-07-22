@@ -19,6 +19,10 @@
             <h3 class="text-base font-semibold text-slate-900 border-b border-slate-100 pb-3">物件・申込情報</h3>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
                 <x-form-field label="担当者" name="staff_in_charge" required class="md:col-span-2" />
+                <x-form-field label="契約者" name="contractor" required class="md:col-span-2" />
+                <x-form-field label="フリガナ" name="contractor_furigana" required class="md:col-span-2" />
+                <x-form-field label="英名" name="contractor_english_name" class="md:col-span-2" placeholder="任意" />
+                <x-form-field label="海外審査" name="overseas_screening" type="textarea" rows="2" class="md:col-span-2" placeholder="任意" />
                 <x-form-field label="物件名" name="property_name" required />
                 <x-form-field label="部屋番号" name="room_number" required />
                 <x-form-field
@@ -62,6 +66,13 @@
                     @enderror
                 </div>
                 <x-form-field label="申込方法" name="application_method" required />
+                <x-form-field
+                    label="記入方法"
+                    name="entry_method"
+                    type="select"
+                    :options="['' => '選択してください'] + \App\Models\Application::entryMethodOptions()"
+                    required
+                />
                 <x-form-field label="状況" name="status" type="textarea" rows="5" class="md:col-span-2" required />
             </div>
         </section>
@@ -72,6 +83,21 @@
                 <x-form-field label="備考" name="memo" type="textarea" />
                 <x-form-field label="物件資料" name="property_documents_url" type="url" placeholder="https://" />
                 <x-form-field label="家電サポート・CB等" name="appliance_support_notes" type="textarea" />
+
+                <div class="rounded-xl border border-slate-200 bg-slate-50/60 p-4 space-y-4">
+                    <div>
+                        <h4 class="text-sm font-semibold text-slate-900">契約書類</h4>
+                        <p class="mt-1 text-xs text-slate-500">リンク未入力でも問題ありません。</p>
+                    </div>
+                    @foreach (\App\Models\Application::contractDocumentFields() as $field => $label)
+                        <x-form-field
+                            :label="$label"
+                            :name="$field"
+                            type="url"
+                            placeholder="リンクを貼り付け（任意）"
+                        />
+                    @endforeach
+                </div>
             </div>
         </section>
 

@@ -1,5 +1,7 @@
 <?php
 
+use App\Http\Controllers\AuthController;
+use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\Admin\ApplicationController as AdminApplicationController;
 use App\Http\Controllers\Admin\CustomerController as AdminCustomerController;
 use App\Http\Controllers\Admin\FlowManagementController as AdminFlowManagementController;
@@ -22,9 +24,14 @@ Route::get('/applications/complete/{application}', [ApplicationFormController::c
 Route::redirect('/customers/create', '/applications/create');
 Route::redirect('/customers/{customer}/applications/create', '/applications/create');
 
+Route::get('login', [AuthController::class, 'showLogin'])->name('login');
+Route::post('login', [AuthController::class, 'login'])->name('login.attempt');
+Route::post('logout', [AuthController::class, 'logout'])->name('logout');
+
 Route::prefix('admin')->name('admin.')->middleware('careearth.auth')->group(function () {
     Route::get('/applications', [AdminApplicationController::class, 'index'])->name('applications.index');
     Route::get('/flow-managements', [AdminFlowManagementController::class, 'index'])->name('flow-managements.index');
+    Route::get('/flow-managements/{flowManagement}', [AdminFlowManagementController::class, 'show'])->name('flow-managements.show');
     Route::get('/settlement-managements', [AdminSettlementManagementController::class, 'index'])->name('settlement-managements.index');
     Route::get('/customers', [MasterDataController::class, 'index'])
         ->defaults('table', 'customers')
@@ -50,9 +57,9 @@ Route::prefix('master')->name('master.')->middleware('careearth.auth')->group(fu
     });
 });
 
-Route::redirect('login', '/')->name('login');
-
 Route::middleware('careearth.auth')->group(function () {
+    Route::get('/home', [DashboardController::class, 'index'])->name('home');
+
     Route::middleware('careearth.admin')->group(function () {
         Route::get('/', [PropertyController::class, 'index'])->name('properties.index');
         Route::get('properties/create', [PropertyController::class, 'create'])->name('properties.create');
@@ -70,6 +77,7 @@ Route::middleware('careearth.auth')->group(function () {
     Route::get('property/deal-drafts', [PropertyDealDraftController::class, 'index'])->name('property.deal-drafts.index');
     Route::get('property/rental-income', [PropertyRentalIncomeController::class, 'index'])->name('property.rental-income.index');
     Route::get('property/rental-income/all', [PropertyRentalIncomeController::class, 'all'])->name('property.rental-income.all');
+    Route::get('property/rental-income/terminated', [PropertyRentalIncomeController::class, 'terminated'])->name('property.rental-income.terminated');
     Route::get('property/rental-income/contract', [PropertyRentalIncomeController::class, 'showContract'])->name('property.rental-income.contract.show');
     Route::get('files/{property}/{field}', [FileController::class, 'show'])->name('files.show');
 
@@ -82,6 +90,7 @@ Route::middleware('careearth.auth')->group(function () {
         Route::post('property/deal-drafts/{propertyDealDraft}/ad-fees', [PropertyDealDraftController::class, 'storeAdFee'])->name('property.deal-drafts.ad-fees.store');
         Route::patch('property/deal-drafts/{propertyDealDraft}/ad-fees/{adFee}', [PropertyDealDraftController::class, 'updateAdFee'])->name('property.deal-drafts.ad-fees.update');
         Route::delete('property/deal-drafts/{propertyDealDraft}/ad-fees/{adFee}', [PropertyDealDraftController::class, 'destroyAdFee'])->name('property.deal-drafts.ad-fees.destroy');
+        Route::post('property/rental-income/contract/terminate', [PropertyRentalIncomeController::class, 'terminateContract'])->name('property.rental-income.contract.terminate');
         Route::get('property/rental-income/create', [PropertyRentalIncomeController::class, 'create'])->name('property.rental-income.create');
         Route::post('property/rental-income', [PropertyRentalIncomeController::class, 'store'])->name('property.rental-income.store');
         Route::get('property/rental-income/{propertyRentalIncome}/edit', [PropertyRentalIncomeController::class, 'edit'])->name('property.rental-income.edit');

@@ -1,11 +1,11 @@
 @extends('layouts.admin')
 
-@section('title', ($isEdit ? '(仮)物件データ編集' : '(仮)物件データ登録') . ' — ' . config('app.name'))
+@section('title', ($isEdit ? '物件データ編集' : '物件データ登録') . ' — ' . config('app.name'))
 
 @section('content')
 <div class="mb-6 flex items-center justify-between gap-4">
     <div>
-        <h2 class="text-2xl font-bold text-slate-900">{{ $isEdit ? '(仮)物件データ編集' : '(仮)物件データ登録' }}</h2>
+        <h2 class="text-2xl font-bold text-slate-900">{{ $isEdit ? '物件データ編集' : '物件データ登録' }}</h2>
         @if ($isEdit)
             <p class="mt-1 text-sm text-slate-500">案件番号: <strong>{{ $record->case_number }}</strong></p>
         @endif

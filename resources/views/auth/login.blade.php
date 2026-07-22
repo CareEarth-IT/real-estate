@@ -5,10 +5,16 @@
 @section('content')
     <div class="max-w-md mx-auto">
         <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-8">
-            <h2 class="text-2xl font-bold text-slate-900 text-center">マスターデータ<br>アクセス認証</h2>
+            <h2 class="text-2xl font-bold text-slate-900 text-center">ログイン</h2>
             <p class="mt-3 text-sm text-slate-600 text-center leading-relaxed">
-                許可されたアカウントでのみアクセスできます
+                登録済みのメールアドレスとパスワードでサインインしてください。
             </p>
+
+            @if (session('success'))
+                <div class="mt-6 rounded-lg bg-green-50 border border-green-200 px-4 py-3 text-green-800 text-sm">
+                    {{ session('success') }}
+                </div>
+            @endif
 
             @error('email')
                 <div class="mt-6 rounded-lg bg-red-50 border border-red-200 px-4 py-3 text-red-800 text-sm">
@@ -16,9 +22,11 @@
                 </div>
             @enderror
 
-            <form method="post" action="{{ route('login') }}" class="mt-8 space-y-4" autocomplete="off">
+            <form method="post" action="{{ route('login.attempt') }}" class="mt-8 space-y-4" autocomplete="off">
                 @csrf
-                <input type="hidden" name="redirect" value="{{ $redirect }}">
+                @if (! empty($redirect))
+                    <input type="hidden" name="redirect" value="{{ $redirect }}">
+                @endif
                 <div>
                     <label for="email" class="block text-sm font-medium text-slate-700 mb-1">メールアドレス</label>
                     <input
@@ -48,8 +56,9 @@
                 </button>
             </form>
 
-            <p class="mt-6 text-xs text-slate-500 text-center">
-                許可アカウント: <strong>{{ config('careearth.allowed_email') }}</strong>
+            <p class="mt-6 text-xs text-slate-500 text-center leading-relaxed">
+                アカウントはユーザー管理画面で追加できます。<br>
+                無操作が2時間続くと再ログインが必要です。
             </p>
         </div>
     </div>

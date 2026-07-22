@@ -2,7 +2,21 @@
     use App\Support\YearMonth;
 
     $size = $size ?? 'default';
+    $showTerminateAction = ($showTerminateAction ?? false)
+        && ($canEdit ?? false)
+        && ($termination ?? null) === null;
     $rowClass = 'rental-income-row '.$paymentStatusClass($record->payment_status).' align-top transition-colors';
+    $terminationMonth = \App\Support\PropertyRentalIncomeContract::terminationCutoffMonth($termination ?? null);
+    $isTerminationMonth = $terminationMonth !== null
+        && (int) ($record->payment_month ?? 0) === $terminationMonth;
+    $showTerminationDateNote = ($showTerminationDateNote ?? true)
+        && $isTerminationMonth
+        && isset($termination)
+        && ($termination->terminated_on || $termination->terminated_at);
+    $defaultTerminatedOn = $record->payment_on?->format('Y-m-d')
+        ?? (YearMonth::isValid((int) $record->payment_month)
+            ? YearMonth::lastDay((int) $record->payment_month)
+            : now()->toDateString());
 
     if ($size === 'compact') {
         $rowClass .= ' rental-income-row--compact';
@@ -16,7 +30,14 @@
     data-rental-income-id="{{ $record->id }}"
     data-payment-status="{{ $record->payment_status ?? 'unpaid' }}"
 >
-    <td class="px-3 py-3 whitespace-nowrap">{{ YearMonth::formatShort($record->payment_month) }}</td>
+    <td class="px-3 py-3 whitespace-nowrap">
+        <div>{{ YearMonth::formatShort($record->payment_month) }}</div>
+        @if ($showTerminationDateNote)
+            <div class="rental-income-termination-date-note">
+                解約日{{ ($termination->terminated_on ?? $termination->terminated_at)->format('n月j日') }}
+            </div>
+        @endif
+    </td>
     <td class="px-3 py-3 whitespace-nowrap">{{ YearMonth::format($record->rent_year_month) }}</td>
     <td class="px-3 py-3 whitespace-nowrap">{{ $record->rent_amount !== null ? number_format($record->rent_amount) : '0' }}</td>
     <td class="px-3 py-3 whitespace-nowrap">{{ $paymentMethodLabels[$record->payment_method] ?? ($record->payment_method ?: '—') }}</td>
@@ -40,7 +61,19 @@
     <td class="px-3 py-3 whitespace-nowrap">{{ $record->payment_on?->format('Y/m/d') ?? '—' }}</td>
     @if ($canEdit ?? false)
     <td class="px-3 py-3 whitespace-nowrap">
-        <a href="{{ route('property.rental-income.edit', $record) }}" class="btn btn-outline btn-sm">編集</a>
+        <div class="flex items-center gap-2">
+            <a href="{{ route('property.rental-income.edit', $record) }}" class="btn btn-outline btn-sm">編集</a>
+            @if ($showTerminateAction)
+                <button
+                    type="button"
+                    class="btn btn-outline btn-sm rental-income-terminate-open"
+                    data-terminated-on="{{ $defaultTerminatedOn }}"
+                    data-payment-month-label="{{ YearMonth::formatShort($record->payment_month) }}"
+                >
+                    解約
+                </button>
+            @endif
+        </div>
     </td>
     @endif
 </tr>

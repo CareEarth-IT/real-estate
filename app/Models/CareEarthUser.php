@@ -11,14 +11,23 @@ class CareEarthUser extends Model
     protected $table = 'careearth_users';
 
     protected $fillable = [
+        'name',
         'email',
         'password_hash',
         'role',
+        'show_performance',
     ];
 
     protected $hidden = [
         'password_hash',
     ];
+
+    protected function casts(): array
+    {
+        return [
+            'show_performance' => 'boolean',
+        ];
+    }
 
     protected function role(): Attribute
     {

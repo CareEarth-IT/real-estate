@@ -1,14 +1,13 @@
 @extends('layouts.admin')
 
-@section('title', '(仮)物件データ — ' . config('app.name'))
+@section('title', '物件データ — ' . config('app.name'))
 
 @section('content')
 <div class="mb-6 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
     <div>
-        <h2 class="text-2xl font-bold text-slate-900">(仮)物件データ</h2>
+        <h2 class="text-2xl font-bold text-slate-900">物件データ</h2>
         <p class="mt-1 text-sm text-slate-500">
             登録件数: <strong class="text-slate-700">{{ $records->count() }}</strong> 件
-            <span class="text-amber-600">（試作版・採用前の確認用）</span>
         </p>
     </div>
     @if ($canEdit ?? false)

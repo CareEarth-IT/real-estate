@@ -30,10 +30,8 @@ class SettlementManagementController extends Controller
                 ->whereHas('application', fn ($query) => $query->where('screening_ok', true)))
             ->join('flow_managements', 'settlement_managements.flow_management_id', '=', 'flow_managements.id')
             ->join('applications', 'flow_managements.application_id', '=', 'applications.id')
-            ->whereNotNull('settlement_managements.fee_type')
             ->tap(fn ($query) => AdminListSearch::applyToSettlementManagement($query, $search))
             ->orderByDesc('applications.created_at')
-            ->orderBy('settlement_managements.fee_type')
             ->select('settlement_managements.*')
             ->paginate(10)
             ->withQueryString();
@@ -44,12 +42,23 @@ class SettlementManagementController extends Controller
         return view('admin.settlement-managements.index', compact('settlementManagements', 'booleanFields', 'columnLabels', 'search'));
     }
 
+    public function show(SettlementManagement $settlementManagement): View
+    {
+        $settlementManagement->load(['flowManagement.application', 'customer']);
+
+        return view('admin.settlement-managements.show', [
+            'settlementManagement' => $settlementManagement,
+            'booleanFields' => SettlementManagement::booleanFields(),
+            'columnLabels' => SettlementManagement::columnLabels(),
+        ]);
+    }
+
     public function updateField(Request $request, SettlementManagement $settlementManagement): JsonResponse
     {
         $field = $request->input('field');
-        $allowedTextFields = ['earned_points', 'remarks'];
-        $allowedIntegerFields = ['estimated_sales', 'sales_including_tax', 'sales_excluding_tax'];
-        $allowedDateFields = ['settlement_transfer_date'];
+        $allowedTextFields = ['management_number', 'earned_points', 'remarks'];
+        $allowedIntegerFields = ['estimated_sales', 'advertising_fee_amount', 'broker_fee_amount', 'sales_including_tax', 'sales_excluding_tax'];
+        $allowedDateFields = ['contract_date', 'settlement_transfer_date'];
 
         if (in_array($field, SettlementManagement::booleanFields(), true)) {
             $validated = $request->validate([
@@ -85,6 +94,13 @@ class SettlementManagementController extends Controller
         $settlementManagement->update([
             $validated['field'] => $validated['value'],
         ]);
+
+        if (in_array($validated['field'], ['advertising_fee_amount', 'broker_fee_amount'], true)) {
+            $settlementManagement->forceFill([
+                'estimated_sales' => (int) ($settlementManagement->advertising_fee_amount ?? 0)
+                    + (int) ($settlementManagement->broker_fee_amount ?? 0),
+            ])->save();
+        }
 
         return response()->json([
             'success' => true,
