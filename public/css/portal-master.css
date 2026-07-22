@@ -1982,8 +1982,8 @@
 .rental-archive-card__main,
 .portal-master-content .rental-archive-card__main {
     display: grid;
-    grid-template-columns: minmax(140px, 38%) 1fr;
-    min-height: 220px;
+    grid-template-columns: 1fr 1fr;
+    min-height: 240px;
 }
 
 .rental-archive-thumb,
@@ -1991,12 +1991,13 @@
     position: relative;
     display: block;
     width: 100%;
-    min-height: 220px;
+    height: 100%;
+    min-height: 240px;
     margin: 0;
     padding: 0;
     border: 0;
     border-right: 1px solid #e2e8f0;
-    background: #0f172a;
+    background: #f1f5f9;
     cursor: pointer;
     overflow: hidden;
 }
@@ -2011,7 +2012,6 @@
     display: block;
     width: 100%;
     height: 100%;
-    min-height: 220px;
     object-fit: cover;
 }
 
@@ -2021,8 +2021,8 @@
     right: 8px;
     bottom: 8px;
     padding: 2px 8px;
-    border-radius: 999px;
-    background: rgba(15, 23, 42, 0.72);
+    border-radius: 4px;
+    background: rgba(71, 85, 105, 0.88);
     color: #fff;
     font-size: 11px;
     font-weight: 700;
@@ -2037,11 +2037,10 @@
     gap: 4px;
     width: 100%;
     height: 100%;
-    min-height: 220px;
     color: #94a3b8;
     font-size: 13px;
     font-weight: 600;
-    background: linear-gradient(180deg, #1e293b 0%, #0f172a 100%);
+    background: #f8fafc;
 }
 
 .rental-archive-thumb__placeholder small,
@@ -2094,24 +2093,34 @@ body.rental-archive-lightbox-open {
 .rental-archive-lightbox__backdrop {
     position: absolute;
     inset: 0;
-    background: rgba(15, 23, 42, 0.55);
+    background: rgba(226, 232, 240, 0.92);
 }
 
 .rental-archive-lightbox__dialog {
     position: relative;
     z-index: 1;
     width: min(960px, 100%);
-    max-height: min(86vh, 820px);
     background: #fff;
-    border-radius: 12px;
-    box-shadow: 0 24px 64px rgba(15, 23, 42, 0.35);
-    overflow: hidden;
+    border: 1px solid #cbd5e1;
+    border-radius: 4px;
+    box-shadow: 0 8px 28px rgba(15, 23, 42, 0.12);
+    padding: 28px 12px 20px;
+}
+
+.rental-archive-lightbox__frame {
+    display: grid;
+    grid-template-columns: 48px 1fr 48px;
+    align-items: center;
+    gap: 4px;
 }
 
 .rental-archive-lightbox__stage {
+    position: relative;
     width: 100%;
-    height: min(72vh, 700px);
+    height: min(72vh, 720px);
     background: #fff;
+    border: 1px solid #e2e8f0;
+    overflow: hidden;
 }
 
 .rental-archive-lightbox__track {
@@ -2138,67 +2147,75 @@ body.rental-archive-lightbox-open {
     display: flex;
     align-items: center;
     justify-content: center;
-    background: #f8fafc;
+    background: #fff;
+    padding: 8px;
 }
 
 .rental-archive-lightbox__slide img {
     display: block;
     max-width: 100%;
     max-height: 100%;
+    width: auto;
+    height: auto;
     object-fit: contain;
 }
 
 .rental-archive-lightbox__close {
     position: absolute;
-    top: 12px;
-    right: 12px;
+    top: 8px;
+    right: 10px;
     z-index: 3;
-    width: 36px;
-    height: 36px;
+    width: 32px;
+    height: 32px;
     border: 0;
     border-radius: 999px;
-    background: rgba(15, 23, 42, 0.72);
-    color: #fff;
-    font-size: 22px;
+    background: transparent;
+    color: #64748b;
+    font-size: 24px;
     line-height: 1;
     cursor: pointer;
+}
+
+.rental-archive-lightbox__close:hover {
+    color: #0f172a;
+    background: #f1f5f9;
 }
 
 .rental-archive-lightbox__nav {
-    position: absolute;
-    top: 50%;
-    z-index: 3;
-    transform: translateY(-50%);
-    width: 42px;
-    height: 42px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 48px;
+    height: 72px;
     border: 0;
-    border-radius: 999px;
-    background: rgba(15, 23, 42, 0.55);
-    color: #fff;
-    font-size: 28px;
+    background: transparent;
+    color: #94a3b8;
+    font-size: 48px;
     line-height: 1;
     cursor: pointer;
+    user-select: none;
 }
 
-.rental-archive-lightbox__nav--prev {
-    left: 12px;
+.rental-archive-lightbox__nav:hover {
+    color: #64748b;
 }
 
-.rental-archive-lightbox__nav--next {
-    right: 12px;
+.rental-archive-lightbox__nav[hidden] {
+    visibility: hidden;
 }
 
 .rental-archive-lightbox__counter {
     position: absolute;
-    right: 16px;
-    bottom: 14px;
+    right: 10px;
+    bottom: 10px;
     z-index: 3;
     padding: 4px 10px;
-    border-radius: 999px;
-    background: rgba(100, 116, 139, 0.9);
+    border-radius: 4px;
+    background: rgba(71, 85, 105, 0.9);
     color: #fff;
     font-size: 12px;
     font-weight: 700;
+    letter-spacing: 0.02em;
 }
 
 @media (max-width: 720px) {
@@ -2209,16 +2226,21 @@ body.rental-archive-lightbox-open {
 
     .rental-archive-thumb,
     .portal-master-content .rental-archive-thumb {
+        width: 100%;
+        height: 220px;
+        min-height: 220px;
         border-right: 0;
         border-bottom: 1px solid #e2e8f0;
-        min-height: 180px;
     }
 
-    .rental-archive-thumb__image,
-    .portal-master-content .rental-archive-thumb__image,
-    .rental-archive-thumb__placeholder,
-    .portal-master-content .rental-archive-thumb__placeholder {
-        min-height: 180px;
+    .rental-archive-lightbox__frame {
+        grid-template-columns: 36px 1fr 36px;
+    }
+
+    .rental-archive-lightbox__nav {
+        width: 36px;
+        font-size: 36px;
     }
 }
+
 
