@@ -16,6 +16,6 @@ return [
         'extensions' => ['jpg', 'jpeg', 'png', 'pdf'],
     ],
 
-    'session_lifetime' => (int) env('CAREEARTH_SESSION_LIFETIME', 3600),
+    'session_lifetime' => (int) env('CAREEARTH_SESSION_LIFETIME', 7200),
 
 ];

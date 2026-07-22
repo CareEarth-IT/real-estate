@@ -1,10 +1,12 @@
 @php
     $listRoute = $listRoute ?? 'property.rental-income.index';
     $listParams = $listParams ?? [];
-    $paymentStatusLabels = $paymentStatusLabels ?? config('property-rental-income.payment_statuses', []);
+    $paymentStatusLabels = $paymentStatusLabels
+        ?? config('property-rental-income.payment_status_filters', config('property-rental-income.payment_statuses', []));
     $clearParams = collect($listParams)->except(['search', 'payment_status'])->all();
     $clearUrl = \App\Support\PropertyRentalIncomeListQuery::listUrl($listRoute, $clearParams);
     $hasActiveFilters = ($search ?? '') !== '' || ($paymentStatus ?? null) !== null;
+    $hidePaymentStatus = $hidePaymentStatus ?? false;
 @endphp
 
 <form
@@ -30,6 +32,7 @@
         >
     </div>
 
+    @unless ($hidePaymentStatus)
     <div class="rental-income-search-field w-full sm:w-auto sm:min-w-[160px]">
         <label for="rentalIncomePaymentStatus" class="rental-income-month-picker-label">入金状況</label>
         <select
@@ -43,6 +46,7 @@
             @endforeach
         </select>
     </div>
+    @endunless
 
     <div class="flex shrink-0 gap-2">
         <button type="submit" class="btn btn-outline btn-sm">絞り込み</button>

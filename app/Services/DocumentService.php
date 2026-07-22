@@ -25,7 +25,7 @@ class DocumentService
         'pdf' => 'application/pdf',
     ];
 
-    public function upload(?UploadedFile $file, string $prefix): ?string
+    public function upload(?UploadedFile $file, string $prefix, string $relativeDir = 'uploads/documents'): ?string
     {
         if ($file === null || ! $file->isValid()) {
             if ($file !== null && $file->getError() !== UPLOAD_ERR_NO_FILE) {
@@ -52,10 +52,36 @@ class DocumentService
             throw new RuntimeException('ファイルの内容が拡張子と一致しません。');
         }
 
+        $relativeDir = trim(str_replace('\\', '/', $relativeDir), '/');
         $filename = $prefix.'_'.bin2hex(random_bytes(8)).'.'.$ext;
-        $file->move($this->uploadDir(), $filename);
+        $file->move($this->ensureUploadDir($relativeDir), $filename);
 
-        return 'uploads/documents/'.$filename;
+        return $relativeDir.'/'.$filename;
+    }
+
+    public function uploadImage(?UploadedFile $file, string $prefix, string $relativeDir = 'uploads/rental-property-archives'): ?string
+    {
+        if ($file === null || ! $file->isValid()) {
+            if ($file !== null && $file->getError() !== UPLOAD_ERR_NO_FILE) {
+                throw new RuntimeException('ファイルのアップロードに失敗しました。');
+            }
+
+            return null;
+        }
+
+        $ext = strtolower($file->getClientOriginalExtension());
+        if (! in_array($ext, ['jpg', 'jpeg', 'png'], true)) {
+            throw new RuntimeException('画像は jpg / png のみ登録できます。');
+        }
+
+        $previous = config('careearth.upload.extensions');
+        config(['careearth.upload.extensions' => ['jpg', 'jpeg', 'png']]);
+
+        try {
+            return $this->upload($file, $prefix, $relativeDir);
+        } finally {
+            config(['careearth.upload.extensions' => $previous]);
+        }
     }
 
     /**
@@ -118,7 +144,7 @@ class DocumentService
             abort(404, 'File not found');
         }
 
-        $uploadRoot = realpath($this->uploadDir());
+        $uploadRoot = realpath($this->ensureUploadDir('uploads'));
         $realFile = realpath($absolute);
 
         if ($uploadRoot === false || $realFile === false || ! str_starts_with($realFile, $uploadRoot)) {
@@ -160,7 +186,12 @@ class DocumentService
 
     private function uploadDir(): string
     {
-        $dir = base_path('uploads/documents');
+        return $this->ensureUploadDir('uploads/documents');
+    }
+
+    private function ensureUploadDir(string $relativeDir): string
+    {
+        $dir = base_path($relativeDir);
 
         if (! is_dir($dir)) {
             mkdir($dir, 0755, true);

@@ -56,7 +56,7 @@
 
         <div class="form-row form-row-3">
             <div class="form-group">
-                <label for="rent_year_month">家賃年月</label>
+                <label for="rent_year_month">契約日</label>
                 <input
                     type="month"
                     id="rent_year_month"

@@ -14,6 +14,19 @@ return [
         'overdue' => '滞納',
     ],
 
+    'payment_status_filters' => [
+        'unpaid' => '未納',
+        'temporary' => '一時金',
+        'paid' => '納金済',
+        'overdue' => '滞納',
+        'terminated' => '解約済み',
+    ],
+
+    'move_out_types' => [
+        'voluntary' => '自主退去',
+        'forced' => '強制退去',
+    ],
+
     'payment_month_tabs' => [
         202607,
         202608,

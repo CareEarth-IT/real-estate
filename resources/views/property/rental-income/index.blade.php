@@ -26,7 +26,9 @@
                 'paymentMonthOptions' => $paymentMonthOptions,
                 'activePaymentMonth' => $activePaymentMonth,
             ])
+            @if ($canEdit ?? false)
             <a href="{{ route('property.rental-income.create', ['month' => $activePaymentMonth]) }}" class="btn btn-primary">+ 新規登録</a>
+            @endif
         </div>
     </div>
 
@@ -42,11 +44,15 @@
         @else
             <h2>{{ YearMonth::formatShort($activePaymentMonth) }} のデータがありません</h2>
             <p>「新規登録」から月別家賃収入データを追加してください。</p>
+            @if ($canEdit ?? false)
             <a href="{{ route('property.rental-income.create', ['month' => $activePaymentMonth]) }}" class="btn btn-primary">データを登録する</a>
+            @endif
         @endif
     </div>
 @else
-    @include('property.rental-income._blocks-grid')
+    @include('property.rental-income._blocks-grid', [
+        'showTerminatedDetails' => ($paymentStatus ?? null) === 'terminated',
+    ])
 @endif
 @endsection
 

@@ -30,7 +30,7 @@ final class PropertyRentalIncomeListQuery
             });
         }
 
-        if ($paymentStatus !== null) {
+        if ($paymentStatus !== null && $paymentStatus !== 'terminated') {
             $query->where('payment_status', $paymentStatus);
         }
 
@@ -79,7 +79,7 @@ final class PropertyRentalIncomeListQuery
             return null;
         }
 
-        $allowed = array_keys(config('property-rental-income.payment_statuses', []));
+        $allowed = array_keys(config('property-rental-income.payment_status_filters', config('property-rental-income.payment_statuses', [])));
 
         return in_array($value, $allowed, true) ? $value : null;
     }

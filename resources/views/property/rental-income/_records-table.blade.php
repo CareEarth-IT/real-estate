@@ -9,6 +9,7 @@
     $sortDirection = $sortDirection ?? 'desc';
     $listRoute = $listRoute ?? 'property.rental-income.index';
     $listParams = $listParams ?? [];
+    $canEdit = $canEdit ?? false;
 
     $sortHeader = function (string $column, string $label) use ($sortableColumns, $sort, $sortDirection, $listRoute, $listParams): string {
         if ($sortableColumns === null || ! isset($sortableColumns[$column])) {
@@ -35,14 +36,16 @@
                     @if ($showPaymentMonthColumn)
                         <th class="px-3 py-3 font-medium whitespace-nowrap min-w-[100px]">{!! $sortHeader('payment_month', '支払い月') !!}</th>
                     @endif
-                    <th class="px-3 py-3 font-medium whitespace-nowrap min-w-[100px]">家賃年月</th>
+                    <th class="px-3 py-3 font-medium whitespace-nowrap min-w-[100px]">契約日</th>
                     <th class="px-3 py-3 font-medium whitespace-nowrap min-w-[110px]">入金方法</th>
                     <th class="px-3 py-3 font-medium whitespace-nowrap min-w-[110px]">家賃</th>
                     <th class="px-3 py-3 font-medium whitespace-nowrap min-w-[130px]">入金状況</th>
                     <th class="px-3 py-3 font-medium whitespace-nowrap min-w-[100px]">入居者人数</th>
                     <th class="px-3 py-3 font-medium whitespace-nowrap min-w-[90px]">預り金</th>
                     <th class="px-3 py-3 font-medium whitespace-nowrap min-w-[110px]">支払日</th>
+                    @if ($canEdit)
                     <th class="px-3 py-3 font-medium whitespace-nowrap min-w-[200px]"></th>
+                    @endif
                 </tr>
             </thead>
             <tbody>
@@ -62,6 +65,7 @@
                         <td class="px-3 py-3 whitespace-nowrap">{{ $paymentMethodLabels[$record->payment_method] ?? ($record->payment_method ?: '—') }}</td>
                         <td class="px-3 py-3 whitespace-nowrap">{{ $record->rent_amount !== null ? number_format($record->rent_amount) : '0' }}</td>
                         <td class="px-3 py-3 whitespace-nowrap">
+                            @if ($canEdit)
                             <select
                                 class="rental-income-inline-field rental-income-status-field w-full min-w-[120px] rounded border border-slate-200 px-2 py-1 text-sm focus:border-primary-500 focus:ring-1 focus:ring-primary-500"
                                 data-field="payment_status"
@@ -71,10 +75,14 @@
                                     <option value="{{ $value }}" @selected(($record->payment_status ?? 'unpaid') === $value)>{{ $label }}</option>
                                 @endforeach
                             </select>
+                            @else
+                                {{ $paymentStatusLabels[$record->payment_status ?? 'unpaid'] ?? '—' }}
+                            @endif
                         </td>
                         <td class="px-3 py-3 whitespace-nowrap">{{ $record->occupant_count ?? '—' }}</td>
                         <td class="px-3 py-3 whitespace-nowrap">{{ $record->deposit_amount !== null ? number_format($record->deposit_amount) : '0' }}</td>
                         <td class="px-3 py-3 whitespace-nowrap">{{ $record->payment_on?->format('Y/m/d') ?? '—' }}</td>
+                        @if ($canEdit)
                         <td class="px-3 py-3 whitespace-nowrap">
                             @php
                                 $deleteRedirect = route($listRoute ?? 'property.rental-income.index', $listParams ?? []);
@@ -104,6 +112,7 @@
                                 </form>
                             </div>
                         </td>
+                        @endif
                     </tr>
                 @endforeach
             </tbody>

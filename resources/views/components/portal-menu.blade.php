@@ -3,7 +3,8 @@
 
     $variant = $variant ?? 'app';
     $menuId = 'portal-menu-' . $variant;
-    $isAdmin = CareEarthAuth::isAdmin(request());
+    $canManageUsers = $canManageUsers ?? CareEarthAuth::canManageUsers(request());
+    $canAccessPropertyMaster = $canAccessPropertyMaster ?? CareEarthAuth::canAccessPropertyMaster(request());
 @endphp
 
 <div class="portal-menu portal-menu--{{ $variant }}" data-portal-menu>
@@ -31,29 +32,51 @@
         data-portal-menu-panel
     >
         <div class="portal-menu-group" role="presentation">
-            <p class="portal-menu-group-label">賃貸管理情報</p>
+            <p class="portal-menu-group-label">メニュー</p>
+            <a
+                href="{{ route('home') }}"
+                role="menuitem"
+                @class(['portal-menu-item', 'active' => request()->routeIs('home')])
+            >ホーム</a>
             <a
                 href="{{ route('admin.applications.index') }}"
                 role="menuitem"
-                @class(['portal-menu-item', 'active' => request()->routeIs('admin.applications.*', 'admin.flow-managements.*', 'admin.settlement-managements.*')])
+                @class(['portal-menu-item', 'active' => request()->routeIs('admin.applications.*', 'admin.flow-managements.*', 'admin.settlement-managements.*', 'admin.rental-property-archives.*')])
             >賃貸管理一覧</a>
         </div>
 
-        @if ($isAdmin)
+        @if ($canAccessPropertyMaster || $canManageUsers)
         <div class="portal-menu-group" role="presentation">
             <p class="portal-menu-group-label">物件一覧メニュー</p>
+            @if ($canAccessPropertyMaster)
             <a
                 href="{{ route('properties.index') }}"
                 role="menuitem"
-                @class(['portal-menu-item', 'active' => request()->routeIs('properties.index', 'properties.show', 'properties.edit')])
+                @class(['portal-menu-item', 'active' => request()->routeIs('properties.index', 'properties.show', 'properties.edit') && request()->query('from') !== 'reference'])
             >物件マスターデータ一覧</a>
+            @endif
+            @if ($canManageUsers)
             <a
                 href="{{ route('users.index') }}"
                 role="menuitem"
                 @class(['portal-menu-item', 'active' => request()->routeIs('users.*')])
             >ユーザー管理</a>
+            @endif
         </div>
         @endif
+
+        <div class="portal-menu-group" role="presentation">
+            <p class="portal-menu-group-label">アカウント</p>
+            @if (session('email'))
+                <p class="portal-menu-item" style="cursor: default; opacity: 0.75;">{{ session('name') ?: session('email') }}</p>
+            @endif
+            <form method="post" action="{{ route('logout') }}" role="none">
+                @csrf
+                <button type="submit" class="portal-menu-item" role="menuitem" style="width: 100%; text-align: left; border: 0; background: transparent; cursor: pointer;">
+                    ログアウト
+                </button>
+            </form>
+        </div>
     </div>
 </div>
 
