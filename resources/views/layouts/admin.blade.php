@@ -7,6 +7,7 @@
         'admin.applications.*',
         'admin.flow-managements.*',
         'admin.settlement-managements.*',
+        'admin.rental-property-archives.*',
     );
     $isPortalPage = request()->routeIs(
         'properties.*',

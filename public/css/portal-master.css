@@ -1959,3 +1959,288 @@
         grid-template-columns: 1fr;
     }
 }
+
+/* 賃貸物件保管 */
+.rental-archive-grid,
+.portal-master-content .rental-archive-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+@media (max-width: 640px) {
+    .rental-archive-grid,
+    .portal-master-content .rental-archive-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+.rental-archive-card,
+.portal-master-content .rental-archive-card {
+    overflow: hidden;
+    padding: 0;
+}
+
+.rental-archive-card__main,
+.portal-master-content .rental-archive-card__main {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    min-height: 240px;
+}
+
+.rental-archive-thumb,
+.portal-master-content .rental-archive-thumb {
+    position: relative;
+    display: block;
+    width: 100%;
+    height: 100%;
+    min-height: 240px;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    border-right: 1px solid #e2e8f0;
+    background: #f1f5f9;
+    cursor: pointer;
+    overflow: hidden;
+}
+
+.rental-archive-thumb:disabled,
+.portal-master-content .rental-archive-thumb:disabled {
+    cursor: default;
+}
+
+.rental-archive-thumb__image,
+.portal-master-content .rental-archive-thumb__image {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.rental-archive-thumb__count,
+.portal-master-content .rental-archive-thumb__count {
+    position: absolute;
+    right: 8px;
+    bottom: 8px;
+    padding: 2px 8px;
+    border-radius: 4px;
+    background: rgba(71, 85, 105, 0.88);
+    color: #fff;
+    font-size: 11px;
+    font-weight: 700;
+}
+
+.rental-archive-thumb__placeholder,
+.portal-master-content .rental-archive-thumb__placeholder {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    width: 100%;
+    height: 100%;
+    color: #94a3b8;
+    font-size: 13px;
+    font-weight: 600;
+    background: #f8fafc;
+}
+
+.rental-archive-thumb__placeholder small,
+.portal-master-content .rental-archive-thumb__placeholder small {
+    font-size: 11px;
+    font-weight: 500;
+    color: #64748b;
+}
+
+.rental-archive-card__info,
+.portal-master-content .rental-archive-card__info {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+}
+
+.rental-archive-card__header,
+.portal-master-content .rental-archive-card__header {
+    padding: 12px 12px 0;
+}
+
+.rental-archive-card__body,
+.portal-master-content .rental-archive-card__body {
+    flex: 1;
+}
+
+.rental-archive-actions,
+.portal-master-content .rental-archive-actions {
+    align-items: center;
+}
+
+body.rental-archive-lightbox-open {
+    overflow: hidden;
+}
+
+.rental-archive-lightbox {
+    position: fixed;
+    inset: 0;
+    z-index: 10050;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+}
+
+.rental-archive-lightbox[hidden] {
+    display: none !important;
+}
+
+.rental-archive-lightbox__backdrop {
+    position: absolute;
+    inset: 0;
+    background: rgba(226, 232, 240, 0.92);
+}
+
+.rental-archive-lightbox__dialog {
+    position: relative;
+    z-index: 1;
+    width: min(960px, 100%);
+    background: #fff;
+    border: 1px solid #cbd5e1;
+    border-radius: 4px;
+    box-shadow: 0 8px 28px rgba(15, 23, 42, 0.12);
+    padding: 28px 12px 20px;
+}
+
+.rental-archive-lightbox__frame {
+    display: grid;
+    grid-template-columns: 48px 1fr 48px;
+    align-items: center;
+    gap: 4px;
+}
+
+.rental-archive-lightbox__stage {
+    position: relative;
+    width: 100%;
+    height: min(72vh, 720px);
+    background: #fff;
+    border: 1px solid #e2e8f0;
+    overflow: hidden;
+}
+
+.rental-archive-lightbox__track {
+    display: flex;
+    width: 100%;
+    height: 100%;
+    overflow-x: auto;
+    overflow-y: hidden;
+    scroll-snap-type: x mandatory;
+    scroll-behavior: smooth;
+    -webkit-overflow-scrolling: touch;
+}
+
+.rental-archive-lightbox__track::-webkit-scrollbar {
+    height: 0;
+}
+
+.rental-archive-lightbox__slide {
+    flex: 0 0 100%;
+    width: 100%;
+    height: 100%;
+    scroll-snap-align: center;
+    scroll-snap-stop: always;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #fff;
+    padding: 8px;
+}
+
+.rental-archive-lightbox__slide img {
+    display: block;
+    max-width: 100%;
+    max-height: 100%;
+    width: auto;
+    height: auto;
+    object-fit: contain;
+}
+
+.rental-archive-lightbox__close {
+    position: absolute;
+    top: 8px;
+    right: 10px;
+    z-index: 3;
+    width: 32px;
+    height: 32px;
+    border: 0;
+    border-radius: 999px;
+    background: transparent;
+    color: #64748b;
+    font-size: 24px;
+    line-height: 1;
+    cursor: pointer;
+}
+
+.rental-archive-lightbox__close:hover {
+    color: #0f172a;
+    background: #f1f5f9;
+}
+
+.rental-archive-lightbox__nav {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 48px;
+    height: 72px;
+    border: 0;
+    background: transparent;
+    color: #94a3b8;
+    font-size: 48px;
+    line-height: 1;
+    cursor: pointer;
+    user-select: none;
+}
+
+.rental-archive-lightbox__nav:hover {
+    color: #64748b;
+}
+
+.rental-archive-lightbox__nav[hidden] {
+    visibility: hidden;
+}
+
+.rental-archive-lightbox__counter {
+    position: absolute;
+    right: 10px;
+    bottom: 10px;
+    z-index: 3;
+    padding: 4px 10px;
+    border-radius: 4px;
+    background: rgba(71, 85, 105, 0.9);
+    color: #fff;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+}
+
+@media (max-width: 720px) {
+    .rental-archive-card__main,
+    .portal-master-content .rental-archive-card__main {
+        grid-template-columns: 1fr;
+    }
+
+    .rental-archive-thumb,
+    .portal-master-content .rental-archive-thumb {
+        width: 100%;
+        height: 220px;
+        min-height: 220px;
+        border-right: 0;
+        border-bottom: 1px solid #e2e8f0;
+    }
+
+    .rental-archive-lightbox__frame {
+        grid-template-columns: 36px 1fr 36px;
+    }
+
+    .rental-archive-lightbox__nav {
+        width: 36px;
+        font-size: 36px;
+    }
+}
+
+

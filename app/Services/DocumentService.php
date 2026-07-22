@@ -144,7 +144,7 @@ class DocumentService
             abort(404, 'File not found');
         }
 
-        $uploadRoot = realpath($this->uploadDir());
+        $uploadRoot = realpath($this->ensureUploadDir('uploads'));
         $realFile = realpath($absolute);
 
         if ($uploadRoot === false || $realFile === false || ! str_starts_with($realFile, $uploadRoot)) {

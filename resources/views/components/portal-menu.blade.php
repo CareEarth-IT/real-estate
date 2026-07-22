@@ -41,7 +41,7 @@
             <a
                 href="{{ route('admin.applications.index') }}"
                 role="menuitem"
-                @class(['portal-menu-item', 'active' => request()->routeIs('admin.applications.*', 'admin.flow-managements.*', 'admin.settlement-managements.*')])
+                @class(['portal-menu-item', 'active' => request()->routeIs('admin.applications.*', 'admin.flow-managements.*', 'admin.settlement-managements.*', 'admin.rental-property-archives.*')])
             >賃貸管理一覧</a>
         </div>
 

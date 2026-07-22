@@ -6,6 +6,7 @@ use App\Http\Controllers\Admin\ApplicationController as AdminApplicationControll
 use App\Http\Controllers\Admin\CustomerController as AdminCustomerController;
 use App\Http\Controllers\Admin\FlowManagementController as AdminFlowManagementController;
 use App\Http\Controllers\Admin\SettlementManagementController as AdminSettlementManagementController;
+use App\Http\Controllers\Admin\RentalPropertyArchiveController as AdminRentalPropertyArchiveController;
 use App\Http\Controllers\ApplicationFormController;
 use App\Http\Controllers\FileController;
 use App\Http\Controllers\Master\MasterDataController;
@@ -33,6 +34,9 @@ Route::prefix('admin')->name('admin.')->middleware('careearth.auth')->group(func
     Route::get('/flow-managements', [AdminFlowManagementController::class, 'index'])->name('flow-managements.index');
     Route::get('/flow-managements/{flowManagement}', [AdminFlowManagementController::class, 'show'])->name('flow-managements.show');
     Route::get('/settlement-managements', [AdminSettlementManagementController::class, 'index'])->name('settlement-managements.index');
+    Route::get('/settlement-managements/{settlementManagement}', [AdminSettlementManagementController::class, 'show'])->name('settlement-managements.show');
+    Route::get('/rental-property-archives', [AdminRentalPropertyArchiveController::class, 'index'])->name('rental-property-archives.index');
+    Route::get('/rental-property-archives/{rentalPropertyArchive}/images/{image}', [AdminRentalPropertyArchiveController::class, 'showImage'])->name('rental-property-archives.images.show');
     Route::get('/customers', [MasterDataController::class, 'index'])
         ->defaults('table', 'customers')
         ->name('customers.index');
@@ -46,6 +50,11 @@ Route::prefix('admin')->name('admin.')->middleware('careearth.auth')->group(func
         Route::patch('/applications/{application}/customer', [AdminCustomerController::class, 'update'])->name('applications.customer.update');
         Route::patch('/flow-managements/{flowManagement}/fields', [AdminFlowManagementController::class, 'updateField'])->name('flow-managements.update-field');
         Route::patch('/settlement-managements/{settlementManagement}/fields', [AdminSettlementManagementController::class, 'updateField'])->name('settlement-managements.update-field');
+        Route::post('/rental-property-archives', [AdminRentalPropertyArchiveController::class, 'store'])->name('rental-property-archives.store');
+        Route::patch('/rental-property-archives/{rentalPropertyArchive}/fields', [AdminRentalPropertyArchiveController::class, 'updateField'])->name('rental-property-archives.update-field');
+        Route::post('/rental-property-archives/{rentalPropertyArchive}/images', [AdminRentalPropertyArchiveController::class, 'storeImages'])->name('rental-property-archives.images.store');
+        Route::delete('/rental-property-archives/{rentalPropertyArchive}/images/{image}', [AdminRentalPropertyArchiveController::class, 'destroyImage'])->name('rental-property-archives.images.destroy');
+        Route::delete('/rental-property-archives/{rentalPropertyArchive}', [AdminRentalPropertyArchiveController::class, 'destroy'])->name('rental-property-archives.destroy');
     });
 });
 

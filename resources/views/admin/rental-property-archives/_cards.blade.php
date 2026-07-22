@@ -10,12 +10,18 @@
     <div class="rental-archive-lightbox__backdrop" data-lightbox-close></div>
     <div class="rental-archive-lightbox__dialog" role="dialog" aria-modal="true" aria-label="物件画像プレビュー">
         <button type="button" class="rental-archive-lightbox__close" data-lightbox-close aria-label="閉じる">×</button>
-        <button type="button" class="rental-archive-lightbox__nav rental-archive-lightbox__nav--prev" data-lightbox-prev aria-label="前の画像">‹</button>
-        <button type="button" class="rental-archive-lightbox__nav rental-archive-lightbox__nav--next" data-lightbox-next aria-label="次の画像">›</button>
-        <div class="rental-archive-lightbox__stage">
-            <div class="rental-archive-lightbox__track" data-lightbox-track></div>
+        <div class="rental-archive-lightbox__frame">
+            <button type="button" class="rental-archive-lightbox__nav rental-archive-lightbox__nav--prev" data-lightbox-prev aria-label="前の画像">
+                <span aria-hidden="true">‹</span>
+            </button>
+            <div class="rental-archive-lightbox__stage">
+                <div class="rental-archive-lightbox__track" data-lightbox-track></div>
+                <div class="rental-archive-lightbox__counter" data-lightbox-counter>1/1</div>
+            </div>
+            <button type="button" class="rental-archive-lightbox__nav rental-archive-lightbox__nav--next" data-lightbox-next aria-label="次の画像">
+                <span aria-hidden="true">›</span>
+            </button>
         </div>
-        <div class="rental-archive-lightbox__counter" data-lightbox-counter>1/1</div>
     </div>
 </div>
 
