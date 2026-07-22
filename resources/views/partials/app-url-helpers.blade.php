@@ -2,6 +2,7 @@
     window.adminAppBasePath = function () {
         const path = window.location.pathname.replace(/\/$/, '');
         const markers = [
+            '/admin',
             '/property/rental-income',
             '/property/deal-drafts',
             '/properties',

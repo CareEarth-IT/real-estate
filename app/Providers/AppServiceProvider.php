@@ -2,9 +2,11 @@
 
 namespace App\Providers;
 
+use App\Http\Middleware\CareEarthAuth;
 use App\Models\CareEarthUser;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\URL;
+use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -32,5 +34,17 @@ class AppServiceProvider extends ServiceProvider
         }
 
         Route::bind('user', fn (string $value) => CareEarthUser::query()->findOrFail($value));
+
+        View::composer('*', function ($view): void {
+            $request = request();
+
+            if (! $request->hasSession()) {
+                return;
+            }
+
+            $view->with('canEdit', CareEarthAuth::canEdit($request));
+            $view->with('canAccessPropertyMaster', CareEarthAuth::canAccessPropertyMaster($request));
+            $view->with('canManageUsers', CareEarthAuth::canManageUsers($request));
+        });
     }
 }

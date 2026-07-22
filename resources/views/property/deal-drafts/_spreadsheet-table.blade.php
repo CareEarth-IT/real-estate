@@ -6,6 +6,7 @@
     $statusLabels = $statusLabels ?? config('property-deal-draft.statuses', []);
     $propertyTypeLabels = $propertyTypeLabels ?? config('property-deal-draft.property_types', []);
     $visibleFiscalYears = $visibleFiscalYears ?? PropertyDealDraftFiscalYear::visibleYears();
+    $canEdit = $canEdit ?? false;
 @endphp
 
 <div class="deal-draft-sheet-wrapper">
@@ -18,7 +19,9 @@
                         <th class="deal-draft-sheet__case-col" scope="col">
                             <div class="deal-draft-sheet__case-header">
                                 <span>{{ $record->case_number }}</span>
+                                @if ($canEdit)
                                 <a href="{{ route('property.deal-drafts.edit', $record) }}" class="deal-draft-sheet__edit-link">編集</a>
+                                @endif
                             </div>
                         </th>
                     @endforeach
@@ -110,6 +113,7 @@
                                     @endif
                                 >
                                     @if ($isInlineStatus)
+                                        @if ($canEdit)
                                         <select
                                             class="deal-draft-inline-field"
                                             data-deal-draft-id="{{ $record->id }}"
@@ -120,7 +124,11 @@
                                                 <option value="{{ $value }}" @selected($record->status === $value)>{{ $label }}</option>
                                             @endforeach
                                         </select>
+                                        @else
+                                            {{ $statusLabels[$record->status] ?? ($record->status ?: '—') }}
+                                        @endif
                                     @elseif ($isInlinePropertyType)
+                                        @if ($canEdit)
                                         <select
                                             class="deal-draft-inline-field"
                                             data-deal-draft-id="{{ $record->id }}"
@@ -132,6 +140,9 @@
                                                 <option value="{{ $value }}" @selected($record->property_type === $value)>{{ $label }}</option>
                                             @endforeach
                                         </select>
+                                        @else
+                                            {{ $propertyTypeLabels[$record->property_type] ?? ($record->property_type ?: '—') }}
+                                        @endif
                                     @else
                                         {{ PropertyDealDraftSheet::formatCell($record, $row) }}
                                     @endif

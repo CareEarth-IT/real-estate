@@ -24,7 +24,9 @@
     <span class="empty-icon">📋</span>
     <h2>データがありません</h2>
     <p>マスターデータを登録すると、ここに表示されます。</p>
+    @if ($canAccessPropertyMaster ?? false)
     <a href="{{ route('properties.create') }}" class="btn btn-primary">データを登録する</a>
+    @endif
 </div>
 
 @elseif($tab === 'list')

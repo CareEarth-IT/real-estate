@@ -7,15 +7,7 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::disableForeignKeyConstraints();
-
-        Schema::dropIfExists('settlement_managements');
-        Schema::dropIfExists('flow_managements');
-        Schema::dropIfExists('applications');
-        Schema::dropIfExists('customers');
-        Schema::dropIfExists('screening_completions');
-
-        Schema::enableForeignKeyConstraints();
+        // Rental tables are restored by 2026_07_07_100000_restore_rental_management_tables.
     }
 
     public function down(): void
