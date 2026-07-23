@@ -4,7 +4,6 @@
     $variant = $variant ?? 'app';
     $menuId = 'portal-menu-' . $variant;
     $canManageUsers = $canManageUsers ?? CareEarthAuth::canManageUsers(request());
-    $canAccessPropertyMaster = $canAccessPropertyMaster ?? CareEarthAuth::canAccessPropertyMaster(request());
 @endphp
 
 <div class="portal-menu portal-menu--{{ $variant }}" data-portal-menu>
@@ -41,19 +40,19 @@
             <a
                 href="{{ route('admin.applications.index') }}"
                 role="menuitem"
-                @class(['portal-menu-item', 'active' => request()->routeIs('admin.applications.*', 'admin.flow-managements.*', 'admin.settlement-managements.*', 'admin.rental-property-archives.*')])
+                @class(['portal-menu-item', 'active' => request()->routeIs('admin.applications.*', 'admin.flow-managements.*', 'admin.settlement-managements.*')])
             >賃貸管理一覧</a>
+            <a
+                href="{{ route('admin.rental-property-archives.index') }}"
+                role="menuitem"
+                @class(['portal-menu-item', 'active' => request()->routeIs('admin.rental-property-archives.*')])
+            >賃貸物件保管</a>
         </div>
 
-        @if ($canAccessPropertyMaster || $canManageUsers)
         <div class="portal-menu-group" role="presentation">
-            <p class="portal-menu-group-label">物件一覧メニュー</p>
-            @if ($canAccessPropertyMaster)
-            <a
-                href="{{ route('properties.index') }}"
-                role="menuitem"
-                @class(['portal-menu-item', 'active' => request()->routeIs('properties.index', 'properties.show', 'properties.edit') && request()->query('from') !== 'reference'])
-            >物件マスターデータ一覧</a>
+            <p class="portal-menu-group-label">アカウント</p>
+            @if (session('email'))
+                <p class="portal-menu-item" style="cursor: default; opacity: 0.75;">{{ session('name') ?: session('email') }}</p>
             @endif
             @if ($canManageUsers)
             <a
@@ -61,14 +60,6 @@
                 role="menuitem"
                 @class(['portal-menu-item', 'active' => request()->routeIs('users.*')])
             >ユーザー管理</a>
-            @endif
-        </div>
-        @endif
-
-        <div class="portal-menu-group" role="presentation">
-            <p class="portal-menu-group-label">アカウント</p>
-            @if (session('email'))
-                <p class="portal-menu-item" style="cursor: default; opacity: 0.75;">{{ session('name') ?: session('email') }}</p>
             @endif
             <form method="post" action="{{ route('logout') }}" role="none">
                 @csrf

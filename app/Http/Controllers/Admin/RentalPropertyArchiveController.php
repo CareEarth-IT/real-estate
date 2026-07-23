@@ -44,21 +44,40 @@ class RentalPropertyArchiveController extends Controller
         ]);
 
         return redirect()
-            ->route('admin.rental-property-archives.index')
-            ->with('success', '賃貸物件を追加しました。')
-            ->with('focus_archive_id', $archive->id);
+            ->route('admin.rental-property-archives.show', $archive)
+            ->with('success', '賃貸物件を追加しました。');
+    }
+
+    public function show(RentalPropertyArchive $rentalPropertyArchive): View
+    {
+        $rentalPropertyArchive->load('images');
+
+        return view('admin.rental-property-archives.show', [
+            'archive' => $rentalPropertyArchive,
+            'columnLabels' => RentalPropertyArchive::columnLabels(),
+        ]);
     }
 
     public function updateField(Request $request, RentalPropertyArchive $rentalPropertyArchive): JsonResponse
     {
+        $field = $request->input('field');
+        $maxLength = $field === 'google_drive_url' ? 2000 : 255;
+
         $validated = $request->validate([
             'field' => ['required', Rule::in(RentalPropertyArchive::editableFields())],
-            'value' => ['nullable', 'string', 'max:255'],
+            'value' => ['nullable', 'string', "max:{$maxLength}"],
         ]);
 
         $value = $validated['value'];
         if ($value === '') {
             $value = null;
+        }
+
+        if ($validated['field'] === 'google_drive_url' && $value !== null) {
+            $value = trim($value);
+            if (! filter_var($value, FILTER_VALIDATE_URL)) {
+                return response()->json(['message' => '有効なURLを入力してください。'], 422);
+            }
         }
 
         $rentalPropertyArchive->update([

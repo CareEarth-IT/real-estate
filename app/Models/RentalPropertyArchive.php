@@ -11,6 +11,7 @@ class RentalPropertyArchive extends Model
         'property_name',
         'address',
         'building_age',
+        'google_drive_url',
     ];
 
     public function images(): HasMany
@@ -29,6 +30,7 @@ class RentalPropertyArchive extends Model
             'property_name' => '物件名',
             'address' => '住所',
             'building_age' => '築年数',
+            'google_drive_url' => 'Googleドライブ',
         ];
     }
 
@@ -37,6 +39,6 @@ class RentalPropertyArchive extends Model
      */
     public static function editableFields(): array
     {
-        return ['property_name', 'address', 'building_age'];
+        return ['property_name', 'address', 'building_age', 'google_drive_url'];
     }
 }

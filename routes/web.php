@@ -36,6 +36,7 @@ Route::prefix('admin')->name('admin.')->middleware('careearth.auth')->group(func
     Route::get('/settlement-managements', [AdminSettlementManagementController::class, 'index'])->name('settlement-managements.index');
     Route::get('/settlement-managements/{settlementManagement}', [AdminSettlementManagementController::class, 'show'])->name('settlement-managements.show');
     Route::get('/rental-property-archives', [AdminRentalPropertyArchiveController::class, 'index'])->name('rental-property-archives.index');
+    Route::get('/rental-property-archives/{rentalPropertyArchive}', [AdminRentalPropertyArchiveController::class, 'show'])->name('rental-property-archives.show');
     Route::get('/rental-property-archives/{rentalPropertyArchive}/images/{image}', [AdminRentalPropertyArchiveController::class, 'showImage'])->name('rental-property-archives.images.show');
     Route::get('/customers', [MasterDataController::class, 'index'])
         ->defaults('table', 'customers')
