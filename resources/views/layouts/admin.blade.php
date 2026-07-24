@@ -2,12 +2,12 @@
 @php
     $adminPageLoaderEnabled = true;
     $isUsersPage = request()->routeIs('users.*');
+    $isRentalPropertyArchivesPage = request()->routeIs('admin.rental-property-archives.*');
     $isRentalAdminPage = request()->routeIs(
         'home',
         'admin.applications.*',
         'admin.flow-managements.*',
         'admin.settlement-managements.*',
-        'admin.rental-property-archives.*',
     );
     $isPortalPage = request()->routeIs(
         'properties.*',
@@ -30,7 +30,7 @@
     <link rel="icon" type="image/png" href="{{ asset('images/care-earth-home-logo.png') }}">
     <link rel="apple-touch-icon" href="{{ asset('images/care-earth-home-logo.png') }}">
     <link rel="stylesheet" href="{{ asset('css/portal-menu.css') }}">
-    <link rel="stylesheet" href="{{ asset('css/portal-master.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/portal-master.css') }}?v=20260724-input-border">
     <link rel="stylesheet" href="{{ asset('css/style.css') }}">
     @stack('head')
     <style>
@@ -375,7 +375,7 @@
         <main id="admin-main-content" @class([
             'admin-main-content flex-1 p-8 overflow-x-auto',
             $adminPageLoaderEnabled ? '' : 'is-visible',
-            'portal-master-content' => ($isPortalPage || $isRentalAdminPage || ($isUsersPage ?? false)),
+            'portal-master-content' => ($isPortalPage || $isRentalAdminPage || $isRentalPropertyArchivesPage || ($isUsersPage ?? false)),
         ])>
             @if (session('success'))
                 <div class="mb-6 rounded-lg bg-green-50 border border-green-200 px-4 py-3 text-green-800 text-sm">{{ session('success') }}</div>

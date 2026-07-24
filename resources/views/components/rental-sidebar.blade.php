@@ -25,11 +25,5 @@
         >
             決済金管理
         </a>
-        <a
-            href="{{ route('admin.rental-property-archives.index') }}"
-            class="admin-nav-link block rounded-lg px-3 py-2 text-sm font-medium {{ request()->routeIs('admin.rental-property-archives.*') ? 'is-active' : '' }}"
-        >
-            賃貸物件保管
-        </a>
     </nav>
 </aside>
