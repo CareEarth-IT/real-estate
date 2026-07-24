@@ -33,49 +33,33 @@
     </div>
 
     <div class="application-blocks-board space-y-6">
+        @include('admin.rental-property-archives._property-frame', ['archive' => $archive])
+        @include('admin.rental-property-archives._money-frame', ['archive' => $archive])
+        @include('admin.rental-property-archives._condition-frame', ['archive' => $archive])
+
         <section class="application-block rental-archive-detail__section">
-            <h3 class="mb-4 text-sm font-semibold uppercase tracking-wide text-slate-400">基本情報</h3>
-            <div class="grid grid-cols-1 gap-3 md:grid-cols-2">
-                @foreach ($columnLabels as $field => $label)
-                    @if ($field === 'google_drive_url')
-                        <div class="application-block__cell application-block__cell--editable md:col-span-2">
-                            <span class="application-block__cell-label">{{ $label }}</span>
-                            <input
-                                type="url"
-                                class="rental-archive-field application-inline-field"
-                                data-archive-id="{{ $archive->id }}"
-                                data-field="google_drive_url"
-                                value="{{ $archive->google_drive_url }}"
-                                maxlength="2000"
-                                placeholder="Googleドライブのリンクを貼り付け"
-                                @readonly(!($canEdit ?? false))
-                            >
-                            <a
-                                href="{{ $archive->google_drive_url ?: '#' }}"
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                class="rental-archive-drive-open mt-2 inline-flex text-sm font-semibold text-primary-600 hover:underline {{ $archive->google_drive_url ? '' : 'pointer-events-none opacity-40' }}"
-                                @if (! $archive->google_drive_url) aria-disabled="true" @endif
-                            >
-                                リンクを開く
-                            </a>
-                        </div>
-                    @else
-                        <label class="application-block__cell application-block__cell--editable">
-                            <span class="application-block__cell-label">{{ $label }}</span>
-                            <input
-                                type="text"
-                                class="rental-archive-field application-inline-field"
-                                data-archive-id="{{ $archive->id }}"
-                                data-field="{{ $field }}"
-                                value="{{ $archive->{$field} }}"
-                                maxlength="255"
-                                placeholder="{{ $label }}を入力"
-                                @readonly(!($canEdit ?? false))
-                            >
-                        </label>
-                    @endif
-                @endforeach
+            <h3 class="mb-4 text-sm font-semibold uppercase tracking-wide text-slate-400">Googleドライブ</h3>
+            <div class="application-block__cell application-block__cell--editable">
+                <span class="application-block__cell-label">リンク</span>
+                <input
+                    type="url"
+                    class="rental-archive-field application-inline-field"
+                    data-archive-id="{{ $archive->id }}"
+                    data-field="google_drive_url"
+                    value="{{ $archive->google_drive_url }}"
+                    maxlength="2000"
+                    placeholder="Googleドライブのリンクを貼り付け"
+                    @readonly(!($canEdit ?? false))
+                >
+                <a
+                    href="{{ $archive->google_drive_url ?: '#' }}"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    class="rental-archive-drive-open mt-2 inline-flex text-sm font-semibold text-primary-600 hover:underline {{ $archive->google_drive_url ? '' : 'pointer-events-none opacity-40' }}"
+                    @if (! $archive->google_drive_url) aria-disabled="true" @endif
+                >
+                    リンクを開く
+                </a>
             </div>
         </section>
 
@@ -347,16 +331,46 @@
     }
 
     root.querySelectorAll('.rental-archive-field').forEach((field) => {
-        let previous = field.value;
+        const isCheckbox = field.type === 'checkbox';
+        const isRadio = field.type === 'radio';
+        let previous = isCheckbox ? field.checked : field.value;
         let timer = null;
 
+        const currentValue = () => {
+            if (isCheckbox) {
+                return field.checked;
+            }
+            if (isRadio) {
+                return field.checked ? field.value : previous;
+            }
+            return field.value;
+        };
+
         const persist = async () => {
-            if (!canEdit || field.value === previous) {
+            if (!canEdit) {
                 return;
             }
+            if (isRadio && !field.checked) {
+                return;
+            }
+
+            const value = currentValue();
+            const comparable = isCheckbox ? Boolean(value) : (value ?? '');
+            const previousComparable = isCheckbox ? Boolean(previous) : (previous ?? '');
+            if (String(comparable) === String(previousComparable) && !isRadio) {
+                return;
+            }
+            if (isRadio && String(value) === String(previous)) {
+                return;
+            }
+
             try {
-                await saveField(field.dataset.field, field.value || null);
-                previous = field.value;
+                const payloadValue = isCheckbox
+                    ? Boolean(value)
+                    : (value === '' || value === null ? null : value);
+                await saveField(field.dataset.field, payloadValue);
+                previous = isCheckbox ? field.checked : (isRadio ? field.value : field.value);
+
                 if (field.dataset.field === 'property_name') {
                     const title = root.querySelector('[data-archive-title]');
                     if (title) {
@@ -364,7 +378,7 @@
                     }
                 }
                 if (field.dataset.field === 'google_drive_url') {
-                    const openLink = field.closest('.application-block__cell')?.querySelector('.rental-archive-drive-open');
+                    const openLink = field.closest('.application-block__cell, .rental-archive-detail__section')?.querySelector('.rental-archive-drive-open');
                     if (openLink) {
                         const url = (field.value || '').trim();
                         openLink.href = url || '#';
@@ -378,10 +392,24 @@
                     }
                 }
             } catch (error) {
-                field.value = previous;
+                if (isCheckbox) {
+                    field.checked = Boolean(previous);
+                } else if (isRadio) {
+                    const group = root.querySelectorAll(`input[type="radio"][data-field="${field.dataset.field}"]`);
+                    group.forEach((radio) => {
+                        radio.checked = radio.value === previous;
+                    });
+                } else {
+                    field.value = previous ?? '';
+                }
                 alert(error.message);
             }
         };
+
+        if (isCheckbox || isRadio || field.tagName === 'SELECT') {
+            field.addEventListener('change', persist);
+            return;
+        }
 
         field.addEventListener('change', persist);
         field.addEventListener('blur', persist);

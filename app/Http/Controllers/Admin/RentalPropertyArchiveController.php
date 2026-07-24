@@ -61,33 +61,85 @@ class RentalPropertyArchiveController extends Controller
     public function updateField(Request $request, RentalPropertyArchive $rentalPropertyArchive): JsonResponse
     {
         $field = $request->input('field');
-        $maxLength = $field === 'google_drive_url' ? 2000 : 255;
-
-        $validated = $request->validate([
-            'field' => ['required', Rule::in(RentalPropertyArchive::editableFields())],
-            'value' => ['nullable', 'string', "max:{$maxLength}"],
-        ]);
-
-        $value = $validated['value'];
-        if ($value === '') {
-            $value = null;
+        if (! is_string($field) || ! in_array($field, RentalPropertyArchive::editableFields(), true)) {
+            return response()->json(['message' => '不正な項目です。'], 422);
         }
 
-        if ($validated['field'] === 'google_drive_url' && $value !== null) {
-            $value = trim($value);
-            if (! filter_var($value, FILTER_VALIDATE_URL)) {
-                return response()->json(['message' => '有効なURLを入力してください。'], 422);
+        if (in_array($field, RentalPropertyArchive::booleanFields(), true)) {
+            $validated = $request->validate([
+                'value' => ['nullable', 'boolean'],
+            ]);
+            $value = (bool) ($validated['value'] ?? false);
+        } elseif (in_array($field, RentalPropertyArchive::integerFields(), true)) {
+            $raw = $request->input('value');
+            if ($raw === '' || $raw === null) {
+                $rentalPropertyArchive->update([$field => null]);
+
+                return response()->json([
+                    'success' => true,
+                    'field' => $field,
+                    'value' => null,
+                ]);
+            }
+
+            $rules = ['required', 'integer', 'min:0'];
+            if ($field === 'built_month') {
+                $rules = ['required', 'integer', 'min:1', 'max:12'];
+            }
+            if ($field === 'built_year') {
+                $rules = ['required', 'integer', 'min:1800', 'max:2100'];
+            }
+            if (in_array($field, ['monthly_rent_minor', 'collateral_amount_minor'], true)) {
+                $rules = ['required', 'integer', 'min:0', 'max:9'];
+            }
+            if ($field === 'contract_months') {
+                $rules = ['required', 'integer', 'min:0', 'max:11'];
+            }
+
+            $validated = $request->validate([
+                'value' => $rules,
+            ]);
+            $value = (int) $validated['value'];
+        } elseif (array_key_exists($field, RentalPropertyArchive::enumFieldOptions())) {
+            $validated = $request->validate([
+                'value' => ['nullable', 'string', Rule::in(RentalPropertyArchive::enumFieldOptions()[$field])],
+            ]);
+            $value = $validated['value'] ?: null;
+        } else {
+            $maxLength = $field === 'google_drive_url' ? 2000 : 255;
+            $validated = $request->validate([
+                'value' => ['nullable', 'string', "max:{$maxLength}"],
+            ]);
+            $value = $validated['value'];
+            if ($value === '') {
+                $value = null;
+            }
+
+            if ($field === 'google_drive_url' && $value !== null) {
+                $value = trim($value);
+                if (! filter_var($value, FILTER_VALIDATE_URL)) {
+                    return response()->json(['message' => '有効なURLを入力してください。'], 422);
+                }
+            }
+
+            if ($field === 'postal_code' && $value !== null) {
+                $value = preg_replace('/[^\d\-]/', '', $value) ?: null;
             }
         }
 
         $rentalPropertyArchive->update([
-            $validated['field'] => $value,
+            $field => $value,
         ]);
+
+        // Keep legacy address in sync for list cards.
+        if ($field === 'location') {
+            $rentalPropertyArchive->update(['address' => $value]);
+        }
 
         return response()->json([
             'success' => true,
-            'field' => $validated['field'],
-            'value' => $rentalPropertyArchive->{$validated['field']},
+            'field' => $field,
+            'value' => $rentalPropertyArchive->{$field},
         ]);
     }
 

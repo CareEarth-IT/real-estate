@@ -33,12 +33,12 @@
             <div class="application-block__body rental-archive-card__body">
                 <div class="application-block__cells application-block__cells--stack">
                     <div class="application-block__cell">
-                        <span class="application-block__cell-label">住所</span>
-                        <div class="application-block__cell-value">{{ $archive->address ?: '—' }}</div>
+                        <span class="application-block__cell-label">所在地</span>
+                        <div class="application-block__cell-value">{{ $archive->displayLocation() ?: '—' }}</div>
                     </div>
                     <div class="application-block__cell">
-                        <span class="application-block__cell-label">築年数</span>
-                        <div class="application-block__cell-value">{{ $archive->building_age ?: '—' }}</div>
+                        <span class="application-block__cell-label">物件種別</span>
+                        <div class="application-block__cell-value">{{ $archive->property_type ?: '—' }}</div>
                     </div>
                     @if ($archive->google_drive_url)
                         <div class="application-block__cell">
