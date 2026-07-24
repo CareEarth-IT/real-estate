@@ -41,6 +41,7 @@ class RentalPropertyArchiveController extends Controller
             'property_name' => null,
             'address' => null,
             'building_age' => null,
+            'floor_plan_type' => 'R',
         ]);
 
         return redirect()
@@ -89,17 +90,108 @@ class RentalPropertyArchiveController extends Controller
             if ($field === 'built_year') {
                 $rules = ['required', 'integer', 'min:1800', 'max:2100'];
             }
-            if (in_array($field, ['monthly_rent_minor', 'collateral_amount_minor'], true)) {
+            if (in_array($field, ['monthly_rent_minor', 'collateral_amount_minor', 'area_minor', 'balcony_area_minor', 'utility_cost_minor'], true)) {
                 $rules = ['required', 'integer', 'min:0', 'max:9'];
             }
             if ($field === 'contract_months') {
                 $rules = ['required', 'integer', 'min:0', 'max:11'];
+            }
+            if ($field === 'insulation_grade') {
+                $rules = ['required', 'integer', 'min:1', 'max:7'];
             }
 
             $validated = $request->validate([
                 'value' => $rules,
             ]);
             $value = (int) $validated['value'];
+        } elseif (array_key_exists($field, RentalPropertyArchive::arrayFields())) {
+            $slotCount = RentalPropertyArchive::arrayFields()[$field];
+            $validated = $request->validate([
+                'value' => ['nullable', 'array', 'max:'.$slotCount],
+                'value.*' => ['nullable', 'integer', 'min:0'],
+            ]);
+            $raw = array_values($validated['value'] ?? []);
+            $normalized = [];
+            for ($i = 0; $i < $slotCount; $i++) {
+                $slot = $raw[$i] ?? null;
+                $normalized[] = ($slot === '' || $slot === null) ? null : (int) $slot;
+            }
+            // Trim trailing nulls for cleaner storage, keep leading structure.
+            while ($normalized !== [] && end($normalized) === null) {
+                array_pop($normalized);
+            }
+            $value = $normalized === [] ? null : $normalized;
+        } elseif ($field === 'surroundings') {
+            $rowCount = RentalPropertyArchive::surroundingsRowCount();
+            $categories = RentalPropertyArchive::surroundingCategories();
+            $validated = $request->validate([
+                'value' => ['nullable', 'array', 'max:'.$rowCount],
+                'value.*.category' => ['nullable', 'string', Rule::in($categories)],
+                'value.*.place_name' => ['nullable', 'string', 'max:255'],
+                'value.*.meters' => ['nullable', 'integer', 'min:0'],
+                'value.*.google_drive_url' => ['nullable', 'string', 'max:2000'],
+            ]);
+
+            $raw = array_values($validated['value'] ?? []);
+            $normalized = [];
+            for ($i = 0; $i < $rowCount; $i++) {
+                $row = $raw[$i] ?? [];
+                $category = trim((string) ($row['category'] ?? ''));
+                $placeName = trim((string) ($row['place_name'] ?? ''));
+                $meters = $row['meters'] ?? null;
+                $driveUrl = trim((string) ($row['google_drive_url'] ?? ''));
+
+                if ($meters === '' || $meters === null) {
+                    $meters = null;
+                } else {
+                    $meters = (int) $meters;
+                }
+
+                if ($driveUrl !== '') {
+                    if (! filter_var($driveUrl, FILTER_VALIDATE_URL)) {
+                        return response()->json(['message' => '有効なGoogleドライブURLを入力してください。'], 422);
+                    }
+                } else {
+                    $driveUrl = null;
+                }
+
+                if ($category === '' && $placeName === '' && $meters === null && $driveUrl === null) {
+                    continue;
+                }
+
+                $normalized[] = [
+                    'category' => $category !== '' ? $category : null,
+                    'place_name' => $placeName !== '' ? $placeName : null,
+                    'meters' => $meters,
+                    'google_drive_url' => $driveUrl,
+                ];
+            }
+
+            $value = $normalized === [] ? null : $normalized;
+        } elseif (array_key_exists($field, RentalPropertyArchive::tagGroupOptions())) {
+            $allowed = RentalPropertyArchive::tagGroupOptions()[$field];
+            $validated = $request->validate([
+                'value' => ['nullable', 'array'],
+                'value.*' => ['string', Rule::in($allowed)],
+            ]);
+            $value = array_values(array_unique($validated['value'] ?? []));
+            $value = $value === [] ? null : $value;
+        } elseif (in_array($field, RentalPropertyArchive::dateFields(), true)) {
+            $raw = $request->input('value');
+            if ($raw === '' || $raw === null) {
+                $rentalPropertyArchive->update([$field => null]);
+
+                return response()->json([
+                    'success' => true,
+                    'field' => $field,
+                    'value' => null,
+                ]);
+            }
+
+            $validated = $request->validate([
+                'value' => ['required', 'date'],
+            ]);
+            $value = $validated['value'];
         } elseif (array_key_exists($field, RentalPropertyArchive::enumFieldOptions())) {
             $validated = $request->validate([
                 'value' => ['nullable', 'string', Rule::in(RentalPropertyArchive::enumFieldOptions()[$field])],

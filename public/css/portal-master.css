@@ -2358,6 +2358,25 @@ body.rental-archive-lightbox-open {
     background: #fff;
 }
 
+.rental-archive-form-grid--single,
+.portal-master-content .rental-archive-form-grid--single {
+    grid-template-columns: 1fr;
+}
+
+.rental-archive-form-row--surroundings .rental-archive-form-label,
+.portal-master-content .rental-archive-form-row--surroundings .rental-archive-form-label {
+    align-items: flex-start;
+    padding-top: 12px;
+}
+
+.rental-archive-form-row--surroundings .application-inline-field,
+.portal-master-content .rental-archive-form-row--surroundings .application-inline-field {
+    flex: 0 1 50% !important;
+    width: 50%;
+    max-width: 280px;
+    min-width: 140px;
+}
+
 .rental-archive-form-col,
 .portal-master-content .rental-archive-form-col {
     min-width: 0;
@@ -2435,6 +2454,173 @@ body.rental-archive-lightbox-open {
     font-size: 13px;
 }
 
+.rental-archive-input-slot,
+.portal-master-content .rental-archive-input-slot {
+    width: 40px;
+    min-width: 40px;
+    padding: 4px 2px;
+    border: 1px solid rgba(37, 99, 235, 0.3);
+    border-radius: 6px;
+    background: #fff;
+    font-size: 13px;
+    text-align: center;
+}
+
+.rental-archive-inline-label,
+.portal-master-content .rental-archive-inline-label {
+    margin-left: 8px;
+    color: #475569;
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.rental-archive-select-sm,
+.portal-master-content .rental-archive-select-sm {
+    width: max-content;
+    min-width: 0;
+    max-width: max-content;
+    flex: 0 0 auto !important;
+    padding: 4px 6px;
+    border: 1px solid rgba(37, 99, 235, 0.3);
+    border-radius: 6px;
+    background: #fff;
+    font-size: 13px;
+    line-height: 1.3;
+}
+
+.rental-archive-blank-note,
+.portal-master-content .rental-archive-blank-note {
+    color: #94a3b8;
+    font-size: 12px;
+}
+
+.rental-archive-input-date,
+.portal-master-content .rental-archive-input-date {
+    max-width: 180px;
+    flex: 0 1 180px !important;
+}
+
+.rental-archive-tag-panel,
+.portal-master-content .rental-archive-tag-panel {
+    border: 1px solid #94a3b8;
+    border-radius: 8px;
+    background: #fff;
+    overflow: hidden;
+}
+
+.rental-archive-tag-panel__title,
+.portal-master-content .rental-archive-tag-panel__title {
+    padding: 8px 12px;
+    border-bottom: 1px solid #cbd5e1;
+    background: #f8fafc;
+    color: #0f172a;
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.rental-archive-tag-panel__scroll,
+.portal-master-content .rental-archive-tag-panel__scroll {
+    height: 280px;
+    min-height: 120px;
+    max-height: 70vh;
+    overflow-y: auto;
+    overflow-x: hidden;
+}
+
+.rental-archive-tag-panel__resizer,
+.portal-master-content .rental-archive-tag-panel__resizer {
+    height: 10px;
+    border-top: 1px solid #cbd5e1;
+    background:
+        linear-gradient(#94a3b8, #94a3b8) center 3px / 28px 2px no-repeat,
+        linear-gradient(#94a3b8, #94a3b8) center 6px / 28px 2px no-repeat,
+        #f1f5f9;
+    cursor: ns-resize;
+    user-select: none;
+    touch-action: none;
+}
+
+.rental-archive-tag-panel__resizer:hover,
+.portal-master-content .rental-archive-tag-panel__resizer:hover,
+.rental-archive-tag-panel.is-resizing .rental-archive-tag-panel__resizer,
+.portal-master-content .rental-archive-tag-panel.is-resizing .rental-archive-tag-panel__resizer {
+    background-color: #e2e8f0;
+}
+
+.rental-archive-tag-grid--continued,
+.portal-master-content .rental-archive-tag-grid--continued {
+    border-top: 2px solid #94a3b8;
+}
+
+.rental-archive-tag-grid,
+.portal-master-content .rental-archive-tag-grid {
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    border-top: 0;
+}
+
+.rental-archive-tag-item,
+.portal-master-content .rental-archive-tag-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 6px;
+    margin: 0;
+    padding: 8px 10px;
+    border-right: 1px solid #e2e8f0;
+    border-bottom: 1px solid #e2e8f0;
+    color: #334155;
+    font-size: 12px;
+    line-height: 1.35;
+    cursor: pointer;
+    background: #fff;
+}
+
+.rental-archive-tag-item:nth-child(5n),
+.portal-master-content .rental-archive-tag-item:nth-child(5n) {
+    border-right: 0;
+}
+
+.rental-archive-tag-item input,
+.portal-master-content .rental-archive-tag-item input {
+    margin-top: 2px;
+    flex: 0 0 auto;
+}
+
+@media (max-width: 1100px) {
+    .rental-archive-tag-grid,
+    .portal-master-content .rental-archive-tag-grid {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .rental-archive-tag-item:nth-child(5n),
+    .portal-master-content .rental-archive-tag-item:nth-child(5n) {
+        border-right: 1px solid #e2e8f0;
+    }
+
+    .rental-archive-tag-item:nth-child(3n),
+    .portal-master-content .rental-archive-tag-item:nth-child(3n) {
+        border-right: 0;
+    }
+}
+
+@media (max-width: 700px) {
+    .rental-archive-tag-grid,
+    .portal-master-content .rental-archive-tag-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .rental-archive-tag-item:nth-child(3n),
+    .portal-master-content .rental-archive-tag-item:nth-child(3n) {
+        border-right: 1px solid #e2e8f0;
+    }
+
+    .rental-archive-tag-item:nth-child(2n),
+    .portal-master-content .rental-archive-tag-item:nth-child(2n) {
+        border-right: 0;
+    }
+}
+
+
 .rental-archive-detail .rental-archive-field.application-inline-field,
 .portal-master-content .rental-archive-detail .rental-archive-field.application-inline-field,
 .rental-archive-detail select.rental-archive-field,
@@ -2450,7 +2636,9 @@ body.rental-archive-lightbox-open {
 .rental-archive-detail select.rental-archive-field:focus,
 .portal-master-content .rental-archive-detail select.rental-archive-field:focus,
 .rental-archive-detail .rental-archive-input-sm:focus,
-.portal-master-content .rental-archive-detail .rental-archive-input-sm:focus {
+.portal-master-content .rental-archive-detail .rental-archive-input-sm:focus,
+.rental-archive-detail .rental-archive-input-slot:focus,
+.portal-master-content .rental-archive-detail .rental-archive-input-slot:focus {
     border-color: rgba(37, 99, 235, 0.6) !important;
     outline: none;
     box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.15);
