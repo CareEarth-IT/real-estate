@@ -119,6 +119,18 @@ class RentalPropertyArchive extends Model
         'sunlight_lighting',
         'garden',
         'floor_plan_features',
+        'kitchen',
+        'bathroom',
+        'toilet',
+        'balcony_terrace',
+        'indoor_facilities',
+        'storage',
+        'lighting',
+        'information_equipment',
+        'renovation',
+        'cost_move_in_conditions',
+        'furniture_appliances',
+        'good_conditions',
         'address',
         'building_age',
         'google_drive_url',
@@ -192,6 +204,18 @@ class RentalPropertyArchive extends Model
             'sunlight_lighting' => 'array',
             'garden' => 'array',
             'floor_plan_features' => 'array',
+            'kitchen' => 'array',
+            'bathroom' => 'array',
+            'toilet' => 'array',
+            'balcony_terrace' => 'array',
+            'indoor_facilities' => 'array',
+            'storage' => 'array',
+            'lighting' => 'array',
+            'information_equipment' => 'array',
+            'renovation' => 'array',
+            'cost_move_in_conditions' => 'array',
+            'furniture_appliances' => 'array',
+            'good_conditions' => 'array',
         ];
     }
 
@@ -319,6 +343,18 @@ class RentalPropertyArchive extends Model
             'sunlight_lighting' => '日当たり・採光',
             'garden' => '庭',
             'floor_plan_features' => '間取り',
+            'kitchen' => 'キッチン',
+            'bathroom' => '浴室',
+            'toilet' => 'トイレ',
+            'balcony_terrace' => 'バルコニー・テラス',
+            'indoor_facilities' => '室内設備・仕様',
+            'storage' => '収納',
+            'lighting' => '照明',
+            'information_equipment' => '情報設備・回線',
+            'renovation' => 'リフォーム',
+            'cost_move_in_conditions' => '費用・入居・引渡・条件',
+            'furniture_appliances' => '家具・家電',
+            'good_conditions' => '良好',
             'google_drive_url' => 'Googleドライブ',
         ];
     }
@@ -766,6 +802,336 @@ class RentalPropertyArchive extends Model
     }
 
     /**
+     * @return list<string>
+     */
+    public static function kitchenOptions(): array
+    {
+        return [
+            'システムキッチン',
+            '独立型キッチン',
+            '対面式キッチン',
+            'オープンキッチン',
+            'L字型キッチン',
+            'U字型キッチン',
+            'Ⅱ型キッチン',
+            'アイランドキッチン',
+            '外国製キッチン',
+            '2WAYキッチン',
+            '3WAYキッチン',
+            'ガスコンロ対応',
+            'ガスレンジ付',
+            '2口コンロ',
+            '3口以上コンロ',
+            'IHクッキングヒーター',
+            '電気コンロ',
+            'グリル付',
+            'オーブンレンジ',
+            'ガスオーブン',
+            'ガラストップコンロ',
+            'キッチン5畳以上',
+            'キッチン2ヶ所',
+            '勝手口',
+            'キッチンに窓',
+            '食品庫',
+            '備付食器棚',
+            '耐震ラッチ付吊戸棚',
+            '食器洗乾燥機',
+            'キッチン床暖房',
+            'キッチン足元温風器',
+            '浄水器',
+            'ディスポーザー',
+            'キッチン未使用',
+            '都市ガス',
+            'プロパンガス',
+        ];
+    }
+
+    /**
+     * @return list<string>
+     */
+    public static function bathroomOptions(): array
+    {
+        return [
+            'バストイレ別',
+            '浴室1坪以上',
+            '脱衣所',
+            'オートバス',
+            '追焚機能浴室',
+            '高温差湯式',
+            '浴室乾燥機',
+            '浴室に窓',
+            '浴室2ヶ所',
+            '檜風呂',
+            '浴室床暖房',
+            'サウナ',
+            'ミストサウナ',
+            'ジェットバス',
+            'TV付浴室',
+            'オーディオバス',
+            '浴室未使用',
+            'シャワールーム',
+        ];
+    }
+
+    /**
+     * @return list<string>
+     */
+    public static function toiletOptions(): array
+    {
+        return [
+            'トイレ2ヶ所',
+            'トイレ3ヶ所',
+            '温水洗浄便座',
+            'タンクレストイレ',
+            'トイレ未使用',
+        ];
+    }
+
+    /**
+     * @return list<string>
+     */
+    public static function balconyTerraceOptions(): array
+    {
+        return [
+            'バルコニー',
+            'ルーフバルコニー',
+            'ワイドバルコニー',
+            'L字型バルコニー',
+            '南面バルコニー',
+            '2面バルコニー',
+            '3面バルコニー',
+            '両面バルコニー',
+            '2WAYバルコニー',
+            'インナーバルコニー',
+            'ウッドデッキ',
+            'テラス',
+        ];
+    }
+
+    /**
+     * @return list<string>
+     */
+    public static function indoorFacilityOptions(): array
+    {
+        return [
+            'フローリング',
+            '全居室フローリング',
+            '一部フローリング',
+            'フローリング張替',
+            'フローリング風フロアタイル',
+            'クッションフロア',
+            'じゅうたん張',
+            '無垢材使用',
+            '自然素材',
+            '活性炭練込み',
+            '掘炬燵',
+            '室内らせん階段',
+            '内階段',
+            'リビング階段',
+            '昇降機付階段',
+            'ホームエレベーター',
+            '雨戸',
+            'シャッター',
+            '電動シャッター',
+            '防犯シャッター',
+            'ハイサッシ',
+            '防音サッシ',
+            '複層ガラス',
+            '断熱扉',
+            '親子扉',
+            '勾配天井',
+            '腰壁',
+            '四寸柱',
+            '大黒柱',
+            '室内洗濯置',
+            '室内物干機',
+            '壁面ベッド',
+            'シーリングファン',
+        ];
+    }
+
+    /**
+     * @return list<string>
+     */
+    public static function storageOptions(): array
+    {
+        return [
+            'クロゼット',
+            'クロゼット2ヶ所',
+            'クロゼット3ヶ所',
+            'ウォークインクロゼット',
+            'ウォークインクロゼット2',
+            'ウォークスルークロゼット',
+            'シューズボックス',
+            'シューズWIC',
+            '天井高シューズクロゼット',
+            '玄関収納',
+            '収納1間半',
+            '収納2間',
+            '収納2間半',
+            '全居室収納',
+            '納戸',
+            '物置',
+            '屋根裏収納',
+            '天袋',
+            '押入',
+            '階段下収納',
+            '床下収納',
+            '昇降ウォール収納',
+            'トランクルーム',
+        ];
+    }
+
+    /**
+     * @return list<string>
+     */
+    public static function lightingOptions(): array
+    {
+        return [
+            '間接照明',
+            '人感照明センサー',
+            'オートライト',
+            'ダウンライト',
+            'フットライト',
+        ];
+    }
+
+    /**
+     * @return list<string>
+     */
+    public static function informationEquipmentOptions(): array
+    {
+        return [
+            'BS・CS',
+            'BS',
+            'CS',
+            'CATV',
+            '有線放送',
+            'ネット使用料不要',
+            '電話2回線',
+            '高速ネット対応',
+            'ネット専用回線',
+            '光ファイバー',
+            'CATVインターネット',
+            'ISDN対応',
+            'LAN',
+            'TVインターホン',
+            '防犯カメラ',
+            'マルチメディアコンセント',
+            'CATV使用料不要',
+        ];
+    }
+
+    /**
+     * @return list<string>
+     */
+    public static function renovationOptions(): array
+    {
+        return [
+            '内装リフォーム済',
+            '外装リフォーム済',
+            '内外装リフォーム済',
+            '内装リフォーム後渡',
+            '外装リフォーム後渡',
+            '内外装リフォーム履歴',
+            '壁紙張替済',
+            '床材張替済',
+            'リノベーション',
+        ];
+    }
+
+    /**
+     * @return list<string>
+     */
+    public static function costMoveInConditionOptions(): array
+    {
+        return [
+            '即入居可',
+            '年内入居可',
+            '年度内入居可',
+            '未入居',
+            'ペット相談',
+            '学生相談',
+            '単身者相談',
+            '高齢者歓迎',
+            'LGBTフレンドリー',
+            '二人入居相談',
+            'ルームシェア相談',
+            'シェアハウス',
+            '事務所相談',
+            '楽器相談',
+            '敷金不要',
+            '敷金1ヶ月',
+            '敷金2ヶ月',
+            '学生敷金不要',
+            '学生敷金1ヶ月',
+            '学生敷金2ヶ月',
+            '敷金・礼金不要',
+            '礼金不要',
+            '礼金1ヶ月',
+            '礼金2ヶ月',
+            '仲介手数料不要',
+            '仲介0.55ヶ月',
+            '保証人不要',
+            '保証会社利用可',
+            '保証金不要',
+            '初期費用5万円以下',
+            '初期費用10万円以下',
+            '初期費用15万円以下',
+            '初期費用20万円以下',
+            '初期費用30万円以下',
+            '初期費用カード決済可',
+            '家賃カード決済可',
+            'フリーレント',
+            '特定優良賃貸住宅',
+            'カスタマイズ可',
+            'DIY可',
+            'IT重説対応物件',
+        ];
+    }
+
+    /**
+     * @return list<string>
+     */
+    public static function furnitureApplianceOptions(): array
+    {
+        return [
+            'エアコン',
+            'エアコン2台',
+            'エアコン3台',
+            'エアコン4台',
+            'エアコン全室',
+            'ファンコンベクタ',
+            'カーテン付',
+            'ブラインド付',
+            'ロールスクリーン付',
+            '家電付',
+            '冷蔵庫',
+            '電子レンジ',
+            '洗濯機',
+            'テレビ',
+            '乾燥機',
+            '家具付',
+            'ベッド',
+            'ダイニングテーブル・デスク',
+            '照明付',
+            '全室照明付',
+        ];
+    }
+
+    /**
+     * @return list<string>
+     */
+    public static function goodConditionOptions(): array
+    {
+        return [
+            '眺望良好',
+            '通風良好',
+            '陽当り良好',
+        ];
+    }
+
+    /**
      * @return array<string, list<string>>
      */
     public static function tagGroupOptions(): array
@@ -782,6 +1148,18 @@ class RentalPropertyArchive extends Model
             'sunlight_lighting' => self::sunlightLightingOptions(),
             'garden' => self::gardenOptions(),
             'floor_plan_features' => self::floorPlanFeatureOptions(),
+            'kitchen' => self::kitchenOptions(),
+            'bathroom' => self::bathroomOptions(),
+            'toilet' => self::toiletOptions(),
+            'balcony_terrace' => self::balconyTerraceOptions(),
+            'indoor_facilities' => self::indoorFacilityOptions(),
+            'storage' => self::storageOptions(),
+            'lighting' => self::lightingOptions(),
+            'information_equipment' => self::informationEquipmentOptions(),
+            'renovation' => self::renovationOptions(),
+            'cost_move_in_conditions' => self::costMoveInConditionOptions(),
+            'furniture_appliances' => self::furnitureApplianceOptions(),
+            'good_conditions' => self::goodConditionOptions(),
         ];
     }
 

@@ -58,11 +58,30 @@
             </div>
             <div class="application-block__cell md:col-span-2 xl:col-span-3">
                 <span class="application-block__cell-label">{{ $columnLabels['overseas_screening'] }}</span>
-                <div class="application-block__cell-value whitespace-pre-wrap">{{ $flowManagement->overseas_screening ?: '—' }}</div>
+                <div class="application-block__cell-value">
+                    {{ $flowManagement->overseas_screening ? 'あり' : 'なし' }}
+                    @if ($flowManagement->overseas_screening && $flowManagement->japan_stay_schedule)
+                        <span class="text-slate-400 mx-1">|</span>
+                        在日日程: {{ $flowManagement->japan_stay_schedule->format('Y/m/d H:i') }}
+                    @endif
+                </div>
             </div>
-            <div class="application-block__cell md:col-span-2 xl:col-span-3" data-contract-documents-block>
-                <span class="application-block__cell-label">契約書類</span>
-                <div class="application-block__cell-value space-y-3">
+            <div class="application-block__cell md:col-span-2 xl:col-span-3 contract-docs-block" data-contract-documents-block>
+                <button
+                    type="button"
+                    class="contract-docs-toggle"
+                    data-contract-docs-toggle
+                    aria-expanded="true"
+                    aria-controls="contract-docs-body-{{ $flowManagement->id }}"
+                >
+                    <span class="application-block__cell-label mb-0">契約書類</span>
+                    <span class="contract-docs-chevron" aria-hidden="true"></span>
+                </button>
+                <div
+                    class="application-block__cell-value space-y-3 contract-docs-body"
+                    id="contract-docs-body-{{ $flowManagement->id }}"
+                    data-contract-docs-body
+                >
                     <p class="text-xs font-normal text-slate-500">リンク未入力でも問題ありません。Driveの共有権限があるユーザーのみ閲覧できます。</p>
                     @foreach (\App\Models\FlowManagement::contractDocumentFields() as $field => $label)
                         @php
@@ -123,8 +142,117 @@
                             </div>
                         </div>
                     @endforeach
+
+                    <div class="rounded-lg border border-dashed border-slate-300 bg-white p-3" data-contract-extra-links>
+                        <div class="mb-3 flex flex-wrap items-center justify-between gap-2">
+                            <div class="text-sm font-semibold text-slate-800">追加リンク（画像保存など）</div>
+                            @if ($canEdit ?? false)
+                                <button
+                                    type="button"
+                                    class="btn btn-outline btn-sm"
+                                    data-contract-extra-add
+                                >+ 追加</button>
+                            @endif
+                        </div>
+                        <div class="space-y-3" data-contract-extra-list>
+                            @foreach ($flowManagement->contractDocExtraLinks() as $index => $extraLink)
+                                @php
+                                    $extraName = $extraLink['name'] ?? '';
+                                    $extraUrl = $extraLink['url'] ?? '';
+                                @endphp
+                                <div class="rounded-lg border border-slate-200 bg-slate-50/70 p-3" data-contract-extra-item>
+                                    <label class="mb-2 block">
+                                        <span class="mb-1 block text-xs font-semibold text-slate-500">項目名</span>
+                                        <input
+                                            type="text"
+                                            class="application-inline-field"
+                                            data-contract-extra-name
+                                            maxlength="100"
+                                            placeholder="例: 画像保存1"
+                                            value="{{ $extraName }}"
+                                            @readonly(!($canEdit ?? false))
+                                        >
+                                    </label>
+                                    <label class="block">
+                                        <span class="mb-1 block text-xs font-semibold text-slate-500">リンク</span>
+                                        <input
+                                            type="url"
+                                            class="application-inline-field"
+                                            data-contract-extra-url
+                                            maxlength="2048"
+                                            placeholder="リンクを貼り付け（任意）"
+                                            value="{{ $extraUrl }}"
+                                            @readonly(!($canEdit ?? false))
+                                        >
+                                    </label>
+                                    <div class="mt-2 flex flex-wrap items-center gap-3">
+                                        <a
+                                            href="{{ $extraUrl ?: '#' }}"
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            data-contract-extra-open
+                                            class="inline-flex text-sm font-semibold text-primary-600 hover:underline {{ $extraUrl ? '' : 'pointer-events-none opacity-40' }}"
+                                            @if (! $extraUrl) aria-disabled="true" @endif
+                                        >リンクを開く</a>
+                                        @if ($canEdit ?? false)
+                                            <button
+                                                type="button"
+                                                class="text-sm font-semibold text-rose-600 hover:underline"
+                                                data-contract-extra-remove
+                                            >削除</button>
+                                        @endif
+                                    </div>
+                                </div>
+                            @endforeach
+                        </div>
+                    </div>
                 </div>
             </div>
+
+            @if ($canEdit ?? false)
+                <template id="contract-extra-link-template">
+                    <div class="rounded-lg border border-slate-200 bg-slate-50/70 p-3" data-contract-extra-item>
+                        <label class="mb-2 block">
+                            <span class="mb-1 block text-xs font-semibold text-slate-500">項目名</span>
+                            <input
+                                type="text"
+                                class="application-inline-field"
+                                data-contract-extra-name
+                                maxlength="100"
+                                placeholder="例: 画像保存1"
+                                value=""
+                            >
+                        </label>
+                        <label class="block">
+                            <span class="mb-1 block text-xs font-semibold text-slate-500">リンク</span>
+                            <input
+                                type="url"
+                                class="application-inline-field"
+                                data-contract-extra-url
+                                maxlength="2048"
+                                placeholder="リンクを貼り付け（任意）"
+                                value=""
+                            >
+                        </label>
+                        <div class="mt-2 flex flex-wrap items-center gap-3">
+                            <a
+                                href="#"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                data-contract-extra-open
+                                class="inline-flex text-sm font-semibold text-primary-600 hover:underline pointer-events-none opacity-40"
+                                aria-disabled="true"
+                            >リンクを開く</a>
+                            <button
+                                type="button"
+                                class="text-sm font-semibold text-rose-600 hover:underline"
+                                data-contract-extra-remove
+                            >削除</button>
+                        </div>
+                    </div>
+                </template>
+            @endif
+
             <div class="application-block__cell">
                 <span class="application-block__cell-label">{{ $columnLabels['property_name'] }}</span>
                 <div class="application-block__cell-value">{{ $flowManagement->property_name ?: '—' }}</div>
@@ -254,6 +382,23 @@
 </div>
 @endsection
 
+@push('scripts')
+<script>
+    (() => {
+        document.querySelectorAll('[data-contract-documents-block]').forEach((block) => {
+            const toggle = block.querySelector('[data-contract-docs-toggle]');
+            if (!toggle) {
+                return;
+            }
+            toggle.addEventListener('click', () => {
+                const collapsed = block.classList.toggle('is-collapsed');
+                toggle.setAttribute('aria-expanded', collapsed ? 'false' : 'true');
+            });
+        });
+    })();
+</script>
+@endpush
+
 @if ($canEdit ?? false)
 @push('scripts')
 <script>
@@ -265,6 +410,7 @@
 
         const id = container.dataset.flowManagementId;
         const updateUrl = adminApiUrl(`/admin/flow-managements/${id}/fields`);
+        const canEdit = true;
 
         async function save(field, value) {
             const response = await fetch(updateUrl, {
@@ -310,7 +456,6 @@
             const urlInput = item.querySelector('.flow-detail-field');
             const urlWrap = item.querySelector('[data-contract-doc-url-wrap]');
             const lockedText = item.querySelector('[data-contract-doc-url-locked]');
-            const canEdit = {{ ($canEdit ?? false) ? 'true' : 'false' }};
 
             if (urlInput) {
                 urlInput.readOnly = !canEdit || isConfirmed;
@@ -445,6 +590,133 @@
                 clearTimeout(timer);
                 timer = setTimeout(saveField, 800);
             });
+        });
+
+        const extraRoot = container.querySelector('[data-contract-extra-links]');
+        const extraList = container.querySelector('[data-contract-extra-list]');
+        const extraAdd = container.querySelector('[data-contract-extra-add]');
+        const extraTemplate = document.getElementById('contract-extra-link-template');
+        let extraTimer = null;
+        let extraSaving = false;
+
+        function collectExtraLinks() {
+            if (!extraList) {
+                return [];
+            }
+            return Array.from(extraList.querySelectorAll('[data-contract-extra-item]')).map((item) => {
+                const name = item.querySelector('[data-contract-extra-name]')?.value.trim() || '';
+                const url = item.querySelector('[data-contract-extra-url]')?.value.trim() || '';
+                return {
+                    name,
+                    url: url || null,
+                };
+            });
+        }
+
+        function syncExtraOpenLink(item) {
+            const urlInput = item.querySelector('[data-contract-extra-url]');
+            const openLink = item.querySelector('[data-contract-extra-open]');
+            if (!urlInput || !openLink) {
+                return;
+            }
+            const url = urlInput.value.trim();
+            const hasUrl = url !== '';
+            openLink.href = hasUrl ? url : '#';
+            openLink.classList.toggle('pointer-events-none', !hasUrl);
+            openLink.classList.toggle('opacity-40', !hasUrl);
+            if (hasUrl) {
+                openLink.removeAttribute('aria-disabled');
+            } else {
+                openLink.setAttribute('aria-disabled', 'true');
+            }
+        }
+
+        async function persistExtraLinks() {
+            if (extraSaving) {
+                return;
+            }
+            extraSaving = true;
+            try {
+                await save('contract_doc_extra_links', collectExtraLinks());
+            } catch (error) {
+                alert(error.message || '追加リンクの保存に失敗しました。');
+            } finally {
+                extraSaving = false;
+            }
+        }
+
+        function scheduleExtraSave() {
+            clearTimeout(extraTimer);
+            extraTimer = setTimeout(() => {
+                persistExtraLinks();
+            }, 800);
+        }
+
+        function nextExtraDefaultName() {
+            const used = new Set(
+                Array.from(extraList?.querySelectorAll('[data-contract-extra-name]') || [])
+                    .map((input) => input.value.trim())
+            );
+            let index = (extraList?.querySelectorAll('[data-contract-extra-item]').length || 0) + 1;
+            let name = `画像保存${index}`;
+            while (used.has(name)) {
+                index += 1;
+                name = `画像保存${index}`;
+            }
+            return name;
+        }
+
+        function bindExtraItem(item) {
+            const nameInput = item.querySelector('[data-contract-extra-name]');
+            const urlInput = item.querySelector('[data-contract-extra-url]');
+            const removeButton = item.querySelector('[data-contract-extra-remove]');
+
+            [nameInput, urlInput].forEach((input) => {
+                if (!input) {
+                    return;
+                }
+                input.addEventListener('input', () => {
+                    if (input === urlInput) {
+                        syncExtraOpenLink(item);
+                    }
+                    scheduleExtraSave();
+                });
+                input.addEventListener('change', () => {
+                    if (input === urlInput) {
+                        syncExtraOpenLink(item);
+                    }
+                    persistExtraLinks();
+                });
+                input.addEventListener('blur', () => {
+                    persistExtraLinks();
+                });
+            });
+
+            removeButton?.addEventListener('click', async () => {
+                item.remove();
+                await persistExtraLinks();
+            });
+
+            syncExtraOpenLink(item);
+        }
+
+        extraList?.querySelectorAll('[data-contract-extra-item]').forEach((item) => {
+            bindExtraItem(item);
+        });
+
+        extraAdd?.addEventListener('click', () => {
+            if (!extraTemplate || !extraList) {
+                return;
+            }
+            const node = extraTemplate.content.firstElementChild.cloneNode(true);
+            const nameInput = node.querySelector('[data-contract-extra-name]');
+            if (nameInput) {
+                nameInput.value = nextExtraDefaultName();
+            }
+            extraList.appendChild(node);
+            bindExtraItem(node);
+            persistExtraLinks();
+            nameInput?.focus();
         });
     })();
 </script>

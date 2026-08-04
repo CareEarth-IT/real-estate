@@ -3,6 +3,7 @@
 <script>
     document.addEventListener('DOMContentLoaded', function () {
         initBrokerFeeField();
+        initOverseasScreeningField();
         initManagementCompanyAutocomplete();
         initDatePickers();
     });
@@ -19,6 +20,30 @@
                 allowInput: true,
             });
         });
+    }
+
+    function initOverseasScreeningField() {
+        const checkbox = document.querySelector('[data-overseas-screening-toggle]');
+        const wrapper = document.querySelector('[data-japan-stay-schedule-field]');
+        const input = document.getElementById('japan_stay_schedule');
+
+        if (!checkbox || !wrapper) {
+            return;
+        }
+
+        function toggleJapanStayScheduleField() {
+            const show = checkbox.checked;
+            wrapper.classList.toggle('hidden', !show);
+            if (input) {
+                input.required = show;
+                if (!show) {
+                    input.value = '';
+                }
+            }
+        }
+
+        checkbox.addEventListener('change', toggleJapanStayScheduleField);
+        toggleJapanStayScheduleField();
     }
 
     function initBrokerFeeField() {
