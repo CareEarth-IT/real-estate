@@ -399,6 +399,9 @@
         };
 
         const currentValue = () => {
+            if (isTagGroup) {
+                return collectTagGroupValues();
+            }
             if (isCheckbox) {
                 return field.checked;
             }
@@ -410,9 +413,6 @@
             }
             if (isSurroundings) {
                 return collectSurroundings();
-            }
-            if (isTagGroup) {
-                return collectTagGroupValues();
             }
             return field.value;
         };
@@ -475,7 +475,16 @@
                     syncSurroundingsOpenLink();
                 }
             } catch (error) {
-                if (isCheckbox) {
+                if (isTagGroup) {
+                    try {
+                        const restored = JSON.parse(previous || '[]');
+                        root.querySelectorAll(`.rental-archive-tag-field[data-field="${field.dataset.field}"]`).forEach((el) => {
+                            el.checked = restored.includes(el.value);
+                        });
+                    } catch (_) {
+                        // ignore restore parse errors
+                    }
+                } else if (isCheckbox) {
                     field.checked = Boolean(previous);
                 } else if (isRadio) {
                     const group = root.querySelectorAll(`input[type="radio"][data-field="${field.dataset.field}"]`);
@@ -512,15 +521,6 @@
                                 openLink.classList.toggle('pointer-events-none', !url);
                                 openLink.classList.toggle('opacity-40', !url);
                             }
-                        });
-                    } catch (_) {
-                        // ignore restore parse errors
-                    }
-                } else if (isTagGroup) {
-                    try {
-                        const restored = JSON.parse(previous || '[]');
-                        root.querySelectorAll(`.rental-archive-tag-field[data-field="${field.dataset.field}"]`).forEach((el) => {
-                            el.checked = restored.includes(el.value);
                         });
                     } catch (_) {
                         // ignore restore parse errors

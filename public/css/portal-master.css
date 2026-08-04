@@ -2508,6 +2508,16 @@ body.rental-archive-lightbox-open {
     overflow: hidden;
 }
 
+.rental-archive-tag-frame .rental-archive-tag-panel + .rental-archive-tag-panel,
+.portal-master-content .rental-archive-tag-frame .rental-archive-tag-panel + .rental-archive-tag-panel {
+    margin-top: 1rem;
+}
+
+.rental-archive-tag-panel--compact .rental-archive-tag-grid,
+.portal-master-content .rental-archive-tag-panel--compact .rental-archive-tag-grid {
+    border-top: 0;
+}
+
 .rental-archive-tag-panel__title,
 .portal-master-content .rental-archive-tag-panel__title {
     padding: 8px 12px;

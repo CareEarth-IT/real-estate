@@ -109,6 +109,16 @@ class RentalPropertyArchive extends Model
         'utility_cost_major',
         'utility_cost_minor',
         'location_environment',
+        'floor_features',
+        'outdoor_space',
+        'management_security',
+        'common_area',
+        'size_features',
+        'building_age_features',
+        'parking_bicycle',
+        'sunlight_lighting',
+        'garden',
+        'floor_plan_features',
         'address',
         'building_age',
         'google_drive_url',
@@ -172,6 +182,16 @@ class RentalPropertyArchive extends Model
             'utility_cost_major' => 'integer',
             'utility_cost_minor' => 'integer',
             'location_environment' => 'array',
+            'floor_features' => 'array',
+            'outdoor_space' => 'array',
+            'management_security' => 'array',
+            'common_area' => 'array',
+            'size_features' => 'array',
+            'building_age_features' => 'array',
+            'parking_bicycle' => 'array',
+            'sunlight_lighting' => 'array',
+            'garden' => 'array',
+            'floor_plan_features' => 'array',
         ];
     }
 
@@ -289,6 +309,16 @@ class RentalPropertyArchive extends Model
             'utility_cost_major' => '目安光熱費（整数）',
             'utility_cost_minor' => '目安光熱費（小数）',
             'location_environment' => '立地・環境',
+            'floor_features' => '階・フロア',
+            'outdoor_space' => '居室外スペース',
+            'management_security' => '管理・防犯',
+            'common_area' => '共用部',
+            'size_features' => '広さ',
+            'building_age_features' => '築年数',
+            'parking_bicycle' => '駐車・駐輪',
+            'sunlight_lighting' => '日当たり・採光',
+            'garden' => '庭',
+            'floor_plan_features' => '間取り',
             'google_drive_url' => 'Googleドライブ',
         ];
     }
@@ -500,12 +530,258 @@ class RentalPropertyArchive extends Model
     }
 
     /**
+     * @return list<string>
+     */
+    public static function floorFeatureOptions(): array
+    {
+        return [
+            '1フロア1住戸',
+            '1フロア2住戸',
+            'スキップフロア',
+            '高層階',
+            '最上階',
+            '上階無し',
+        ];
+    }
+
+    /**
+     * @return list<string>
+     */
+    public static function outdoorSpaceOptions(): array
+    {
+        return [
+            'アルコーブ',
+            'スロップシンク',
+            'ドライエリア',
+            '縁側',
+            '離れ',
+            '井戸',
+            '倉庫',
+            '事務所付住宅',
+            '店舗付住宅',
+        ];
+    }
+
+    /**
+     * @return list<string>
+     */
+    public static function managementSecurityOptions(): array
+    {
+        return [
+            'オートロック',
+            'ダブルロックキー',
+            'ディンプルキー',
+            'カードキー',
+            '電子ロック',
+            '電子キー',
+            '玄関リモコンキー',
+            'ドアタッチキー',
+            '指紋認証',
+            '顔認証',
+            '防犯カメラ',
+            '防犯ガラス',
+            '24時間緊急通報システム',
+            '防犯モデルマンション',
+            '24時間有人管理',
+            '日勤管理',
+            '当社管理物件',
+            'セキュリティ会社加入済',
+        ];
+    }
+
+    /**
+     * @return list<string>
+     */
+    public static function commonAreaOptions(): array
+    {
+        return [
+            'エレベーター',
+            'エレベーター2基',
+            '集会所',
+            'ゲストルーム',
+            'キッズルーム',
+            '敷地内遊び場',
+            'アスレチックR',
+            'プール',
+            '大浴場',
+            'シアタールーム',
+            'ペット専用設備',
+            '屋上',
+            '車寄せ',
+            'ストックヤード',
+            'ゴミ回収サービス',
+            '24時間ゴミ出し可',
+            '宅配ボックス',
+            'フロントサービス',
+            'クリーニングボックス',
+            'コインランドリー',
+            'AED付',
+            'タイヤ置き場',
+            '風除室',
+            '融雪機',
+            '融雪槽',
+            'ロードヒーティング',
+            '敷地内ごみ置き場',
+        ];
+    }
+
+    /**
+     * @return list<string>
+     */
+    public static function sizeFeatureOptions(): array
+    {
+        return [
+            '専有面積30平米以上',
+            '専有面積25平米以上',
+        ];
+    }
+
+    /**
+     * @return list<string>
+     */
+    public static function buildingAgeFeatureOptions(): array
+    {
+        return [
+            '築2年以内',
+            '築3年以内',
+            '築5年以内',
+        ];
+    }
+
+    /**
+     * @return list<string>
+     */
+    public static function parkingBicycleOptions(): array
+    {
+        return [
+            '駐車2台可',
+            '駐車場2台無料',
+            '駐車3台可',
+            '駐車4台可',
+            '駐車並列2台',
+            '駐車並列3台',
+            'ビルトガレージ',
+            '大型車庫',
+            '地下車庫',
+            'シャッター車庫',
+            '電動シャッター車庫',
+            'カーポート',
+            '平面駐車場',
+            '自走式駐車場',
+            '来客用パーキング',
+            '駐輪場',
+            'バイク置場',
+            '駐車5台以上',
+            '駐車場1台無料',
+        ];
+    }
+
+    /**
+     * @return list<string>
+     */
+    public static function sunlightLightingOptions(): array
+    {
+        return [
+            '南向き',
+            '東南向き',
+            '南西向き',
+            '全室南向き',
+            '全室東南向き',
+            '全室南西向き',
+            '角住戸',
+            '東南角住戸',
+            '3方向角住戸',
+            '南西角住戸',
+            '南面2室',
+            '南面3室',
+            '南面4室',
+            '2面採光',
+            '全室2面採光',
+            '3面採光',
+            '南向リビング',
+            '出窓',
+            '天窓',
+            'ライトコート',
+        ];
+    }
+
+    /**
+     * @return list<string>
+     */
+    public static function gardenOptions(): array
+    {
+        return [
+            '庭',
+            '庭10坪以上',
+            '庭30坪以上',
+            '庭50坪以上',
+            '南庭',
+            '坪庭',
+            '中庭',
+            '専用庭',
+        ];
+    }
+
+    /**
+     * @return list<string>
+     */
+    public static function floorPlanFeatureOptions(): array
+    {
+        return [
+            'LDK12畳以上',
+            'LDK15畳以上',
+            'LDK18畳以上',
+            'LDK20畳以上',
+            'LDK25畳以上',
+            '2階リビング',
+            '2階LDK',
+            'LDK2ヶ所',
+            'リビング吹抜け',
+            'リビングの隣和室',
+            '和室',
+            '和室続き間',
+            '和室8畳以上',
+            '畳コーナー',
+            '床の間',
+            '居室6畳以上',
+            '居室10畳以上',
+            '地下室',
+            '防音室',
+            '家事室',
+            'フリースペース',
+            '書斎',
+            'サンルーム',
+            '土間',
+            'ロフト',
+            'メゾネット',
+            '玄関ポーチ',
+            '玄関手すり',
+            '玄関ホール',
+            '振分',
+            '2ドア1ルーム',
+            '全居室洋室',
+            '全居室6畳以上',
+            '全居室8畳以上',
+        ];
+    }
+
+    /**
      * @return array<string, list<string>>
      */
     public static function tagGroupOptions(): array
     {
         return [
             'location_environment' => self::locationEnvironmentOptions(),
+            'floor_features' => self::floorFeatureOptions(),
+            'outdoor_space' => self::outdoorSpaceOptions(),
+            'management_security' => self::managementSecurityOptions(),
+            'common_area' => self::commonAreaOptions(),
+            'size_features' => self::sizeFeatureOptions(),
+            'building_age_features' => self::buildingAgeFeatureOptions(),
+            'parking_bicycle' => self::parkingBicycleOptions(),
+            'sunlight_lighting' => self::sunlightLightingOptions(),
+            'garden' => self::gardenOptions(),
+            'floor_plan_features' => self::floorPlanFeatureOptions(),
         ];
     }
 
