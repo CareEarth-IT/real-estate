@@ -78,6 +78,7 @@ Route::middleware('careearth.auth')->group(function () {
         Route::put('properties/{property}', [PropertyController::class, 'update'])->name('properties.update');
 
         Route::get('users', [UserController::class, 'index'])->name('users.index');
+        Route::get('users/employee-directory', [UserController::class, 'employeeDirectory'])->name('users.employee-directory');
         Route::post('users', [UserController::class, 'store'])->name('users.store');
         Route::put('users/{user}', [UserController::class, 'update'])->name('users.update');
     });

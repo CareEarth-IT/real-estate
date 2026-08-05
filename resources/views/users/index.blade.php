@@ -16,10 +16,85 @@
 <div class="alert alert-error">{{ $errors->first() }}</div>
 @endif
 
+<section class="form-section form-section-clean user-directory-section" data-employee-directory>
+    <h2 class="section-label">社員一覧から参照</h2>
+    <p class="mt-0 mb-4 text-sm text-slate-500">
+        社員ポータルの社員情報を検索し、「選択」で下の追加フォームへ名前・メールを反映します。パスワードは手入力してください。
+    </p>
+
+    @if (! ($employeePortalConfigured ?? false))
+        <div class="alert alert-error mb-0">
+            社員ポータル連携が未設定です。<code>EMPLOYEE_PORTAL_API_URL</code> と <code>EMPLOYEE_PORTAL_PROXY_SECRET</code> を設定してください。
+        </div>
+    @else
+        <form class="user-directory-search" data-employee-directory-form autocomplete="off">
+            <div class="form-row form-row-3">
+                <div class="form-group">
+                    <label for="directory_keyword">キーワード</label>
+                    <input
+                        type="text"
+                        id="directory_keyword"
+                        name="keyword"
+                        maxlength="100"
+                        placeholder="氏名・メール・社員ID・部署"
+                        data-employee-directory-keyword
+                    >
+                </div>
+                <div class="form-group">
+                    <label for="directory_status">在籍状況</label>
+                    <select id="directory_status" name="status" data-employee-directory-status>
+                        @foreach (['在籍', '退職', '辞退'] as $statusOption)
+                            <option
+                                value="{{ $statusOption }}"
+                                @selected(($employeePortalDefaults['status'] ?? '在籍') === $statusOption)
+                            >{{ $statusOption }}</option>
+                        @endforeach
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="directory_department">部署</label>
+                    <input
+                        type="text"
+                        id="directory_department"
+                        name="department"
+                        maxlength="100"
+                        value="{{ $employeePortalDefaults['department'] ?? '不動産' }}"
+                        placeholder="例: 不動産"
+                        data-employee-directory-department
+                    >
+                </div>
+            </div>
+            <div class="form-actions form-actions-inline">
+                <button type="submit" class="btn btn-primary" data-employee-directory-submit>検索</button>
+            </div>
+        </form>
+
+        <p class="mt-3 mb-2 text-sm text-slate-500 hidden" data-employee-directory-message></p>
+
+        <div class="table-wrapper mt-3 hidden" data-employee-directory-results-wrap>
+            <table class="data-table user-table">
+                <thead>
+                    <tr>
+                        <th>社員ID</th>
+                        <th>名前</th>
+                        <th>メール</th>
+                        <th>所属</th>
+                        <th>在籍状況</th>
+                        <th>登録</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody data-employee-directory-results></tbody>
+            </table>
+        </div>
+    @endif
+</section>
+
 <section class="form-section form-section-clean user-add-section">
     <h2 class="section-label">ユーザーを追加</h2>
     <form method="post" action="{{ route('users.store') }}" class="user-add-form" autocomplete="off">
         @csrf
+        <input type="hidden" name="employee_id" id="new_employee_id" value="{{ old('employee_id') }}" data-employee-directory-employee-id>
         <div class="form-row form-row-2">
             <div class="form-group">
                 <label for="new_name">名前 <span class="required">*</span></label>
@@ -205,6 +280,181 @@
                     label.classList.toggle('hover:text-slate-800', !on);
                 });
             });
+        });
+
+        const root = document.querySelector('[data-employee-directory]');
+        const form = root?.querySelector('[data-employee-directory-form]');
+        if (!root || !form) {
+            return;
+        }
+
+        const endpoint = @json(route('users.employee-directory'));
+        const resultsWrap = root.querySelector('[data-employee-directory-results-wrap]');
+        const resultsBody = root.querySelector('[data-employee-directory-results]');
+        const messageEl = root.querySelector('[data-employee-directory-message]');
+        const submitBtn = root.querySelector('[data-employee-directory-submit]');
+        const nameInput = document.getElementById('new_name');
+        const emailInput = document.getElementById('new_email');
+        const employeeIdInput = document.getElementById('new_employee_id');
+
+        const escapeHtml = (value) => String(value ?? '')
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#39;');
+
+        const setMessage = (text, isError = false) => {
+            if (!messageEl) {
+                return;
+            }
+            messageEl.textContent = text || '';
+            messageEl.classList.toggle('hidden', !text);
+            messageEl.classList.toggle('text-red-600', !!isError);
+            messageEl.classList.toggle('text-slate-500', !isError);
+        };
+
+        const affiliation = (employee) => {
+            return [employee.department, employee.section].filter(Boolean).join(' / ') || '—';
+        };
+
+        const renderRows = (employees) => {
+            if (!resultsBody || !resultsWrap) {
+                return;
+            }
+
+            if (!employees.length) {
+                resultsBody.innerHTML = '<tr><td colspan="7" class="px-3 py-6 text-center text-slate-500">該当する社員が見つかりませんでした。</td></tr>';
+                resultsWrap.classList.remove('hidden');
+                return;
+            }
+
+            resultsBody.innerHTML = employees.map((employee) => {
+                const registered = !!employee.already_registered;
+                const selectDisabled = registered ? 'disabled' : '';
+                const registeredLabel = registered
+                    ? '<span class="text-amber-700 text-xs font-medium">登録済み</span>'
+                    : '<span class="text-slate-400 text-xs">未登録</span>';
+                const payload = escapeHtml(JSON.stringify({
+                    name: employee.name || '',
+                    email: employee.email || '',
+                    employee_id: employee.employee_id || '',
+                }));
+
+                return `
+                    <tr>
+                        <td>${escapeHtml(employee.employee_id || '—')}</td>
+                        <td>${escapeHtml(employee.name || '—')}</td>
+                        <td>${escapeHtml(employee.email || '—')}</td>
+                        <td>${escapeHtml(affiliation(employee))}</td>
+                        <td>${escapeHtml(employee.employment_status || '—')}</td>
+                        <td>${registeredLabel}</td>
+                        <td class="actions-cell">
+                            <button
+                                type="button"
+                                class="btn btn-outline btn-sm"
+                                data-employee-directory-select
+                                data-employee="${payload}"
+                                ${selectDisabled}
+                            >選択</button>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+
+            resultsWrap.classList.remove('hidden');
+        };
+
+        form.addEventListener('submit', async (event) => {
+            event.preventDefault();
+            setMessage('検索中…');
+            if (submitBtn) {
+                submitBtn.disabled = true;
+            }
+
+            const params = new URLSearchParams();
+            const keyword = form.querySelector('[data-employee-directory-keyword]')?.value?.trim() || '';
+            const status = form.querySelector('[data-employee-directory-status]')?.value?.trim() || '';
+            const department = form.querySelector('[data-employee-directory-department]')?.value?.trim() || '';
+            if (keyword) params.set('keyword', keyword);
+            if (status) params.set('status', status);
+            if (department) params.set('department', department);
+
+            try {
+                const response = await fetch(`${endpoint}?${params.toString()}`, {
+                    headers: {
+                        Accept: 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest',
+                    },
+                    credentials: 'same-origin',
+                });
+                const data = await response.json().catch(() => ({}));
+
+                if (!response.ok) {
+                    setMessage(data.message || '社員一覧の取得に失敗しました。', true);
+                    if (resultsWrap) {
+                        resultsWrap.classList.add('hidden');
+                    }
+                    return;
+                }
+
+                const employees = Array.isArray(data.employees) ? data.employees : [];
+                const count = data.meta?.count ?? employees.length;
+                setMessage(`検索結果: ${count} 件`);
+                renderRows(employees);
+            } catch (error) {
+                setMessage('社員一覧の取得に失敗しました。', true);
+                if (resultsWrap) {
+                    resultsWrap.classList.add('hidden');
+                }
+            } finally {
+                if (submitBtn) {
+                    submitBtn.disabled = false;
+                }
+            }
+        });
+
+        // 手動で名前・メールを変えたら社員ID紐付けをクリア（競合防止）
+        let suppressEmployeeIdClear = false;
+        const clearEmployeeIdOnManualEdit = () => {
+            if (suppressEmployeeIdClear) {
+                return;
+            }
+            if (employeeIdInput) {
+                employeeIdInput.value = '';
+            }
+        };
+        nameInput?.addEventListener('input', clearEmployeeIdOnManualEdit);
+        emailInput?.addEventListener('input', clearEmployeeIdOnManualEdit);
+
+        root.addEventListener('click', (event) => {
+            const button = event.target.closest('[data-employee-directory-select]');
+            if (!button || button.disabled) {
+                return;
+            }
+
+            let payload = {};
+            try {
+                payload = JSON.parse(button.getAttribute('data-employee') || '{}');
+            } catch (error) {
+                return;
+            }
+
+            suppressEmployeeIdClear = true;
+            if (nameInput) {
+                nameInput.value = payload.name || '';
+            }
+            if (emailInput) {
+                emailInput.value = payload.email || '';
+            }
+            if (employeeIdInput) {
+                employeeIdInput.value = payload.employee_id || '';
+            }
+            suppressEmployeeIdClear = false;
+
+            setMessage(`「${payload.name || payload.email || '社員'}」を追加フォームに反映しました。パスワードを入力して追加してください。`);
+            nameInput?.focus();
+            document.querySelector('.user-add-section')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
         });
     })();
 </script>

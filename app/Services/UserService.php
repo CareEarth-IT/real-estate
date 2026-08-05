@@ -24,9 +24,14 @@ class UserService
         string $password,
         string $role,
         bool $showPerformance = true,
+        ?string $employeeId = null,
     ): CareEarthUser {
         $name = trim($name);
         $email = strtolower(trim($email));
+        $employeeId = $employeeId !== null ? trim($employeeId) : null;
+        if ($employeeId === '') {
+            $employeeId = null;
+        }
 
         if ($name === '') {
             throw new RuntimeException('名前を入力してください。');
@@ -56,9 +61,14 @@ class UserService
             throw new RuntimeException('このメールアドレスは既に登録されています。');
         }
 
+        if ($employeeId !== null && CareEarthUser::query()->where('employee_id', $employeeId)->exists()) {
+            throw new RuntimeException('この社員IDは既に登録されています。');
+        }
+
         $user = new CareEarthUser([
             'name' => $name,
             'email' => $email,
+            'employee_id' => $employeeId,
             'role' => Role::normalize($role),
             'show_performance' => $showPerformance,
         ]);

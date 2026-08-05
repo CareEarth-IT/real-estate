@@ -18,4 +18,12 @@ return [
 
     'session_lifetime' => (int) env('CAREEARTH_SESSION_LIFETIME', 7200),
 
+    'employee_portal' => [
+        'api_url' => rtrim((string) env('EMPLOYEE_PORTAL_API_URL', ''), '/'),
+        'proxy_secret' => (string) env('EMPLOYEE_PORTAL_PROXY_SECRET', ''),
+        'default_department' => (string) env('EMPLOYEE_PORTAL_DEFAULT_DEPARTMENT', '不動産'),
+        'default_status' => (string) env('EMPLOYEE_PORTAL_DEFAULT_STATUS', '在籍'),
+        'timeout' => (int) env('EMPLOYEE_PORTAL_TIMEOUT', 10),
+    ],
+
 ];

@@ -13,6 +13,7 @@ class CareEarthUser extends Model
     protected $fillable = [
         'name',
         'email',
+        'employee_id',
         'password_hash',
         'role',
         'show_performance',
