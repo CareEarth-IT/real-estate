@@ -1,8 +1,14 @@
 @props([
     'value' => '',
+    'preserve' => [],
 ])
 
 <form method="GET" {{ $attributes->merge(['class' => 'admin-search-form flex flex-col sm:flex-row sm:items-center sm:justify-end gap-2 w-full sm:w-auto sm:max-w-md']) }}>
+    @foreach (($preserve ?? []) as $preserveName => $preserveValue)
+        @if ($preserveValue !== null && $preserveValue !== '')
+            <input type="hidden" name="{{ $preserveName }}" value="{{ $preserveValue }}">
+        @endif
+    @endforeach
     <div class="relative w-full sm:flex-1 sm:min-w-[200px]">
         <input
             type="search"
@@ -21,7 +27,7 @@
         </button>
         @if ($value !== '')
             <a
-                href="{{ url()->current() }}"
+                href="{{ request()->url().(($preserveQuery = http_build_query(array_filter($preserve ?? []))) !== '' ? '?'.$preserveQuery : '') }}"
                 class="admin-search-clear-link inline-flex items-center justify-center rounded-md border border-slate-300 bg-white px-3 py-1.5 text-xs font-medium text-slate-700 hover:bg-slate-50 transition-colors"
             >
                 クリア
