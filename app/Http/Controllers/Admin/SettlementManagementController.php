@@ -95,6 +95,13 @@ class SettlementManagementController extends Controller
             $validated['field'] => $validated['value'],
         ]);
 
+        if (in_array($validated['field'], ['advertising_fee_amount', 'broker_fee_amount'], true)) {
+            $settlementManagement->forceFill([
+                'estimated_sales' => (int) ($settlementManagement->advertising_fee_amount ?? 0)
+                    + (int) ($settlementManagement->broker_fee_amount ?? 0),
+            ])->save();
+        }
+
         return response()->json([
             'success' => true,
             'field' => $validated['field'],
