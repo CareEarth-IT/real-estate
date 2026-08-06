@@ -37,6 +37,54 @@ class FlowManagementListSort
     }
 
     /**
+     * 本日を基準にした相対日ラベル。
+     * 期限内（未来）は「N日前」（期限のN日前）、当日は「本日」、過去は「N日前」。
+     */
+    public static function relativeDayLabel(mixed $date, ?CarbonInterface $today = null): ?string
+    {
+        if ($date === null || $date === '') {
+            return null;
+        }
+
+        try {
+            $target = \Illuminate\Support\Carbon::parse($date)->startOfDay();
+        } catch (\Throwable) {
+            return null;
+        }
+
+        $today = ($today ?? now())->copy()->startOfDay();
+        $target = $target->copy()->startOfDay();
+
+        if ($target->equalTo($today)) {
+            return '本日';
+        }
+
+        $diff = (int) $today->diffInDays($target);
+
+        // 未来・過去とも「N日前」（未来は期限のN日前）
+        return $diff.'日前';
+    }
+
+    public static function isWithinWeekWindow(mixed $date, ?CarbonInterface $today = null): bool
+    {
+        if ($date === null || $date === '') {
+            return false;
+        }
+
+        try {
+            $value = \Illuminate\Support\Carbon::parse($date)->toDateString();
+        } catch (\Throwable) {
+            return false;
+        }
+
+        [$weekFrom, $weekTo] = self::weekWindow($today);
+
+        return $value >= $weekFrom && $value <= $weekTo;
+    }
+
+    /**
+     * 本日〜7日後（両端含む）の期間。
+     *
      * @return array{0: string, 1: string} [from, to] Y-m-d
      */
     public static function weekWindow(?CarbonInterface $today = null): array
@@ -44,7 +92,7 @@ class FlowManagementListSort
         $today = ($today ?? now())->copy()->startOfDay();
 
         return [
-            $today->copy()->subDays(7)->toDateString(),
+            $today->toDateString(),
             $today->copy()->addDays(7)->toDateString(),
         ];
     }

@@ -54,7 +54,7 @@
 
             <div class="min-w-0 flex-1">
                 <p class="mb-2 text-xs font-medium text-slate-500">
-                    1週間以内の期限（{{ \Illuminate\Support\Carbon::parse($weekFrom)->format('Y/m/d') }}〜{{ \Illuminate\Support\Carbon::parse($weekTo)->format('Y/m/d') }}）
+                    本日からの1週間以内（{{ \Illuminate\Support\Carbon::parse($weekFrom)->format('Y/m/d') }}〜{{ \Illuminate\Support\Carbon::parse($weekTo)->format('Y/m/d') }}）
                 </p>
                 <div class="flex flex-wrap gap-2">
                     @foreach ($sortOptions as $field => $label)

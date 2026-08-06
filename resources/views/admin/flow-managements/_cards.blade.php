@@ -1,11 +1,35 @@
+@php
+    use App\Support\FlowManagementListSort;
+@endphp
+
 <div class="application-blocks-board">
     <div class="application-blocks-grid">
         @foreach ($flowManagements as $flowManagement)
             @php
-                $activeDeadline = ($sort ?? '') !== '' ? $flowManagement->{$sort} : null;
-                $isWithinWeek = $activeDeadline
-                    && $activeDeadline->toDateString() >= ($weekFrom ?? '')
-                    && $activeDeadline->toDateString() <= ($weekTo ?? '');
+                $deadlineFields = array_keys(FlowManagementListSort::options());
+                $activeDeadline = null;
+
+                if (($sort ?? '') !== '' && in_array($sort, $deadlineFields, true)) {
+                    $candidate = $flowManagement->{$sort};
+                    if (FlowManagementListSort::isWithinWeekWindow($candidate)) {
+                        $activeDeadline = $candidate;
+                    }
+                } else {
+                    foreach ($deadlineFields as $field) {
+                        $candidate = $flowManagement->{$field};
+                        if (! FlowManagementListSort::isWithinWeekWindow($candidate)) {
+                            continue;
+                        }
+                        if ($activeDeadline === null || $candidate->lt($activeDeadline)) {
+                            $activeDeadline = $candidate;
+                        }
+                    }
+                }
+
+                $isWithinWeek = $activeDeadline !== null;
+                $relativeDayLabel = $isWithinWeek
+                    ? FlowManagementListSort::relativeDayLabel($activeDeadline)
+                    : null;
             @endphp
             <article
                 class="application-block flow-management-summary-card {{ $flowManagement->settlement_transition ? 'has-sticky-highlight-blue' : '' }} {{ $isWithinWeek ? 'application-block--action-required' : '' }}"
@@ -19,9 +43,9 @@
                     <h3 class="application-block__title">
                         {{ $flowManagement->property_name ?: '（物件名未設定）' }}
                     </h3>
-                    @if ($isWithinWeek)
+                    @if ($relativeDayLabel)
                         <div class="application-block__badges">
-                            <span class="application-block__badge application-block__badge--warn">1週間以内</span>
+                            <span class="application-block__badge application-block__badge--warn">{{ $relativeDayLabel }}</span>
                         </div>
                     @endif
                 </div>

@@ -7,9 +7,9 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Customer extends Model
 {
-    public const DISPLAY_ID_START = 10001;
+    public const DISPLAY_ID_START = 1;
 
-    public const DISPLAY_ID_OFFSET = 10000;
+    public const DISPLAY_ID_PAD = 3;
 
     protected $fillable = [
         'name',
@@ -41,9 +41,16 @@ class Customer extends Model
     {
         static::creating(function (Customer $customer): void {
             if ($customer->case_number === null) {
-                $customer->case_number = (static::max('case_number') ?? self::DISPLAY_ID_OFFSET) + 1;
+                $customer->case_number = static::nextCaseNumber();
             }
         });
+    }
+
+    public static function nextCaseNumber(): int
+    {
+        $max = static::query()->lockForUpdate()->max('case_number');
+
+        return ((int) ($max ?? 0)) + 1;
     }
 
     /**
@@ -58,7 +65,6 @@ class Customer extends Model
             'date_of_birth' => 'date',
             'is_married' => 'boolean',
             'emergency_contact_date_of_birth' => 'date',
-            'customer_info_completed' => 'boolean',
         ];
     }
 
@@ -68,7 +74,7 @@ class Customer extends Model
             return null;
         }
 
-        return str_pad((string) $caseNumber, 5, '0', STR_PAD_LEFT);
+        return str_pad((string) $caseNumber, self::DISPLAY_ID_PAD, '0', STR_PAD_LEFT);
     }
 
     public function displayCustomerId(): ?string
