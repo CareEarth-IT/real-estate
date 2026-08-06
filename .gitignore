@@ -30,7 +30,3 @@ Thumbs.db
 /app/Console/Commands/SeedDemoDataCommand.php
 /database/seeders/DemoDataSeeder.php
 /database/seeders/ApplicationSampleSeeder.php
-
-# Uploaded files
-/uploads/
-

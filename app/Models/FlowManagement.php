@@ -19,6 +19,7 @@ class FlowManagement extends Model
         'contractor_furigana',
         'contractor_english_name',
         'overseas_screening',
+        'japan_stay_schedule',
         'google_drive_url',
         'contract_doc_resident_record_url',
         'contract_doc_residence_card_url',
@@ -32,6 +33,7 @@ class FlowManagement extends Model
         'contract_doc_payslip_confirmed',
         'contract_doc_face_photo_confirmed',
         'contract_doc_identity_verification_confirmed',
+        'contract_doc_extra_links',
         'property_name',
         'room_number',
         'application_method',
@@ -68,6 +70,8 @@ class FlowManagement extends Model
     {
         return [
             'flow_management_transition' => 'boolean',
+            'overseas_screening' => 'boolean',
+            'japan_stay_schedule' => 'datetime',
             'move_in_date' => 'date',
             'scheduled_visit_date' => 'date',
             'key_handover_date' => 'date',
@@ -95,6 +99,7 @@ class FlowManagement extends Model
             'contract_doc_payslip_confirmed' => 'boolean',
             'contract_doc_face_photo_confirmed' => 'boolean',
             'contract_doc_identity_verification_confirmed' => 'boolean',
+            'contract_doc_extra_links' => 'array',
             'has_broker_fee' => 'boolean',
             'settlement_transition' => 'boolean',
         ];
@@ -119,7 +124,8 @@ class FlowManagement extends Model
         $flowManagement->contractor = $application->contractor;
         $flowManagement->contractor_furigana = $application->contractor_furigana;
         $flowManagement->contractor_english_name = $application->contractor_english_name;
-        $flowManagement->overseas_screening = $application->overseas_screening;
+        $flowManagement->overseas_screening = (bool) $application->overseas_screening;
+        $flowManagement->japan_stay_schedule = $application->japan_stay_schedule;
         $flowManagement->property_name = $application->property_name;
         $flowManagement->room_number = $application->room_number;
         $flowManagement->application_method = $application->application_method;
@@ -202,7 +208,32 @@ class FlowManagement extends Model
             }
         }
 
+        foreach ((array) ($this->contract_doc_extra_links ?? []) as $link) {
+            if (filled($link['url'] ?? null)) {
+                return true;
+            }
+        }
+
         return false;
+    }
+
+    /**
+     * @return list<array{name: string, url: string|null}>
+     */
+    public function contractDocExtraLinks(): array
+    {
+        $links = [];
+        foreach ((array) ($this->contract_doc_extra_links ?? []) as $link) {
+            if (! is_array($link)) {
+                continue;
+            }
+            $links[] = [
+                'name' => (string) ($link['name'] ?? ''),
+                'url' => filled($link['url'] ?? null) ? (string) $link['url'] : null,
+            ];
+        }
+
+        return $links;
     }
 
     /**
@@ -220,8 +251,10 @@ class FlowManagement extends Model
             'contractor_furigana' => 'フリガナ',
             'contractor_english_name' => '英名',
             'overseas_screening' => '海外審査',
+            'japan_stay_schedule' => '在日日程',
             'google_drive_url' => '契約書類',
             ...self::contractDocumentFields(),
+            'contract_doc_extra_links' => '契約書類・追加リンク',
             'property_name' => '物件名',
             'room_number' => '部屋番号',
             'application_method' => '申込方法',

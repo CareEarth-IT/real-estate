@@ -45,8 +45,20 @@
                 <div class="application-block__cell-value">{{ $settlementManagement->staff_in_charge ?: '—' }}</div>
             </div>
             <div class="application-block__cell">
+                <span class="application-block__cell-label">{{ $columnLabels['contractor'] }}</span>
+                <div class="application-block__cell-value">{{ $settlementManagement->contractor ?: ($settlementManagement->flowManagement?->contractor ?: '—') }}</div>
+            </div>
+            <div class="application-block__cell">
                 <span class="application-block__cell-label">{{ $columnLabels['property_name'] }}</span>
                 <div class="application-block__cell-value">{{ $settlementManagement->property_name ?: '—' }}</div>
+            </div>
+            <div class="application-block__cell">
+                <span class="application-block__cell-label">{{ $columnLabels['room_number'] }}</span>
+                <div class="application-block__cell-value">{{ $settlementManagement->room_number ?: ($settlementManagement->flowManagement?->room_number ?: '—') }}</div>
+            </div>
+            <div class="application-block__cell">
+                <span class="application-block__cell-label">{{ $columnLabels['entry_method'] }}</span>
+                <div class="application-block__cell-value">{{ $settlementManagement->entry_method ?: ($settlementManagement->flowManagement?->entry_method ?: '—') }}</div>
             </div>
 
             <label class="application-block__cell application-block__cell--editable">

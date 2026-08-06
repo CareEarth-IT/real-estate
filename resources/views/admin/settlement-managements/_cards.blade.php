@@ -1,17 +1,28 @@
 <div class="application-blocks-board">
     <div class="application-blocks-grid">
         @foreach ($settlementManagements as $settlementManagement)
+            @php
+                $flow = $settlementManagement->flowManagement;
+                $propertyTitle = $settlementManagement->property_name
+                    ?: ($flow?->property_name ?: '（物件名未設定）');
+                $contractor = $settlementManagement->contractor ?: ($flow?->contractor ?: null);
+                $roomNumber = $settlementManagement->room_number ?: ($flow?->room_number ?: null);
+                $entryMethod = $settlementManagement->entry_method ?: ($flow?->entry_method ?: null);
+            @endphp
             <article
                 class="application-block settlement-management-summary-card"
                 data-settlement-management-id="{{ $settlementManagement->id }}"
                 data-detail-url="{{ route('admin.settlement-managements.show', $settlementManagement) }}"
                 tabindex="0"
                 role="link"
-                aria-label="{{ $settlementManagement->property_name ?: '物件名未設定' }}の決済金管理詳細を表示"
+                aria-label="{{ $propertyTitle }}の決済金管理詳細を表示"
             >
                 <div class="application-block__header">
                     <h3 class="application-block__title">
-                        {{ $settlementManagement->property_name ?: '（物件名未設定）' }}
+                        {{ $propertyTitle }}
+                        @if ($roomNumber)
+                            <span class="text-base font-medium text-slate-500">{{ $roomNumber }}</span>
+                        @endif
                     </h3>
                     <div class="flex flex-wrap gap-1">
                         @forelse ($settlementManagement->feeTypeBadges() as $badge)
@@ -30,8 +41,12 @@
                             <div class="application-block__cell-value">{{ $settlementManagement->staff_in_charge ?: '—' }}</div>
                         </div>
                         <div class="application-block__cell">
-                            <span class="application-block__cell-label">物件名</span>
-                            <div class="application-block__cell-value">{{ $settlementManagement->property_name ?: '—' }}</div>
+                            <span class="application-block__cell-label">契約者</span>
+                            <div class="application-block__cell-value">{{ $contractor ?: '—' }}</div>
+                        </div>
+                        <div class="application-block__cell">
+                            <span class="application-block__cell-label">記入方法</span>
+                            <div class="application-block__cell-value">{{ $entryMethod ?: '—' }}</div>
                         </div>
                         <div class="application-block__cell">
                             <span class="application-block__cell-label">契約日</span>

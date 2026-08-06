@@ -99,6 +99,46 @@ class FlowManagementController extends Controller
             if ($validated['value'] === '') {
                 $validated['value'] = null;
             }
+        } elseif ($field === 'contract_doc_extra_links') {
+            $rawLinks = $request->input('value');
+            if (is_array($rawLinks)) {
+                $normalized = [];
+                foreach ($rawLinks as $link) {
+                    if (! is_array($link)) {
+                        continue;
+                    }
+                    $url = trim((string) ($link['url'] ?? ''));
+                    $normalized[] = [
+                        'name' => trim((string) ($link['name'] ?? '')),
+                        'url' => $url === '' ? null : $url,
+                    ];
+                }
+                $request->merge(['value' => $normalized]);
+            }
+
+            $validated = $request->validate([
+                'field' => ['required', Rule::in(['contract_doc_extra_links'])],
+                'value' => ['nullable', 'array'],
+                'value.*.name' => ['nullable', 'string', 'max:100'],
+                'value.*.url' => ['nullable', 'url', 'max:2048'],
+            ]);
+
+            $links = [];
+            foreach ((array) ($validated['value'] ?? []) as $link) {
+                if (! is_array($link)) {
+                    continue;
+                }
+                $name = trim((string) ($link['name'] ?? ''));
+                $url = $link['url'] ?? null;
+                if ($name === '' && blank($url)) {
+                    continue;
+                }
+                $links[] = [
+                    'name' => $name,
+                    'url' => filled($url) ? (string) $url : null,
+                ];
+            }
+            $validated['value'] = $links;
         } else {
             return response()->json(['message' => '不正な項目です。'], 422);
         }
@@ -126,7 +166,15 @@ class FlowManagementController extends Controller
 
         $flowManagement->update($updates);
 
-        if (in_array($validated['field'], ['settlement_transition', 'has_broker_fee'], true)) {
+        if (in_array($validated['field'], [
+            'settlement_transition',
+            'has_broker_fee',
+            'staff_in_charge',
+            'contractor',
+            'property_name',
+            'room_number',
+            'entry_method',
+        ], true)) {
             SettlementManagement::syncFromFlowManagement($flowManagement->fresh());
         }
 

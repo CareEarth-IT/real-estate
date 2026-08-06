@@ -2,6 +2,7 @@
 
 use App\Support\PropertyRentalIncomeContract;
 use App\Support\YearMonth;
+use Carbon\Carbon;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\DB;
@@ -16,6 +17,10 @@ return new class extends Migration
             $table->date('contract_start_on')->nullable()->after('contract_key');
             $table->date('contract_end_on')->nullable()->after('contract_start_on');
         });
+
+        if (! Schema::hasTable('property_rental_incomes')) {
+            return;
+        }
 
         $groups = DB::table('property_rental_incomes')
             ->select('contractor', 'property_name')
@@ -42,8 +47,10 @@ return new class extends Migration
             $contractEnd = null;
 
             if ($months->isNotEmpty()) {
-                $contractStart = YearMonth::firstDay($months->first());
-                $contractEnd = YearMonth::lastDay($months->last());
+                $firstMonth = $months->first();
+                $lastMonth = $months->last();
+                $contractStart = YearMonth::firstDay($firstMonth);
+                $contractEnd = YearMonth::lastDay($lastMonth);
             }
 
             DB::table('property_rental_incomes')

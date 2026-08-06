@@ -20,12 +20,14 @@ class StoreApplicationRequest extends FormRequest
             $this->merge(['broker_fee' => null]);
         }
 
+        $overseasScreening = $this->boolean('overseas_screening');
+
         $nullableFields = [
             'memo',
             'property_documents_url',
             'appliance_support_notes',
             'contractor_english_name',
-            'overseas_screening',
+            'japan_stay_schedule',
             ...array_keys(Application::contractDocumentFields()),
         ];
 
@@ -34,8 +36,13 @@ class StoreApplicationRequest extends FormRequest
             $nullable[$field] = $this->filled($field) ? $this->input($field) : null;
         }
 
+        if (! $overseasScreening) {
+            $nullable['japan_stay_schedule'] = null;
+        }
+
         $this->merge([
             ...$nullable,
+            'overseas_screening' => $overseasScreening,
             'broker_fee' => $this->input('has_broker_fee') === '1' ? $this->input('broker_fee') : null,
         ]);
     }
@@ -61,7 +68,12 @@ class StoreApplicationRequest extends FormRequest
             'contractor' => ['required', 'string', 'max:255'],
             'contractor_furigana' => ['required', 'string', 'max:255'],
             'contractor_english_name' => ['nullable', 'string', 'max:255'],
-            'overseas_screening' => ['nullable', 'string', 'max:2000'],
+            'overseas_screening' => ['sometimes', 'boolean'],
+            'japan_stay_schedule' => [
+                'nullable',
+                'date',
+                Rule::requiredIf(fn () => $this->boolean('overseas_screening')),
+            ],
             'property_name' => ['required', 'string', 'max:255'],
             'room_number' => ['required', 'string', 'max:255'],
             'scheduled_move_in_date' => ['required', 'date'],
@@ -69,7 +81,7 @@ class StoreApplicationRequest extends FormRequest
             'has_broker_fee' => ['required', Rule::in(['0', '1', 'undecided'])],
             'broker_fee' => ['required_if:has_broker_fee,1', 'nullable', 'integer', 'min:0'],
             'management_company_name' => ['required', 'string', 'max:255'],
-            'application_method' => ['required', 'string', 'max:255'],
+            'application_method' => ['required', Rule::in(array_keys(Application::applicationMethodOptions()))],
             'entry_method' => ['required', Rule::in(array_keys(Application::entryMethodOptions()))],
             'status' => ['required', 'string', 'max:2000'],
             'memo' => ['nullable', 'string', 'max:2000'],
@@ -86,7 +98,7 @@ class StoreApplicationRequest extends FormRequest
     public function attributes(): array
     {
         return [
-            ...\App\Models\Application::columnLabels(),
+            ...Application::columnLabels(),
             'property_name' => '物件名',
             'room_number' => '部屋番号',
         ];
