@@ -12,7 +12,45 @@
         <x-form-field label="契約者" name="contractor" required class="md:col-span-2" />
         <x-form-field label="フリガナ" name="contractor_furigana" required class="md:col-span-2" />
         <x-form-field label="英名" name="contractor_english_name" class="md:col-span-2" placeholder="任意" />
-        <x-form-field label="海外審査" name="overseas_screening" type="textarea" rows="2" class="md:col-span-2" placeholder="任意" />
+        <div class="md:col-span-2 space-y-3" data-overseas-screening-block>
+            <label class="inline-flex items-center gap-2 text-sm font-medium text-slate-700">
+                <input
+                    type="checkbox"
+                    id="overseas_screening"
+                    name="overseas_screening"
+                    value="1"
+                    class="h-4 w-4 rounded border-slate-300 text-primary-600 focus:ring-primary-500"
+                    data-overseas-screening-toggle
+                    @checked(old('overseas_screening'))
+                >
+                <span>海外審査</span>
+            </label>
+            @error('overseas_screening')
+                <p class="text-sm text-red-600">{{ $message }}</p>
+            @enderror
+            <div
+                id="japan-stay-schedule-field"
+                class="{{ old('overseas_screening') ? '' : 'hidden' }}"
+                data-japan-stay-schedule-field
+            >
+                @php
+                    $japanStayScheduleValue = old('japan_stay_schedule');
+                    if (filled($japanStayScheduleValue)) {
+                        try {
+                            $japanStayScheduleValue = \Illuminate\Support\Carbon::parse($japanStayScheduleValue)->format('Y-m-d\TH:i');
+                        } catch (\Throwable) {
+                            $japanStayScheduleValue = '';
+                        }
+                    }
+                @endphp
+                <x-form-field
+                    label="在日日程"
+                    name="japan_stay_schedule"
+                    type="datetime-local"
+                    :value="$japanStayScheduleValue"
+                />
+            </div>
+        </div>
         <x-form-field label="物件名" name="property_name" required />
         <x-form-field label="号室" name="room_number" required />
         <x-form-field label="入居予定日" name="scheduled_move_in_date" type="date" required />
@@ -50,7 +88,13 @@
                 <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
             @enderror
         </div>
-        <x-form-field label="申込方法" name="application_method" required />
+        <x-form-field
+            label="申込方法"
+            name="application_method"
+            type="select"
+            :options="['' => '選択してください'] + \App\Models\Application::applicationMethodOptions()"
+            required
+        />
         <x-form-field
             label="記入方法"
             name="entry_method"

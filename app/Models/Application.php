@@ -21,6 +21,7 @@ class Application extends Model
         'contractor_furigana',
         'contractor_english_name',
         'overseas_screening',
+        'japan_stay_schedule',
         'property_name',
         'room_number',
         'scheduled_move_in_date',
@@ -52,6 +53,8 @@ class Application extends Model
             'scheduled_move_in_date' => 'date',
             'advertising_fee' => 'integer',
             'broker_fee' => 'integer',
+            'overseas_screening' => 'boolean',
+            'japan_stay_schedule' => 'datetime',
             'sales_action_required' => 'boolean',
             'screening_ok' => 'boolean',
             'screening_ok_at' => 'datetime',
@@ -113,6 +116,19 @@ class Application extends Model
     /**
      * @return array<string, string>
      */
+    public static function applicationMethodOptions(): array
+    {
+        return [
+            'イタンジ' => 'イタンジ',
+            'FAX' => 'FAX',
+            'リアプロBB' => 'リアプロBB',
+            'メール' => 'メール',
+        ];
+    }
+
+    /**
+     * @return array<string, string>
+     */
     public static function entryMethodOptions(): array
     {
         return [
@@ -151,6 +167,7 @@ class Application extends Model
             'contractor_furigana' => 'フリガナ',
             'contractor_english_name' => '英名',
             'overseas_screening' => '海外審査',
+            'japan_stay_schedule' => '在日日程',
             'property_name' => '物件名',
             'room_number' => '部屋番号',
             'scheduled_move_in_date' => '入居予定日',

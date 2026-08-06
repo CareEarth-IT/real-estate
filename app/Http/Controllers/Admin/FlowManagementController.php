@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\FlowManagement;
 use App\Models\SettlementManagement;
 use App\Support\AdminListSearch;
+use App\Support\FlowManagementListSort;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
@@ -16,22 +17,40 @@ class FlowManagementController extends Controller
     public function index(Request $request): View
     {
         $search = AdminListSearch::term($request->input('search'));
+        $sort = FlowManagementListSort::normalizeSort($request->input('sort'));
+        $direction = FlowManagementListSort::normalizeDirection($request->input('direction'));
 
-        $flowManagements = FlowManagement::query()
+        $baseQuery = FlowManagement::query()
             ->with(['application'])
             ->where('flow_management_transition', true)
             ->whereHas('application', fn ($query) => $query->where('screening_ok', true))
             ->join('applications', 'flow_managements.application_id', '=', 'applications.id')
             ->tap(fn ($query) => AdminListSearch::applyToFlowManagement($query, $search))
-            ->orderByDesc('applications.created_at')
-            ->select('flow_managements.*')
+            ->select('flow_managements.*');
+
+        $deadlineWeekCounts = FlowManagementListSort::withinWeekCounts($baseQuery);
+
+        $flowManagements = FlowManagementListSort::apply(clone $baseQuery, $sort, $direction)
             ->paginate(10)
             ->withQueryString();
 
         $booleanFields = FlowManagement::booleanFields();
         $columnLabels = FlowManagement::columnLabels();
+        $sortOptions = FlowManagementListSort::options();
+        [$weekFrom, $weekTo] = FlowManagementListSort::weekWindow();
 
-        return view('admin.flow-managements.index', compact('flowManagements', 'booleanFields', 'columnLabels', 'search'));
+        return view('admin.flow-managements.index', compact(
+            'flowManagements',
+            'booleanFields',
+            'columnLabels',
+            'search',
+            'sort',
+            'direction',
+            'sortOptions',
+            'deadlineWeekCounts',
+            'weekFrom',
+            'weekTo',
+        ));
     }
 
     public function show(FlowManagement $flowManagement): View
@@ -51,11 +70,10 @@ class FlowManagementController extends Controller
         $allowedTextFields = [
             'memo',
             'ad_fee_invoice_creation',
-            'document_deadline',
             'google_drive_url',
             ...array_keys(FlowManagement::contractDocumentFields()),
         ];
-        $allowedDateFields = ['move_in_date', 'scheduled_visit_date', 'key_handover_date'];
+        $allowedDateFields = ['move_in_date', 'document_deadline', 'scheduled_visit_date', 'key_handover_date'];
         $urlFields = [
             'google_drive_url',
             ...array_keys(FlowManagement::contractDocumentFields()),
@@ -74,7 +92,6 @@ class FlowManagementController extends Controller
         } elseif (in_array($field, $allowedTextFields, true)) {
             $maxLength = match ($field) {
                 'ad_fee_invoice_creation' => 50,
-                'document_deadline' => 255,
                 default => in_array($field, $urlFields, true) ? 2048 : 2000,
             };
             $valueRules = ['nullable', 'string', "max:{$maxLength}"];
@@ -99,6 +116,46 @@ class FlowManagementController extends Controller
             if ($validated['value'] === '') {
                 $validated['value'] = null;
             }
+        } elseif ($field === 'contract_doc_extra_links') {
+            $rawLinks = $request->input('value');
+            if (is_array($rawLinks)) {
+                $normalized = [];
+                foreach ($rawLinks as $link) {
+                    if (! is_array($link)) {
+                        continue;
+                    }
+                    $url = trim((string) ($link['url'] ?? ''));
+                    $normalized[] = [
+                        'name' => trim((string) ($link['name'] ?? '')),
+                        'url' => $url === '' ? null : $url,
+                    ];
+                }
+                $request->merge(['value' => $normalized]);
+            }
+
+            $validated = $request->validate([
+                'field' => ['required', Rule::in(['contract_doc_extra_links'])],
+                'value' => ['nullable', 'array'],
+                'value.*.name' => ['nullable', 'string', 'max:100'],
+                'value.*.url' => ['nullable', 'url', 'max:2048'],
+            ]);
+
+            $links = [];
+            foreach ((array) ($validated['value'] ?? []) as $link) {
+                if (! is_array($link)) {
+                    continue;
+                }
+                $name = trim((string) ($link['name'] ?? ''));
+                $url = $link['url'] ?? null;
+                if ($name === '' && blank($url)) {
+                    continue;
+                }
+                $links[] = [
+                    'name' => $name,
+                    'url' => filled($url) ? (string) $url : null,
+                ];
+            }
+            $validated['value'] = $links;
         } else {
             return response()->json(['message' => '不正な項目です。'], 422);
         }

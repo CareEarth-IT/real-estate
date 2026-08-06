@@ -49,7 +49,6 @@ class AdminListSearch
             'contractor',
             'contractor_furigana',
             'contractor_english_name',
-            'overseas_screening',
             'property_name',
             'room_number',
             'management_company_name',
@@ -61,6 +60,7 @@ class AdminListSearch
             'appliance_support_notes',
             fn (Builder $nested, string $like) => $nested->orWhereRaw('CAST(advertising_fee AS CHAR) LIKE ?', [$like]),
             fn (Builder $nested, string $like) => $nested->orWhereRaw("DATE_FORMAT(scheduled_move_in_date, '%Y/%m/%d') LIKE ?", [$like]),
+            fn (Builder $nested, string $like) => $nested->orWhereRaw("DATE_FORMAT(japan_stay_schedule, '%Y/%m/%d %H:%i') LIKE ?", [$like]),
             fn (Builder $nested, string $like) => $nested->orWhereRaw("DATE_FORMAT(created_at, '%Y/%m/%d %H:%i') LIKE ?", [$like]),
         ]);
     }
@@ -72,17 +72,17 @@ class AdminListSearch
             'flow_managements.contractor',
             'flow_managements.contractor_furigana',
             'flow_managements.contractor_english_name',
-            'flow_managements.overseas_screening',
             'flow_managements.property_name',
             'flow_managements.room_number',
             'flow_managements.application_method',
             'flow_managements.entry_method',
             'flow_managements.memo',
-            'flow_managements.document_deadline',
             'flow_managements.ad_fee_invoice_creation',
             fn (Builder $nested, string $like) => $nested->orWhereRaw("DATE_FORMAT(flow_managements.move_in_date, '%Y/%m/%d') LIKE ?", [$like]),
+            fn (Builder $nested, string $like) => $nested->orWhereRaw("DATE_FORMAT(flow_managements.document_deadline, '%Y/%m/%d') LIKE ?", [$like]),
             fn (Builder $nested, string $like) => $nested->orWhereRaw("DATE_FORMAT(flow_managements.scheduled_visit_date, '%Y/%m/%d') LIKE ?", [$like]),
             fn (Builder $nested, string $like) => $nested->orWhereRaw("DATE_FORMAT(flow_managements.key_handover_date, '%Y/%m/%d') LIKE ?", [$like]),
+            fn (Builder $nested, string $like) => $nested->orWhereRaw("DATE_FORMAT(flow_managements.japan_stay_schedule, '%Y/%m/%d %H:%i') LIKE ?", [$like]),
             fn (Builder $nested, string $like) => $nested->orWhereRaw("DATE_FORMAT(applications.created_at, '%Y/%m/%d %H:%i') LIKE ?", [$like]),
         ]);
     }

@@ -1,0 +1,23 @@
+<aside class="admin-sidebar w-52 shrink-0 bg-white border-r border-slate-200 p-4">
+    <p class="px-3 pb-2 text-xs font-semibold uppercase tracking-wide text-slate-400">家賃管理情報</p>
+    <nav class="space-y-1">
+        <a
+            href="{{ route('property.rental-income.index') }}"
+            class="admin-nav-link block rounded-lg px-3 py-2 text-sm font-medium {{ request()->routeIs('property.rental-income.index', 'property.rental-income.create', 'property.rental-income.edit', 'property.rental-income.contract.*') ? 'is-active' : '' }}"
+        >
+            月別家賃収入データ
+        </a>
+        <a
+            href="{{ route('property.rental-income.all') }}"
+            class="admin-nav-link block rounded-lg px-3 py-2 text-sm font-medium {{ request()->routeIs('property.rental-income.all') ? 'is-active' : '' }}"
+        >
+            全家賃収入データ一覧
+        </a>
+        <a
+            href="{{ route('property.rental-income.terminated') }}"
+            class="admin-nav-link block rounded-lg px-3 py-2 text-sm font-medium {{ request()->routeIs('property.rental-income.terminated') ? 'is-active' : '' }}"
+        >
+            解約データ
+        </a>
+    </nav>
+</aside>

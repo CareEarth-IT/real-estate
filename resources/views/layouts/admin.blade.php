@@ -9,11 +9,11 @@
         'admin.flow-managements.*',
         'admin.settlement-managements.*',
     );
+    $isRentalIncomePage = request()->routeIs('property.rental-income.*');
     $isPortalPage = request()->routeIs(
         'properties.*',
         'reference.*',
         'users.*',
-        'property.rental-income.*',
         'property.deal-drafts.*',
     );
     // ユーザー管理ではサイドバーを出さない
@@ -30,7 +30,7 @@
     <link rel="icon" type="image/png" href="{{ asset('images/care-earth-home-logo.png') }}">
     <link rel="apple-touch-icon" href="{{ asset('images/care-earth-home-logo.png') }}">
     <link rel="stylesheet" href="{{ asset('css/portal-menu.css') }}">
-    <link rel="stylesheet" href="{{ asset('css/portal-master.css') }}?v=20260724-tag-resize">
+    <link rel="stylesheet" href="{{ asset('css/portal-master.css') }}?v=20260804-contract-docs">
     <link rel="stylesheet" href="{{ asset('css/style.css') }}">
     @stack('head')
     <style>
@@ -368,6 +368,8 @@
     <div class="admin-layout-body flex flex-1 min-h-[calc(100vh-var(--admin-header-height,72px))]">
         @if ($showPortalSidebar ?? false)
             <x-portal-sidebar />
+        @elseif ($isRentalIncomePage)
+            <x-rental-income-sidebar />
         @elseif ($isRentalAdminPage)
             <x-rental-sidebar />
         @endif
@@ -375,7 +377,7 @@
         <main id="admin-main-content" @class([
             'admin-main-content flex-1 p-8 overflow-x-auto',
             $adminPageLoaderEnabled ? '' : 'is-visible',
-            'portal-master-content' => ($isPortalPage || $isRentalAdminPage || $isRentalPropertyArchivesPage || ($isUsersPage ?? false)),
+            'portal-master-content' => ($isPortalPage || $isRentalAdminPage || $isRentalIncomePage || $isRentalPropertyArchivesPage || ($isUsersPage ?? false)),
         ])>
             @if (session('success'))
                 <div class="mb-6 rounded-lg bg-green-50 border border-green-200 px-4 py-3 text-green-800 text-sm">{{ session('success') }}</div>

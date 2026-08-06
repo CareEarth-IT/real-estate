@@ -11,7 +11,79 @@
                 @endif
             </p>
         </div>
-        <x-admin-search-form :value="$search" />
+        <x-admin-search-form :value="$search" :preserve="array_filter(['sort' => $sort ?: null, 'direction' => $sort ? $direction : null])" />
+    </div>
+
+    <div class="mb-4 rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+        <div class="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+            <form method="GET" class="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-end">
+                @if ($search !== '')
+                    <input type="hidden" name="search" value="{{ $search }}">
+                @endif
+                <div>
+                    <label for="flow-sort" class="mb-1 block text-xs font-medium text-slate-500">期限で並び替え</label>
+                    <select
+                        id="flow-sort"
+                        name="sort"
+                        class="rounded-md border border-slate-300 bg-white px-3 py-1.5 text-sm text-slate-800 focus:border-[#5383c3] focus:outline-none focus:ring-2 focus:ring-[#5383c3]/20"
+                    >
+                        <option value="" @selected($sort === '')>作成日時（新しい順）</option>
+                        @foreach ($sortOptions as $value => $label)
+                            <option value="{{ $value }}" @selected($sort === $value)>{{ $label }}</option>
+                        @endforeach
+                    </select>
+                </div>
+                <div>
+                    <label for="flow-direction" class="mb-1 block text-xs font-medium text-slate-500">順序</label>
+                    <select
+                        id="flow-direction"
+                        name="direction"
+                        class="rounded-md border border-slate-300 bg-white px-3 py-1.5 text-sm text-slate-800 focus:border-[#5383c3] focus:outline-none focus:ring-2 focus:ring-[#5383c3]/20"
+                    >
+                        <option value="asc" @selected($direction === 'asc')>昇順（近い順）</option>
+                        <option value="desc" @selected($direction === 'desc')>降順（遠い順）</option>
+                    </select>
+                </div>
+                <button
+                    type="submit"
+                    class="inline-flex items-center justify-center rounded-md bg-[#5383c3] px-3 py-1.5 text-sm font-medium text-white hover:opacity-90 transition-opacity"
+                >
+                    適用
+                </button>
+            </form>
+
+            <div class="min-w-0 flex-1">
+                <p class="mb-2 text-xs font-medium text-slate-500">
+                    1週間以内の期限（{{ \Illuminate\Support\Carbon::parse($weekFrom)->format('Y/m/d') }}〜{{ \Illuminate\Support\Carbon::parse($weekTo)->format('Y/m/d') }}）
+                </p>
+                <div class="flex flex-wrap gap-2">
+                    @foreach ($sortOptions as $field => $label)
+                        @php $count = (int) ($deadlineWeekCounts[$field] ?? 0); @endphp
+                        <a
+                            href="{{ route('admin.flow-managements.index', array_filter([
+                                'search' => $search !== '' ? $search : null,
+                                'sort' => $field,
+                                'direction' => $direction ?: 'asc',
+                            ])) }}"
+                            @class([
+                                'inline-flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-sm transition-colors',
+                                'border-[#5383c3] bg-[#5383c3]/10 text-[#3E6492]' => $sort === $field,
+                                'border-slate-200 bg-slate-50 text-slate-700 hover:bg-slate-100' => $sort !== $field,
+                            ])
+                        >
+                            <span>{{ $label }}</span>
+                            <strong class="tabular-nums">{{ $count }}</strong>
+                            <span class="text-xs opacity-70">件</span>
+                        </a>
+                    @endforeach
+                </div>
+                @if ($sort !== '')
+                    <p class="mt-2 text-xs text-slate-500">
+                        「{{ $sortOptions[$sort] }}」で並び替え中。1週間以内の期限を先頭に表示しています。
+                    </p>
+                @endif
+            </div>
+        </div>
     </div>
 
     @if ($flowManagements->isEmpty())
@@ -87,15 +159,14 @@
                                         @disabled(!($canEdit ?? false))
                                     >
                                 </td>
-                                <td data-label="{{ $columnLabels['document_deadline'] }}" class="px-3 py-3 min-w-[120px]">
+                                <td data-label="{{ $columnLabels['document_deadline'] }}" class="px-3 py-3 whitespace-nowrap">
                                     <input
-                                        type="text"
-                                        class="flow-inline-text-field w-full rounded border border-slate-200 px-2 py-1 text-sm focus:border-primary-500 focus:ring-1 focus:ring-primary-500"
+                                        type="date"
+                                        class="flow-date-field rounded border border-slate-200 px-2 py-1 text-sm focus:border-primary-500 focus:ring-1 focus:ring-primary-500"
                                         data-field="document_deadline"
                                         data-label="書類期日"
-                                        maxlength="255"
-                                        value="{{ $flowManagement->document_deadline }}"
-                                        @readonly(!($canEdit ?? false))
+                                        value="{{ $flowManagement->document_deadline?->format('Y-m-d') }}"
+                                        @disabled(!($canEdit ?? false))
                                     >
                                 </td>
                                 <td data-label="{{ $columnLabels['scheduled_visit_date'] }}" class="px-3 py-3 whitespace-nowrap">
