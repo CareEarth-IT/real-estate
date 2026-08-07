@@ -1,8 +1,14 @@
 <div class="application-blocks-board">
     <div class="application-blocks-grid">
         @foreach ($flowManagements as $flowManagement)
+            @php
+                $activeDeadline = ($sort ?? '') !== '' ? $flowManagement->{$sort} : null;
+                $isWithinWeek = $activeDeadline
+                    && $activeDeadline->toDateString() >= ($weekFrom ?? '')
+                    && $activeDeadline->toDateString() <= ($weekTo ?? '');
+            @endphp
             <article
-                class="application-block flow-management-summary-card {{ $flowManagement->settlement_transition ? 'has-sticky-highlight-blue' : '' }}"
+                class="application-block flow-management-summary-card {{ $flowManagement->settlement_transition ? 'has-sticky-highlight-blue' : '' }} {{ $isWithinWeek ? 'application-block--action-required' : '' }}"
                 data-flow-management-id="{{ $flowManagement->id }}"
                 data-detail-url="{{ route('admin.flow-managements.show', $flowManagement) }}"
                 tabindex="0"
@@ -13,6 +19,11 @@
                     <h3 class="application-block__title">
                         {{ $flowManagement->property_name ?: '（物件名未設定）' }}
                     </h3>
+                    @if ($isWithinWeek)
+                        <div class="application-block__badges">
+                            <span class="application-block__badge application-block__badge--warn">1週間以内</span>
+                        </div>
+                    @endif
                 </div>
 
                 <div class="application-block__body">
@@ -28,6 +39,10 @@
                         <div class="application-block__cell">
                             <span class="application-block__cell-label">入居日</span>
                             <div class="application-block__cell-value">{{ $flowManagement->move_in_date?->format('Y/m/d') ?? '—' }}</div>
+                        </div>
+                        <div class="application-block__cell">
+                            <span class="application-block__cell-label">書類期日</span>
+                            <div class="application-block__cell-value">{{ $flowManagement->document_deadline?->format('Y/m/d') ?? '—' }}</div>
                         </div>
                         <div class="application-block__cell">
                             <span class="application-block__cell-label">来社予定日</span>

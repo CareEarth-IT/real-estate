@@ -296,13 +296,12 @@
             <label class="application-block__cell application-block__cell--editable">
                 <span class="application-block__cell-label">{{ $columnLabels['document_deadline'] }}</span>
                 <input
-                    type="text"
+                    type="date"
                     class="flow-detail-field application-inline-field"
                     data-field="document_deadline"
                     data-label="{{ $columnLabels['document_deadline'] }}"
-                    maxlength="255"
-                    value="{{ $flowManagement->document_deadline }}"
-                    @readonly(!($canEdit ?? false))
+                    value="{{ $flowManagement->document_deadline?->format('Y-m-d') }}"
+                    @disabled(!($canEdit ?? false))
                 >
             </label>
             <label class="application-block__cell application-block__cell--editable">

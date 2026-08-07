@@ -12,14 +12,13 @@
         @disabled(! $flowEditable)
     >
 </td>
-<td class="flow-section-cell px-3 py-3 {{ $flowEditable ? '' : 'flow-section-disabled' }}">
-        <input
-            type="text"
-            class="flow-inline-text-field w-full rounded border border-slate-200 px-2 py-1 text-sm focus:border-primary-500 focus:ring-1 focus:ring-primary-500"
-            data-field="document_deadline"
+<td class="flow-section-cell px-3 py-3 whitespace-nowrap {{ $flowEditable ? '' : 'flow-section-disabled' }}">
+    <input
+        type="date"
+        class="flow-date-field rounded border border-slate-200 px-2 py-1 text-sm focus:border-primary-500 focus:ring-1 focus:ring-primary-500"
+        data-field="document_deadline"
         data-label="書類期日"
-        maxlength="255"
-        value="{{ $flowManagement?->document_deadline }}"
+        value="{{ $flowManagement?->document_deadline?->format('Y-m-d') }}"
         @disabled(! $flowEditable)
     >
 </td>

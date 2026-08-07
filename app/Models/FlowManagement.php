@@ -73,6 +73,7 @@ class FlowManagement extends Model
             'overseas_screening' => 'boolean',
             'japan_stay_schedule' => 'datetime',
             'move_in_date' => 'date',
+            'document_deadline' => 'date',
             'scheduled_visit_date' => 'date',
             'key_handover_date' => 'date',
             'documents_completed' => 'boolean',
