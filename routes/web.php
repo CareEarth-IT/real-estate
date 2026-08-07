@@ -9,6 +9,7 @@ use App\Http\Controllers\Admin\SettlementManagementController as AdminSettlement
 use App\Http\Controllers\Admin\RentalPropertyArchiveController as AdminRentalPropertyArchiveController;
 use App\Http\Controllers\ApplicationFormController;
 use App\Http\Controllers\FileController;
+use App\Http\Controllers\Internal\PortalSsoController;
 use App\Http\Controllers\Master\MasterDataController;
 use App\Http\Controllers\PropertyController;
 use App\Http\Controllers\PropertyDealDraftController;
@@ -28,6 +29,12 @@ Route::redirect('/customers/{customer}/applications/create', '/applications/crea
 Route::get('login', [AuthController::class, 'showLogin'])->name('login');
 Route::post('login', [AuthController::class, 'login'])->name('login.attempt');
 Route::post('logout', [AuthController::class, 'logout'])->name('logout');
+Route::get('auth/portal/redirect', [AuthController::class, 'redirectToPortal'])->name('auth.portal.redirect');
+Route::get('auth/portal/callback', [AuthController::class, 'portalCallback'])->name('auth.portal.callback');
+
+Route::prefix('internal/portal')->name('internal.portal.')->group(function () {
+    Route::post('sso/handoff', [PortalSsoController::class, 'handoff'])->name('sso.handoff');
+});
 
 Route::prefix('admin')->name('admin.')->middleware('careearth.auth')->group(function () {
     Route::get('/applications', [AdminApplicationController::class, 'index'])->name('applications.index');

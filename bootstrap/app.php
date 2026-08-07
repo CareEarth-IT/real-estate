@@ -15,6 +15,9 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     ->withMiddleware(function (Middleware $middleware) {
         $middleware->trustProxies(at: '*');
+        $middleware->validateCsrfTokens(except: [
+            'internal/portal/*',
+        ]);
         $middleware->alias([
             'careearth.auth' => CareEarthAuth::class,
             'careearth.admin' => EnsureCareEarthAdmin::class,

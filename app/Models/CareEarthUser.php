@@ -14,6 +14,8 @@ class CareEarthUser extends Model
         'name',
         'email',
         'employee_id',
+        'employment_status',
+        'synced_at',
         'password_hash',
         'role',
         'show_performance',
@@ -27,6 +29,7 @@ class CareEarthUser extends Model
     {
         return [
             'show_performance' => 'boolean',
+            'synced_at' => 'datetime',
         ];
     }
 

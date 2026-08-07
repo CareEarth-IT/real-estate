@@ -78,6 +78,16 @@ class CareEarthAuth
             return false;
         }
 
+        self::loginAsUser($request, $user);
+
+        return true;
+    }
+
+    /**
+     * パスワード検証なしでセッションを発行（社員ポータル SSO 用）。
+     */
+    public static function loginAsUser(Request $request, CareEarthUser $user): void
+    {
         $now = time();
         $request->session()->regenerate();
         $request->session()->put([
@@ -89,8 +99,6 @@ class CareEarthAuth
             'login_time' => $now,
             'last_activity' => $now,
         ]);
-
-        return true;
     }
 
     public static function logout(Request $request): void

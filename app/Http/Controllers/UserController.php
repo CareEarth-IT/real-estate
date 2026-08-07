@@ -28,8 +28,14 @@ class UserController extends Controller
             'currentPage' => 'users',
             'employeePortalConfigured' => $this->employeePortalDirectoryClient->isConfigured(),
             'employeePortalDefaults' => [
-                'department' => (string) config('careearth.employee_portal.default_department', '不動産'),
-                'status' => (string) config('careearth.employee_portal.default_status', '在籍'),
+                'department' => (string) (
+                    config('employee-portal.default_department')
+                    ?: config('careearth.employee_portal.default_department', '不動産')
+                ),
+                'status' => (string) (
+                    config('employee-portal.default_status')
+                    ?: config('careearth.employee_portal.default_status', '在籍')
+                ),
             ],
         ]);
     }
@@ -122,7 +128,7 @@ class UserController extends Controller
             'password' => ['required', 'string', 'min:8'],
             'role' => ['required', 'in:'.implode(',', Role::assignableValues())],
             'show_performance' => ['nullable', 'boolean'],
-            'employee_id' => ['nullable', 'string', 'max:50'],
+            'employee_id' => ['nullable', 'string', 'max:64'],
         ], [
             'name.required' => '名前を入力してください。',
             'email.required' => 'メールアドレスを入力してください。',

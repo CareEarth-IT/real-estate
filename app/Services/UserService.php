@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Models\CareEarthUser;
 use App\Support\Role;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Support\Str;
 use RuntimeException;
 
 class UserService
@@ -76,6 +77,105 @@ class UserService
         $user->save();
 
         return $user;
+    }
+
+    /**
+     * 社員ポータル SSO / 同期用。既存ユーザーはメールまたは社員IDで突合し、なければ viewer で作成。
+     */
+    public function findOrCreateFromEmployeePortal(
+        string $name,
+        string $email,
+        ?string $employeeId = null,
+        ?string $employmentStatus = null,
+    ): CareEarthUser {
+        $name = trim($name);
+        $email = strtolower(trim($email));
+        $employeeId = $employeeId !== null ? trim($employeeId) : null;
+        if ($employeeId === '') {
+            $employeeId = null;
+        }
+
+        if ($email === '' || ! filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            throw new RuntimeException('有効なメールアドレスが必要です。');
+        }
+
+        if ($name === '') {
+            $name = Str::before($email, '@');
+        }
+
+        $user = null;
+
+        if ($employeeId !== null) {
+            $user = CareEarthUser::query()->where('employee_id', $employeeId)->first();
+        }
+
+        if ($user === null) {
+            $user = CareEarthUser::query()->where('email', $email)->first();
+        }
+
+        if ($user !== null) {
+            $updates = [
+                'name' => $name,
+                'synced_at' => now(),
+            ];
+
+            if ($employeeId !== null && $user->employee_id !== $employeeId) {
+                $conflict = CareEarthUser::query()
+                    ->where('employee_id', $employeeId)
+                    ->where('id', '!=', $user->id)
+                    ->exists();
+                if ($conflict) {
+                    throw new RuntimeException('この社員IDは別ユーザーに既に紐づいています。');
+                }
+                $updates['employee_id'] = $employeeId;
+            }
+
+            if ($employmentStatus !== null && $employmentStatus !== '') {
+                $updates['employment_status'] = $employmentStatus;
+            }
+
+            if ($user->email !== $email) {
+                $emailTaken = CareEarthUser::query()
+                    ->where('email', $email)
+                    ->where('id', '!=', $user->id)
+                    ->exists();
+                if ($emailTaken) {
+                    throw new RuntimeException('このメールアドレスは別ユーザーに既に登録されています。');
+                }
+                $updates['email'] = $email;
+            }
+
+            $user->update($updates);
+
+            return $user->fresh();
+        }
+
+        $defaultRole = Role::normalize((string) config('employee-portal.default_role', Role::VIEWER));
+
+        $user = new CareEarthUser([
+            'name' => $name,
+            'email' => $email,
+            'employee_id' => $employeeId,
+            'employment_status' => $employmentStatus,
+            'synced_at' => now(),
+            'role' => $defaultRole,
+            'show_performance' => true,
+        ]);
+        // SSO 専用ユーザーはローカルパスワードを使わない（ランダム不可逆）
+        $user->setPassword(Str::random(64));
+        $user->save();
+
+        return $user;
+    }
+
+    public function findByEmployeeId(string $employeeId): ?CareEarthUser
+    {
+        $employeeId = trim($employeeId);
+        if ($employeeId === '') {
+            return null;
+        }
+
+        return CareEarthUser::query()->where('employee_id', $employeeId)->first();
     }
 
     public function updateRole(CareEarthUser $user, string $role): void
