@@ -194,4 +194,17 @@ class UserController extends Controller
             ->route('users.index')
             ->with('success', 'ユーザー情報を更新しました。');
     }
+
+    public function destroy(Request $request, CareEarthUser $user): RedirectResponse
+    {
+        try {
+            $this->userService->delete($user, (int) $request->session()->get('user_id'));
+        } catch (RuntimeException $e) {
+            return back()->withErrors(['form' => $e->getMessage()]);
+        }
+
+        return redirect()
+            ->route('users.index')
+            ->with('success', 'ユーザーを削除しました。担当データはそのまま残っています。');
+    }
 }

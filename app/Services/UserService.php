@@ -226,4 +226,13 @@ class UserService
             ->where('email', strtolower(trim($email)))
             ->first();
     }
+
+    public function delete(CareEarthUser $user, ?int $currentUserId = null): void
+    {
+        if ($currentUserId !== null && (int) $user->id === $currentUserId) {
+            throw new RuntimeException('ログイン中のユーザーは削除できません。');
+        }
+
+        $user->delete();
+    }
 }

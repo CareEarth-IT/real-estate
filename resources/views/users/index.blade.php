@@ -218,6 +218,17 @@
                         @method('PUT')
                         <button type="submit" class="btn btn-outline btn-sm">更新</button>
                     </form>
+                    <form
+                        method="post"
+                        action="{{ route('users.destroy', $user) }}"
+                        class="user-delete-form"
+                        data-user-name="{{ $user->name }}"
+                        data-is-self="{{ (int) session('user_id') === (int) $user->id ? '1' : '0' }}"
+                    >
+                        @csrf
+                        @method('DELETE')
+                        <button type="submit" class="btn btn-outline btn-sm text-rose-600 border-rose-200 hover:bg-rose-50">削除</button>
+                    </form>
                 </td>
             </tr>
             @empty
@@ -233,6 +244,7 @@
 
 <p class="user-note">
     名前・成績表示・ロールは「更新」で変更できます。成績表示がONのユーザーはホームの担当者業績一覧に表示されます。メールアドレスはそのままログインに使います。
+    「削除」はログイン権限だけを消し、担当した申込・書類・決済などのデータは残ります。
     <strong>管理者</strong>は開発用ロールで、すべての画面にアクセス・編集できます（本番前に削除予定）。
     <strong>部長</strong>は物件マスターデータ・賃貸管理・ユーザー管理まで編集できます。
     <strong>編集者</strong>は物件マスターデータ一覧とユーザー管理以外を編集できます。
@@ -244,6 +256,27 @@
 @push('scripts')
 <script>
     (function () {
+        document.querySelectorAll('.user-delete-form').forEach((form) => {
+            form.addEventListener('submit', async (event) => {
+                event.preventDefault();
+
+                if (form.dataset.isSelf === '1') {
+                    alert('ログイン中のユーザーは削除できません。');
+                    return;
+                }
+
+                const name = form.dataset.userName || 'このユーザー';
+                const confirmFn = window.confirmUncheckTransition;
+                const confirmed = typeof confirmFn === 'function'
+                    ? await confirmFn(`${name} を削除しますか？担当したデータは残ります。`)
+                    : window.confirm(`${name} を削除しますか？担当したデータは残ります。`);
+
+                if (confirmed) {
+                    form.submit();
+                }
+            });
+        });
+
         document.querySelectorAll('.performance-toggle').forEach((input) => {
             input.addEventListener('change', () => {
                 const group = input.closest('[role="group"]');
