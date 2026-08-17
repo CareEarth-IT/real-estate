@@ -1,13 +1,13 @@
 <?php
 
-use App\Http\Controllers\AuthController;
-use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\Admin\ApplicationController as AdminApplicationController;
 use App\Http\Controllers\Admin\CustomerController as AdminCustomerController;
 use App\Http\Controllers\Admin\FlowManagementController as AdminFlowManagementController;
-use App\Http\Controllers\Admin\SettlementManagementController as AdminSettlementManagementController;
 use App\Http\Controllers\Admin\RentalPropertyArchiveController as AdminRentalPropertyArchiveController;
+use App\Http\Controllers\Admin\SettlementManagementController as AdminSettlementManagementController;
 use App\Http\Controllers\ApplicationFormController;
+use App\Http\Controllers\AuthController;
+use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\FileController;
 use App\Http\Controllers\Internal\PortalSsoController;
 use App\Http\Controllers\Master\MasterDataController;
@@ -41,6 +41,7 @@ Route::prefix('admin')->name('admin.')->middleware('careearth.auth')->group(func
     Route::get('/flow-managements', [AdminFlowManagementController::class, 'index'])->name('flow-managements.index');
     Route::get('/flow-managements/{flowManagement}', [AdminFlowManagementController::class, 'show'])->name('flow-managements.show');
     Route::get('/settlement-managements', [AdminSettlementManagementController::class, 'index'])->name('settlement-managements.index');
+    Route::get('/settlement-managements/{settlementManagement}/invoice.xlsx', [AdminSettlementManagementController::class, 'downloadInvoice'])->name('settlement-managements.invoice');
     Route::get('/settlement-managements/{settlementManagement}', [AdminSettlementManagementController::class, 'show'])->name('settlement-managements.show');
     Route::get('/rental-property-archives', [AdminRentalPropertyArchiveController::class, 'index'])->name('rental-property-archives.index');
     Route::get('/rental-property-archives/{rentalPropertyArchive}', [AdminRentalPropertyArchiveController::class, 'show'])->name('rental-property-archives.show');

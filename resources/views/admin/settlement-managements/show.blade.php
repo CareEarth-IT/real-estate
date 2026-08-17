@@ -26,6 +26,13 @@
         </div>
     </div>
 
+    <div class="mb-4">
+        <a
+            href="{{ route('admin.settlement-managements.invoice', $settlementManagement) }}"
+            class="btn btn-primary"
+        >請求書発行</a>
+    </div>
+
     <div class="application-blocks-board">
         <div class="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-3">
             <div class="application-block__cell">
