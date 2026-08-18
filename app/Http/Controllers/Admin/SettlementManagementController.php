@@ -153,4 +153,16 @@ class SettlementManagementController extends Controller
             'value' => $settlementManagement->{$validated['field']},
         ]);
     }
+
+    public function complete(SettlementManagement $settlementManagement): JsonResponse
+    {
+        $settlementManagement->update([
+            'is_completed' => true,
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'is_completed' => true,
+        ]);
+    }
 }

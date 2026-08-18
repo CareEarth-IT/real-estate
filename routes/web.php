@@ -60,6 +60,7 @@ Route::prefix('admin')->name('admin.')->middleware('careearth.auth')->group(func
         Route::patch('/applications/{application}/customer', [AdminCustomerController::class, 'update'])->name('applications.customer.update');
         Route::patch('/flow-managements/{flowManagement}/fields', [AdminFlowManagementController::class, 'updateField'])->name('flow-managements.update-field');
         Route::patch('/settlement-managements/{settlementManagement}/fields', [AdminSettlementManagementController::class, 'updateField'])->name('settlement-managements.update-field');
+        Route::post('/settlement-managements/{settlementManagement}/complete', [AdminSettlementManagementController::class, 'complete'])->name('settlement-managements.complete');
         Route::post('/rental-property-archives', [AdminRentalPropertyArchiveController::class, 'store'])->name('rental-property-archives.store');
         Route::patch('/rental-property-archives/{rentalPropertyArchive}/fields', [AdminRentalPropertyArchiveController::class, 'updateField'])->name('rental-property-archives.update-field');
         Route::post('/rental-property-archives/{rentalPropertyArchive}/images', [AdminRentalPropertyArchiveController::class, 'storeImages'])->name('rental-property-archives.images.store');

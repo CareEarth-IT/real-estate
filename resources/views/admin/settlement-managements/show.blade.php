@@ -46,6 +46,15 @@
             href="{{ route('admin.settlement-managements.receipt', $settlementManagement) }}"
             class="btn btn-outline"
         >領収書発行</a>
+        @if ($settlementManagement->is_completed)
+            <span class="inline-flex items-center rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-2 text-sm font-semibold text-emerald-800">完了済み</span>
+        @elseif ($canEdit ?? false)
+            <button
+                type="button"
+                class="settlement-complete-button btn btn-primary"
+                data-complete-url="{{ route('admin.settlement-managements.complete', $settlementManagement) }}"
+            >完了</button>
+        @endif
     </div>
 
     <div class="application-blocks-board">
@@ -257,4 +266,8 @@
     })();
 </script>
 @endpush
+@endif
+
+@if (($canEdit ?? false) && ! $settlementManagement->is_completed)
+    @include('admin.settlement-managements._complete-confirm')
 @endif

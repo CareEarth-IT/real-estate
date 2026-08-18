@@ -79,6 +79,15 @@
                         </label>
                     @endforeach
                     <span class="ml-auto self-center text-xs font-semibold text-primary-600">詳細を見る →</span>
+                    @if ($settlementManagement->is_completed)
+                        <span class="application-block__badge application-block__badge--ok self-center">完了済み</span>
+                    @elseif ($canEdit ?? false)
+                        <button
+                            type="button"
+                            class="settlement-complete-button btn btn-primary btn-sm"
+                            data-complete-url="{{ route('admin.settlement-managements.complete', $settlementManagement) }}"
+                        >完了</button>
+                    @endif
                 </div>
             </article>
         @endforeach
@@ -146,3 +155,5 @@
     });
 </script>
 @endpush
+
+@include('admin.settlement-managements._complete-confirm')

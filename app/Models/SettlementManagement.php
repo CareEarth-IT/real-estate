@@ -40,6 +40,7 @@ class SettlementManagement extends Model
         'ad_transfer_invoice_creation',
         'offset_statement_printing',
         'individual_invoice_printing',
+        'is_completed',
         'remarks',
     ];
 
@@ -57,6 +58,7 @@ class SettlementManagement extends Model
             'ad_transfer_invoice_creation' => 'boolean',
             'offset_statement_printing' => 'boolean',
             'individual_invoice_printing' => 'boolean',
+            'is_completed' => 'boolean',
         ];
     }
 
@@ -221,13 +223,7 @@ class SettlementManagement extends Model
 
     public function isWorkflowComplete(): bool
     {
-        foreach (self::booleanFields() as $field) {
-            if (! $this->{$field}) {
-                return false;
-            }
-        }
-
-        return true;
+        return (bool) $this->is_completed;
     }
 
     public function daysUntilSettlementTransfer(?CarbonInterface $today = null): ?int
@@ -312,6 +308,7 @@ class SettlementManagement extends Model
             'ad_transfer_invoice_creation' => '【AD振込】請求書作成',
             'offset_statement_printing' => '【相殺】明細書印刷',
             'individual_invoice_printing' => '【個人】請求書印刷',
+            'is_completed' => '振込完了',
             'remarks' => '備考',
         ];
     }

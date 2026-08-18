@@ -47,10 +47,7 @@ class SettlementManagementCountdownTest extends TestCase
 
         $settlement = $this->makeSettlement([
             'settlement_transfer_date' => '2026-08-25',
-            'settlement_transfer_request' => true,
-            'ad_transfer_invoice_creation' => true,
-            'offset_statement_printing' => true,
-            'individual_invoice_printing' => true,
+            'is_completed' => true,
         ]);
 
         $this->assertTrue($settlement->isWorkflowComplete());
@@ -86,6 +83,7 @@ class SettlementManagementCountdownTest extends TestCase
                     'ad_transfer_invoice_creation' => 'boolean',
                     'offset_statement_printing' => 'boolean',
                     'individual_invoice_printing' => 'boolean',
+                    'is_completed' => 'boolean',
                 ];
             }
         };
@@ -95,6 +93,7 @@ class SettlementManagementCountdownTest extends TestCase
             'ad_transfer_invoice_creation' => false,
             'offset_statement_printing' => false,
             'individual_invoice_printing' => false,
+            'is_completed' => false,
         ], $attributes));
         $settlement->syncOriginal();
 
