@@ -26,11 +26,15 @@
         </div>
     </div>
 
-    <div class="mb-4">
+    <div class="mb-4 flex flex-wrap gap-2">
         <a
             href="{{ route('admin.settlement-managements.invoice', $settlementManagement) }}"
             class="btn btn-primary"
         >請求書発行</a>
+        <a
+            href="{{ route('admin.settlement-managements.receipt', $settlementManagement) }}"
+            class="btn btn-outline"
+        >領収書発行</a>
     </div>
 
     <div class="application-blocks-board">

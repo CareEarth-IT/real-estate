@@ -21,9 +21,8 @@ class SettlementInvoiceCsvServiceTest extends TestCase
     {
         parent::setUp();
 
-        $files = glob(dirname(__DIR__, 2).DIRECTORY_SEPARATOR.'resources'.DIRECTORY_SEPARATOR.'templates'.DIRECTORY_SEPARATOR.'invoices'.DIRECTORY_SEPARATOR.'reference'.DIRECTORY_SEPARATOR.'*.xlsx') ?: [];
-        $this->assertNotSame([], $files, '請求書テンプレートが見つかりません。');
-        $this->templatePath = $files[0];
+        $this->templatePath = dirname(__DIR__, 2).DIRECTORY_SEPARATOR.'resources'.DIRECTORY_SEPARATOR.'templates'.DIRECTORY_SEPARATOR.'invoices'.DIRECTORY_SEPARATOR.'reference'.DIRECTORY_SEPARATOR.'お客様用請求書.xlsx';
+        $this->assertFileExists($this->templatePath, '請求書テンプレートが見つかりません。');
 
         $container = new Container;
         $container->instance('config', new Repository([
