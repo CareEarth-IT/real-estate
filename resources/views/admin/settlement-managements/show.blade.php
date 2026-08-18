@@ -26,6 +26,17 @@
         </div>
     </div>
 
+    @php($countdownLabel = $settlementManagement->settlementTransferCountdownLabel())
+    @if ($countdownLabel)
+        <div class="settlement-transfer-countdown-notice mb-4" role="status">
+            <p class="settlement-transfer-countdown-notice__title">決済振込日のカウントダウン</p>
+            <p class="settlement-transfer-countdown-notice__body">
+                <strong>{{ $countdownLabel }}</strong>
+                <span class="text-slate-600">（{{ $settlementManagement->settlement_transfer_date?->format('Y/m/d') }}）</span>
+            </p>
+        </div>
+    @endif
+
     <div class="mb-4 flex flex-wrap gap-2">
         <a
             href="{{ route('admin.settlement-managements.invoice', $settlementManagement) }}"

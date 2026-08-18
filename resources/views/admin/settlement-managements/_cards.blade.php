@@ -8,9 +8,10 @@
                 $contractor = $settlementManagement->contractor ?: ($flow?->contractor ?: null);
                 $roomNumber = $settlementManagement->room_number ?: ($flow?->room_number ?: null);
                 $entryMethod = $settlementManagement->entry_method ?: ($flow?->entry_method ?: null);
+                $countdownLabel = $settlementManagement->settlementTransferCountdownLabel();
             @endphp
             <article
-                class="application-block settlement-management-summary-card"
+                class="application-block settlement-management-summary-card {{ $countdownLabel ? 'application-block--action-required' : '' }}"
                 data-settlement-management-id="{{ $settlementManagement->id }}"
                 data-detail-url="{{ route('admin.settlement-managements.show', $settlementManagement) }}"
                 tabindex="0"
@@ -24,6 +25,11 @@
                             <span class="text-base font-medium text-slate-500">{{ $roomNumber }}</span>
                         @endif
                     </h3>
+                    @if ($countdownLabel)
+                        <div class="application-block__badges">
+                            <span class="application-block__badge application-block__badge--warn">{{ $countdownLabel }}</span>
+                        </div>
+                    @endif
                     <div class="flex flex-wrap gap-1">
                         @forelse ($settlementManagement->feeTypeBadges() as $badge)
                             <span class="inline-flex items-center rounded-md border px-2.5 py-1 text-xs font-semibold {{ $badge['classes'] }}">

@@ -2,11 +2,14 @@
 
 namespace App\Models;
 
+use Carbon\CarbonInterface;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class SettlementManagement extends Model
 {
+    public const SETTLEMENT_TRANSFER_COUNTDOWN_DAYS = 7;
+
     public const FEE_TYPE_ADVERTISING = 'advertising';
 
     public const FEE_TYPE_BROKER = 'broker_fee';
@@ -214,6 +217,58 @@ class SettlementManagement extends Model
             self::FEE_TYPE_COMBINED => 'bg-slate-100 text-slate-800 border-slate-400',
             default => 'bg-slate-100 text-slate-700 border-slate-300',
         };
+    }
+
+    public function isWorkflowComplete(): bool
+    {
+        foreach (self::booleanFields() as $field) {
+            if (! $this->{$field}) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    public function daysUntilSettlementTransfer(?CarbonInterface $today = null): ?int
+    {
+        if ($this->settlement_transfer_date === null) {
+            return null;
+        }
+
+        $today = ($today ?? now())->copy()->startOfDay();
+        $transferDate = $this->settlement_transfer_date->copy()->startOfDay();
+
+        return (int) $today->diffInDays($transferDate, false);
+    }
+
+    public function shouldShowSettlementTransferCountdown(?CarbonInterface $today = null): bool
+    {
+        if ($this->isWorkflowComplete()) {
+            return false;
+        }
+
+        $days = $this->daysUntilSettlementTransfer($today);
+        if ($days === null) {
+            return false;
+        }
+
+        return $days >= 0 && $days <= self::SETTLEMENT_TRANSFER_COUNTDOWN_DAYS;
+    }
+
+    public function settlementTransferCountdownLabel(?CarbonInterface $today = null): ?string
+    {
+        if (! $this->shouldShowSettlementTransferCountdown($today)) {
+            return null;
+        }
+
+        $days = $this->daysUntilSettlementTransfer($today);
+
+        if ($days === 0) {
+            return '決済振込日は本日です';
+        }
+
+        return "決済振込日まで あと{$days}日";
     }
 
     /**

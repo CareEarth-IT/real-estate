@@ -46,8 +46,17 @@ class SettlementManagementController extends Controller
 
         $booleanFields = SettlementManagement::booleanFields();
         $columnLabels = SettlementManagement::columnLabels();
+        $upcomingTransferCount = $settlementManagements->getCollection()
+            ->filter(fn (SettlementManagement $settlementManagement): bool => $settlementManagement->shouldShowSettlementTransferCountdown())
+            ->count();
 
-        return view('admin.settlement-managements.index', compact('settlementManagements', 'booleanFields', 'columnLabels', 'search'));
+        return view('admin.settlement-managements.index', compact(
+            'settlementManagements',
+            'booleanFields',
+            'columnLabels',
+            'search',
+            'upcomingTransferCount',
+        ));
     }
 
     public function show(SettlementManagement $settlementManagement): View

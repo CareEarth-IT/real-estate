@@ -14,6 +14,17 @@
         <x-admin-search-form :value="$search" />
     </div>
 
+    @if (($upcomingTransferCount ?? 0) > 0)
+        <div class="settlement-transfer-countdown-notice mb-6" role="status">
+            <p class="settlement-transfer-countdown-notice__title">決済振込日1週間前のお知らせ</p>
+            <p class="settlement-transfer-countdown-notice__body">
+                決済振込日まで7日以内の案件が
+                <strong>{{ $upcomingTransferCount }} 件</strong>
+                あります。未完了の案件はカウントダウンを表示しています。
+            </p>
+        </div>
+    @endif
+
     @if ($settlementManagements->isEmpty())
         <div class="rounded-xl border border-slate-200 bg-white p-12 text-center text-slate-500 shadow-sm">
             @if ($search !== '')
