@@ -2,9 +2,11 @@
 
 namespace App\Support;
 
+use Carbon\Carbon;
 use Carbon\CarbonInterface;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
+use Throwable;
 
 class FlowManagementListSort
 {
@@ -47,6 +49,26 @@ class FlowManagementListSort
             $today->copy()->subDays(7)->toDateString(),
             $today->copy()->addDays(7)->toDateString(),
         ];
+    }
+
+    public static function isWithinWeekWindow(mixed $date, ?CarbonInterface $today = null): bool
+    {
+        if ($date === null || $date === '') {
+            return false;
+        }
+
+        try {
+            $value = $date instanceof CarbonInterface
+                ? $date->copy()->startOfDay()
+                : Carbon::parse((string) $date)->startOfDay();
+        } catch (Throwable) {
+            return false;
+        }
+
+        [$from, $to] = self::weekWindow($today);
+        $day = $value->toDateString();
+
+        return $day >= $from && $day <= $to;
     }
 
     public static function apply(Builder $query, string $sort, string $direction): Builder

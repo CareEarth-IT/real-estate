@@ -3,9 +3,7 @@
         @foreach ($flowManagements as $flowManagement)
             @php
                 $activeDeadline = ($sort ?? '') !== '' ? $flowManagement->{$sort} : null;
-                $isWithinWeek = $activeDeadline
-                    && $activeDeadline->toDateString() >= ($weekFrom ?? '')
-                    && $activeDeadline->toDateString() <= ($weekTo ?? '');
+                $isWithinWeek = \App\Support\FlowManagementListSort::isWithinWeekWindow($activeDeadline);
             @endphp
             <article
                 class="application-block flow-management-summary-card {{ $flowManagement->settlement_transition ? 'has-sticky-highlight-blue' : '' }} {{ $isWithinWeek ? 'application-block--action-required' : '' }}"

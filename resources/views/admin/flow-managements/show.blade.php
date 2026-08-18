@@ -49,6 +49,10 @@
                 <div class="application-block__cell-value">{{ $flowManagement->contractor ?: '—' }}</div>
             </div>
             <div class="application-block__cell">
+                <span class="application-block__cell-label">管理会社名</span>
+                <div class="application-block__cell-value">{{ $flowManagement->application?->displayManagementCompanyName() ?? '—' }}</div>
+            </div>
+            <div class="application-block__cell">
                 <span class="application-block__cell-label">{{ $columnLabels['contractor_furigana'] }}</span>
                 <div class="application-block__cell-value">{{ $flowManagement->contractor_furigana ?: '—' }}</div>
             </div>

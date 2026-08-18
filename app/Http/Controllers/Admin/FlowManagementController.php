@@ -55,7 +55,7 @@ class FlowManagementController extends Controller
 
     public function show(FlowManagement $flowManagement): View
     {
-        $flowManagement->load('application');
+        $flowManagement->load(['application.customer']);
 
         return view('admin.flow-managements.show', [
             'flowManagement' => $flowManagement,

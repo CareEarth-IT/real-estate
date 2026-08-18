@@ -50,7 +50,7 @@ class SettlementManagementController extends Controller
 
     public function show(SettlementManagement $settlementManagement): View
     {
-        $settlementManagement->load(['flowManagement.application', 'customer']);
+        $settlementManagement->load(['flowManagement.application.customer', 'customer']);
 
         return view('admin.settlement-managements.show', [
             'settlementManagement' => $settlementManagement,
@@ -61,7 +61,7 @@ class SettlementManagementController extends Controller
 
     public function downloadInvoice(SettlementManagement $settlementManagement): StreamedResponse
     {
-        $settlementManagement->load(['flowManagement.application', 'customer']);
+        $settlementManagement->load(['flowManagement.application.customer', 'customer']);
 
         $binary = $this->invoiceCsvService->build($settlementManagement);
         $filename = $this->invoiceCsvService->downloadFilename($settlementManagement);
