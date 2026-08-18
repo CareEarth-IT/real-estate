@@ -42,6 +42,7 @@ Route::prefix('admin')->name('admin.')->middleware('careearth.auth')->group(func
     Route::get('/flow-managements/{flowManagement}', [AdminFlowManagementController::class, 'show'])->name('flow-managements.show');
     Route::get('/settlement-managements', [AdminSettlementManagementController::class, 'index'])->name('settlement-managements.index');
     Route::get('/settlement-managements/{settlementManagement}/invoice.xlsx', [AdminSettlementManagementController::class, 'downloadInvoice'])->name('settlement-managements.invoice');
+    Route::get('/settlement-managements/{settlementManagement}/receipt.xlsx', [AdminSettlementManagementController::class, 'downloadReceipt'])->name('settlement-managements.receipt');
     Route::get('/settlement-managements/{settlementManagement}', [AdminSettlementManagementController::class, 'show'])->name('settlement-managements.show');
     Route::get('/rental-property-archives', [AdminRentalPropertyArchiveController::class, 'index'])->name('rental-property-archives.index');
     Route::get('/rental-property-archives/{rentalPropertyArchive}', [AdminRentalPropertyArchiveController::class, 'show'])->name('rental-property-archives.show');

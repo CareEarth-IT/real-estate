@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\FlowManagement;
 use App\Models\SettlementManagement;
 use App\Services\SettlementInvoiceCsvService;
+use App\Services\SettlementReceiptService;
 use App\Support\AdminListSearch;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -17,6 +18,7 @@ class SettlementManagementController extends Controller
 {
     public function __construct(
         private readonly SettlementInvoiceCsvService $invoiceCsvService,
+        private readonly SettlementReceiptService $receiptService,
     ) {}
 
     public function index(Request $request): View
@@ -65,6 +67,20 @@ class SettlementManagementController extends Controller
 
         $binary = $this->invoiceCsvService->build($settlementManagement);
         $filename = $this->invoiceCsvService->downloadFilename($settlementManagement);
+
+        return response()->streamDownload(function () use ($binary): void {
+            echo $binary;
+        }, $filename, [
+            'Content-Type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        ]);
+    }
+
+    public function downloadReceipt(SettlementManagement $settlementManagement): StreamedResponse
+    {
+        $settlementManagement->load(['flowManagement.application.customer', 'customer']);
+
+        $binary = $this->receiptService->build($settlementManagement);
+        $filename = $this->receiptService->downloadFilename($settlementManagement);
 
         return response()->streamDownload(function () use ($binary): void {
             echo $binary;
