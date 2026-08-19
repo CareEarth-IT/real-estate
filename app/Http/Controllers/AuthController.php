@@ -49,7 +49,8 @@ class AuthController extends Controller
         ]);
 
         if (! CareEarthAuth::attemptLogin($request, $validated['email'], $validated['password'])) {
-            return back()
+            return redirect()
+                ->route('login')
                 ->withInput($request->only('email', 'redirect'))
                 ->withErrors(['email' => 'メールアドレスまたはパスワードが正しくありません。']);
         }
