@@ -3,7 +3,7 @@
     <nav class="space-y-1">
         <a
             href="{{ route('home') }}"
-            class="admin-nav-link block rounded-lg px-3 py-2 text-sm font-medium {{ request()->routeIs('home') ? 'is-active' : '' }}"
+            class="admin-nav-link block rounded-lg px-3 py-2 text-sm font-medium {{ request()->routeIs('home', 'home.settlement-csv-import.*') ? 'is-active' : '' }}"
         >
             ホーム
         </a>

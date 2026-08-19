@@ -85,7 +85,7 @@ class Customer extends Model
     {
         return [
             'id' => 'ID',
-            'case_number' => '顧客ID',
+            'case_number' => '管理番号',
             'name' => '氏名',
             'move_in_date' => '入居日/保険加入日',
             'contract_period' => '契約期間',

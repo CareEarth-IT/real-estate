@@ -234,6 +234,10 @@ class MasterFieldHelper
             return Customer::formatDisplayId((int) $value) ?? '—';
         }
 
+        if ($column === 'sales_recorded_month') {
+            return YearMonth::format((int) $value);
+        }
+
         if ($column === 'has_broker_fee') {
             if ($value === null) {
                 return '未定';

@@ -8,9 +8,10 @@
                 $contractor = $settlementManagement->contractor ?: ($flow?->contractor ?: null);
                 $roomNumber = $settlementManagement->room_number ?: ($flow?->room_number ?: null);
                 $entryMethod = $settlementManagement->entry_method ?: ($flow?->entry_method ?: null);
+                $countdownLabel = $settlementManagement->settlementTransferCountdownLabel();
             @endphp
             <article
-                class="application-block settlement-management-summary-card"
+                class="application-block settlement-management-summary-card {{ $countdownLabel ? 'application-block--action-required' : '' }}"
                 data-settlement-management-id="{{ $settlementManagement->id }}"
                 data-detail-url="{{ route('admin.settlement-managements.show', $settlementManagement) }}"
                 tabindex="0"
@@ -24,6 +25,11 @@
                             <span class="text-base font-medium text-slate-500">{{ $roomNumber }}</span>
                         @endif
                     </h3>
+                    @if ($countdownLabel)
+                        <div class="application-block__badges">
+                            <span class="application-block__badge application-block__badge--warn">{{ $countdownLabel }}</span>
+                        </div>
+                    @endif
                     <div class="flex flex-wrap gap-1">
                         @forelse ($settlementManagement->feeTypeBadges() as $badge)
                             <span class="inline-flex items-center rounded-md border px-2.5 py-1 text-xs font-semibold {{ $badge['classes'] }}">
@@ -36,6 +42,10 @@
 
                 <div class="application-block__body">
                     <div class="application-block__cells">
+                        @include('admin.partials.management-number-cell', [
+                            'customer' => $settlementManagement->customer ?? $flow?->customer ?? $flow?->application?->customer,
+                            'managementNumber' => $settlementManagement->management_number,
+                        ])
                         <div class="application-block__cell">
                             <span class="application-block__cell-label">担当者</span>
                             <div class="application-block__cell-value">{{ $settlementManagement->staff_in_charge ?: '—' }}</div>
@@ -48,13 +58,13 @@
                             <span class="application-block__cell-label">記入方法</span>
                             <div class="application-block__cell-value">{{ $entryMethod ?: '—' }}</div>
                         </div>
-                        <div class="application-block__cell">
+                        <div class="application-block__cell {{ $settlementManagement->contract_date ? '' : 'application-block__cell--unfilled' }}">
                             <span class="application-block__cell-label">契約日</span>
-                            <div class="application-block__cell-value">{{ $settlementManagement->contract_date?->format('Y/m/d') ?? '—' }}</div>
+                            <div class="application-block__cell-value">{{ $settlementManagement->contract_date?->format('Y/m/d') ?? '未記載' }}</div>
                         </div>
-                        <div class="application-block__cell">
+                        <div class="application-block__cell {{ $settlementManagement->settlement_transfer_date ? '' : 'application-block__cell--unfilled' }}">
                             <span class="application-block__cell-label">決済振込日</span>
-                            <div class="application-block__cell-value">{{ $settlementManagement->settlement_transfer_date?->format('Y/m/d') ?? '—' }}</div>
+                            <div class="application-block__cell-value">{{ $settlementManagement->settlement_transfer_date?->format('Y/m/d') ?? '未記載' }}</div>
                         </div>
                     </div>
                 </div>
@@ -73,6 +83,15 @@
                         </label>
                     @endforeach
                     <span class="ml-auto self-center text-xs font-semibold text-primary-600">詳細を見る →</span>
+                    @if ($settlementManagement->is_completed)
+                        <span class="application-block__badge application-block__badge--ok self-center">完了済み</span>
+                    @elseif ($canEdit ?? false)
+                        <button
+                            type="button"
+                            class="settlement-complete-button btn btn-primary btn-sm"
+                            data-complete-url="{{ route('admin.settlement-managements.complete', $settlementManagement) }}"
+                        >完了</button>
+                    @endif
                 </div>
             </article>
         @endforeach
@@ -140,3 +159,5 @@
     });
 </script>
 @endpush
+
+@include('admin.settlement-managements._complete-confirm')

@@ -8,6 +8,7 @@ use App\Http\Controllers\Admin\SettlementManagementController as AdminSettlement
 use App\Http\Controllers\ApplicationFormController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\SettlementCsvImportController;
 use App\Http\Controllers\FileController;
 use App\Http\Controllers\Internal\PortalSsoController;
 use App\Http\Controllers\Master\MasterDataController;
@@ -60,6 +61,7 @@ Route::prefix('admin')->name('admin.')->middleware('careearth.auth')->group(func
         Route::patch('/applications/{application}/customer', [AdminCustomerController::class, 'update'])->name('applications.customer.update');
         Route::patch('/flow-managements/{flowManagement}/fields', [AdminFlowManagementController::class, 'updateField'])->name('flow-managements.update-field');
         Route::patch('/settlement-managements/{settlementManagement}/fields', [AdminSettlementManagementController::class, 'updateField'])->name('settlement-managements.update-field');
+        Route::post('/settlement-managements/{settlementManagement}/complete', [AdminSettlementManagementController::class, 'complete'])->name('settlement-managements.complete');
         Route::post('/rental-property-archives', [AdminRentalPropertyArchiveController::class, 'store'])->name('rental-property-archives.store');
         Route::patch('/rental-property-archives/{rentalPropertyArchive}/fields', [AdminRentalPropertyArchiveController::class, 'updateField'])->name('rental-property-archives.update-field');
         Route::post('/rental-property-archives/{rentalPropertyArchive}/images', [AdminRentalPropertyArchiveController::class, 'storeImages'])->name('rental-property-archives.images.store');
@@ -78,6 +80,12 @@ Route::prefix('master')->name('master.')->middleware('careearth.auth')->group(fu
 
 Route::middleware('careearth.auth')->group(function () {
     Route::get('/home', [DashboardController::class, 'index'])->name('home');
+    Route::middleware('careearth.edit')->group(function () {
+        Route::post('/home/settlement-csv-import', [SettlementCsvImportController::class, 'preview'])->name('home.settlement-csv-import.preview');
+        Route::get('/home/settlement-csv-import', [SettlementCsvImportController::class, 'show'])->name('home.settlement-csv-import.show');
+        Route::post('/home/settlement-csv-import/confirm', [SettlementCsvImportController::class, 'store'])->name('home.settlement-csv-import.store');
+        Route::get('/home/settlement-csv-import/cancel', [SettlementCsvImportController::class, 'cancel'])->name('home.settlement-csv-import.cancel');
+    });
 
     Route::middleware('careearth.admin')->group(function () {
         Route::get('/', [PropertyController::class, 'index'])->name('properties.index');

@@ -18,7 +18,6 @@ final class Role
     {
         return [
             self::ADMIN => '管理者',
-            self::BUCHO => '部長',
             self::EDITOR => '編集者',
             self::VIEWER => '閲覧者',
         ];
@@ -61,6 +60,7 @@ final class Role
     {
         return match ($role) {
             'fudosan', 'keiri' => self::EDITOR,
+            self::BUCHO => self::ADMIN,
             default => self::isValid($role) ? $role : self::VIEWER,
         };
     }
@@ -87,16 +87,16 @@ final class Role
 
     public static function canManageUsers(string $role): bool
     {
-        return self::isAdmin($role) || self::isBucho($role);
+        return self::isAdmin($role);
     }
 
     public static function canAccessPropertyMaster(string $role): bool
     {
-        return self::isAdmin($role) || self::isBucho($role);
+        return self::isAdmin($role);
     }
 
     public static function canEdit(string $role): bool
     {
-        return self::isAdmin($role) || self::isBucho($role) || self::isEditor($role);
+        return self::isAdmin($role) || self::isEditor($role);
     }
 }

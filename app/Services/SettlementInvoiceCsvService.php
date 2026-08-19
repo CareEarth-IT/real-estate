@@ -65,7 +65,7 @@ class SettlementInvoiceCsvService
         $estimatedSales = $settlement->estimated_sales;
 
         return [
-            'management_number' => trim((string) ($settlement->management_number ?: '')),
+            'management_number' => trim((string) ($settlement->management_number ?: $customer?->displayCustomerId() ?: '')),
             'issue_date' => now()->format('Y/m/d'),
             'contractor' => trim((string) ($settlement->contractor ?: $flow?->contractor ?: $customer?->name ?: '')),
             'estimated_sales' => $estimatedSales === null || $estimatedSales === ''

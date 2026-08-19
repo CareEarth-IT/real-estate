@@ -42,6 +42,21 @@ class AdminListSearch
         });
     }
 
+    public static function matchCustomerManagementNumber(Builder $nested, string $like, string $search, string $relation = 'customer'): void
+    {
+        $digits = preg_replace('/\D+/', '', $search) ?? '';
+
+        $nested->orWhereHas($relation, function (Builder $customerQuery) use ($like, $digits): void {
+            $customerQuery->where('case_number', 'like', $like);
+
+            if ($digits !== '') {
+                $customerQuery
+                    ->orWhere('case_number', (int) $digits)
+                    ->orWhereRaw('LPAD(CAST(case_number AS CHAR), 5, "0") LIKE ?', ['%'.$digits.'%']);
+            }
+        });
+    }
+
     public static function applyToApplication(Builder $query, ?string $search): Builder
     {
         return self::apply($query, $search, [
@@ -62,6 +77,7 @@ class AdminListSearch
             fn (Builder $nested, string $like) => $nested->orWhereRaw("DATE_FORMAT(scheduled_move_in_date, '%Y/%m/%d') LIKE ?", [$like]),
             fn (Builder $nested, string $like) => $nested->orWhereRaw("DATE_FORMAT(japan_stay_schedule, '%Y/%m/%d %H:%i') LIKE ?", [$like]),
             fn (Builder $nested, string $like) => $nested->orWhereRaw("DATE_FORMAT(created_at, '%Y/%m/%d %H:%i') LIKE ?", [$like]),
+            fn (Builder $nested, string $like, string $search) => self::matchCustomerManagementNumber($nested, $like, $search),
         ]);
     }
 
@@ -84,6 +100,7 @@ class AdminListSearch
             fn (Builder $nested, string $like) => $nested->orWhereRaw("DATE_FORMAT(flow_managements.key_handover_date, '%Y/%m/%d') LIKE ?", [$like]),
             fn (Builder $nested, string $like) => $nested->orWhereRaw("DATE_FORMAT(flow_managements.japan_stay_schedule, '%Y/%m/%d %H:%i') LIKE ?", [$like]),
             fn (Builder $nested, string $like) => $nested->orWhereRaw("DATE_FORMAT(applications.created_at, '%Y/%m/%d %H:%i') LIKE ?", [$like]),
+            fn (Builder $nested, string $like, string $search) => self::matchCustomerManagementNumber($nested, $like, $search),
         ]);
     }
 
@@ -96,6 +113,7 @@ class AdminListSearch
             'settlement_managements.room_number',
             'settlement_managements.entry_method',
             'settlement_managements.management_number',
+            'settlement_managements.business_type',
             'settlement_managements.earned_points',
             'settlement_managements.remarks',
             'flow_managements.contractor',
@@ -105,8 +123,13 @@ class AdminListSearch
             fn (Builder $nested, string $like) => $nested->orWhereRaw('CAST(settlement_managements.sales_including_tax AS CHAR) LIKE ?', [$like]),
             fn (Builder $nested, string $like) => $nested->orWhereRaw('CAST(settlement_managements.sales_excluding_tax AS CHAR) LIKE ?', [$like]),
             fn (Builder $nested, string $like) => $nested->orWhereRaw("DATE_FORMAT(settlement_managements.contract_date, '%Y/%m/%d') LIKE ?", [$like]),
+            fn (Builder $nested, string $like) => $nested->orWhereRaw("DATE_FORMAT(settlement_managements.contract_date, '%Y-%m-%d') LIKE ?", [$like]),
             fn (Builder $nested, string $like) => $nested->orWhereRaw("DATE_FORMAT(settlement_managements.settlement_transfer_date, '%Y/%m/%d') LIKE ?", [$like]),
+            fn (Builder $nested, string $like) => $nested->orWhereRaw("DATE_FORMAT(settlement_managements.settlement_transfer_date, '%Y-%m-%d') LIKE ?", [$like]),
+            fn (Builder $nested, string $like) => $nested->orWhereRaw("DATE_FORMAT(settlement_managements.settlement_transfer_date, '%Y%m%d') LIKE ?", [$like]),
+            fn (Builder $nested, string $like) => $nested->orWhereRaw('CAST(settlement_managements.sales_recorded_month AS CHAR) LIKE ?', [$like]),
             fn (Builder $nested, string $like) => $nested->orWhereRaw("DATE_FORMAT(applications.created_at, '%Y/%m/%d %H:%i') LIKE ?", [$like]),
+            fn (Builder $nested, string $like, string $search) => self::matchCustomerManagementNumber($nested, $like, $search),
         ]);
     }
 }

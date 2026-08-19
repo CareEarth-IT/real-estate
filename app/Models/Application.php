@@ -160,7 +160,7 @@ class Application extends Model
     {
         return [
             'id' => 'ID',
-            'customer_id' => '顧客ID',
+            'customer_id' => '管理番号',
             'created_at' => '作成日時',
             'staff_in_charge' => '担当者',
             'contractor' => '契約者',

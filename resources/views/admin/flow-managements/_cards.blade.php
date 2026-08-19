@@ -26,6 +26,10 @@
 
                 <div class="application-block__body">
                     <div class="application-block__cells">
+                        @include('admin.partials.management-number-cell', [
+                            'customer' => $flowManagement->customer ?? $flowManagement->application?->customer,
+                            'managementNumber' => $flowManagement->settlementManagements->first()?->management_number,
+                        ])
                         <div class="application-block__cell">
                             <span class="application-block__cell-label">担当者</span>
                             <div class="application-block__cell-value">{{ $flowManagement->staff_in_charge ?: '—' }}</div>
@@ -34,17 +38,17 @@
                             <span class="application-block__cell-label">契約者</span>
                             <div class="application-block__cell-value">{{ $flowManagement->contractor ?: '—' }}</div>
                         </div>
-                        <div class="application-block__cell">
+                        <div class="application-block__cell {{ $flowManagement->move_in_date ? '' : 'application-block__cell--unfilled' }}">
                             <span class="application-block__cell-label">入居日</span>
-                            <div class="application-block__cell-value">{{ $flowManagement->move_in_date?->format('Y/m/d') ?? '—' }}</div>
+                            <div class="application-block__cell-value">{{ $flowManagement->move_in_date?->format('Y/m/d') ?? '未記載' }}</div>
                         </div>
-                        <div class="application-block__cell">
+                        <div class="application-block__cell {{ $flowManagement->document_deadline ? '' : 'application-block__cell--unfilled' }}">
                             <span class="application-block__cell-label">書類期日</span>
-                            <div class="application-block__cell-value">{{ $flowManagement->document_deadline?->format('Y/m/d') ?? '—' }}</div>
+                            <div class="application-block__cell-value">{{ $flowManagement->document_deadline?->format('Y/m/d') ?? '未記載' }}</div>
                         </div>
-                        <div class="application-block__cell">
+                        <div class="application-block__cell {{ $flowManagement->scheduled_visit_date ? '' : 'application-block__cell--unfilled' }}">
                             <span class="application-block__cell-label">来社予定日</span>
-                            <div class="application-block__cell-value">{{ $flowManagement->scheduled_visit_date?->format('Y/m/d') ?? '—' }}</div>
+                            <div class="application-block__cell-value">{{ $flowManagement->scheduled_visit_date?->format('Y/m/d') ?? '未記載' }}</div>
                         </div>
                         <div class="application-block__cell">
                             <span class="application-block__cell-label">記入方法</span>

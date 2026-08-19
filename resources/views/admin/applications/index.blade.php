@@ -61,20 +61,7 @@
 
                         <div class="application-block__body">
                             <div class="application-block__cells">
-                                <div class="application-block__cell">
-                                    <span class="application-block__cell-label">顧客ID</span>
-                                    <div class="application-block__cell-value">
-                                        @if ($application->customer?->case_number)
-                                            <a
-                                                href="{{ route('admin.customers.index', ['search' => $application->customer->case_number]) }}"
-                                                class="text-primary-600 hover:underline font-medium"
-                                                title="顧客一覧で表示"
-                                            >{{ $application->customer->displayCustomerId() }}</a>
-                                        @else
-                                            <span class="text-slate-400">未登録</span>
-                                        @endif
-                                    </div>
-                                </div>
+                                @include('admin.partials.management-number-cell', ['customer' => $application->customer])
                                 <div class="application-block__cell">
                                     <span class="application-block__cell-label">担当者</span>
                                     <div class="application-block__cell-value">{{ $application->staff_in_charge ?: '—' }}</div>
