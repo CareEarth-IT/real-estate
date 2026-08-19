@@ -40,7 +40,10 @@
                 <span class="application-block__cell-label">作成日時</span>
                 <div class="application-block__cell-value">{{ $flowManagement->application?->created_at?->format('Y/m/d H:i') ?? '—' }}</div>
             </div>
-            @include('admin.partials.management-number-cell', ['customer' => $flowManagement->customer ?? $flowManagement->application?->customer])
+            @include('admin.partials.management-number-cell', [
+                'customer' => $flowManagement->customer ?? $flowManagement->application?->customer,
+                'managementNumber' => $flowManagement->settlementManagements->first()?->management_number,
+            ])
             <div class="application-block__cell">
                 <span class="application-block__cell-label">{{ $columnLabels['staff_in_charge'] }}</span>
                 <div class="application-block__cell-value">{{ $flowManagement->staff_in_charge ?: '—' }}</div>

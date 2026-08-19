@@ -3,9 +3,32 @@
 @section('title', 'ホーム — ' . config('app.name'))
 
 @section('content')
-    <div class="mb-6">
-        <h2 class="text-2xl font-bold text-slate-900">ホーム</h2>
-        <p class="mt-1 text-sm text-slate-500">担当者別の業績一覧と、審査OKの推移です。</p>
+    <div class="mb-6 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+        <div>
+            <h2 class="text-2xl font-bold text-slate-900">ホーム</h2>
+            <p class="mt-1 text-sm text-slate-500">担当者別の業績一覧と、審査OKの推移です。</p>
+        </div>
+        @if ($canEdit ?? false)
+            <form
+                method="post"
+                action="{{ route('home.settlement-csv-import.preview') }}"
+                enctype="multipart/form-data"
+                class="flex flex-col gap-2 sm:items-end"
+            >
+                @csrf
+                <div class="flex flex-col sm:flex-row sm:items-center gap-2">
+                    <input
+                        type="file"
+                        name="csv"
+                        accept=".csv,text/csv,text/plain"
+                        required
+                        class="block w-full sm:w-auto text-sm text-slate-600 file:mr-3 file:rounded-md file:border-0 file:bg-slate-100 file:px-3 file:py-1.5 file:text-sm file:font-medium file:text-slate-700 hover:file:bg-slate-200"
+                    >
+                    <button type="submit" class="btn btn-primary btn-sm shrink-0">CSVを読み込む</button>
+                </div>
+                <p class="text-xs text-slate-400 max-w-md sm:text-right">書類管理・決済金管理へ取り込みます（管理番号／請求書No.・事業種別・記入者・物件名・支払者・成約日・売上計上月・税抜／税込売上・発生ポイント・備考）</p>
+            </form>
+        @endif
     </div>
 
     <div class="flex flex-col gap-6 xl:flex-row xl:items-start">

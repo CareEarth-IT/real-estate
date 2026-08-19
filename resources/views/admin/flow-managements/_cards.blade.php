@@ -26,7 +26,10 @@
 
                 <div class="application-block__body">
                     <div class="application-block__cells">
-                        @include('admin.partials.management-number-cell', ['customer' => $flowManagement->customer ?? $flowManagement->application?->customer])
+                        @include('admin.partials.management-number-cell', [
+                            'customer' => $flowManagement->customer ?? $flowManagement->application?->customer,
+                            'managementNumber' => $flowManagement->settlementManagements->first()?->management_number,
+                        ])
                         <div class="application-block__cell">
                             <span class="application-block__cell-label">担当者</span>
                             <div class="application-block__cell-value">{{ $flowManagement->staff_in_charge ?: '—' }}</div>

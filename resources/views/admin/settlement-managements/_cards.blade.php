@@ -42,7 +42,10 @@
 
                 <div class="application-block__body">
                     <div class="application-block__cells">
-                        @include('admin.partials.management-number-cell', ['customer' => $settlementManagement->customer ?? $flow?->customer ?? $flow?->application?->customer])
+                        @include('admin.partials.management-number-cell', [
+                            'customer' => $settlementManagement->customer ?? $flow?->customer ?? $flow?->application?->customer,
+                            'managementNumber' => $settlementManagement->management_number,
+                        ])
                         <div class="application-block__cell">
                             <span class="application-block__cell-label">担当者</span>
                             <div class="application-block__cell-value">{{ $settlementManagement->staff_in_charge ?: '—' }}</div>

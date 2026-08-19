@@ -5,6 +5,7 @@
     $isRentalPropertyArchivesPage = request()->routeIs('admin.rental-property-archives.*');
     $isRentalAdminPage = request()->routeIs(
         'home',
+        'home.settlement-csv-import.*',
         'admin.applications.*',
         'admin.flow-managements.*',
         'admin.settlement-managements.*',

@@ -21,7 +21,7 @@ class FlowManagementController extends Controller
         $direction = FlowManagementListSort::normalizeDirection($request->input('direction'));
 
         $baseQuery = FlowManagement::query()
-            ->with(['application.customer', 'customer'])
+            ->with(['application.customer', 'customer', 'settlementManagements'])
             ->where('flow_management_transition', true)
             ->whereHas('application', fn ($query) => $query->where('screening_ok', true))
             ->join('applications', 'flow_managements.application_id', '=', 'applications.id')
@@ -55,7 +55,7 @@ class FlowManagementController extends Controller
 
     public function show(FlowManagement $flowManagement): View
     {
-        $flowManagement->load(['application.customer']);
+        $flowManagement->load(['application.customer', 'customer', 'settlementManagements']);
 
         return view('admin.flow-managements.show', [
             'flowManagement' => $flowManagement,

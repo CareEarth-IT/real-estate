@@ -35,7 +35,7 @@
             <a
                 href="{{ route('home') }}"
                 role="menuitem"
-                @class(['portal-menu-item', 'active' => request()->routeIs('home')])
+                @class(['portal-menu-item', 'active' => request()->routeIs('home', 'home.settlement-csv-import.*')])
             >ホーム</a>
             <a
                 href="{{ route('admin.applications.index') }}"

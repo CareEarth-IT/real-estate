@@ -63,7 +63,10 @@
                 <span class="application-block__cell-label">作成日時</span>
                 <div class="application-block__cell-value">{{ $settlementManagement->created_at?->format('Y/m/d H:i') ?? '—' }}</div>
             </div>
-            @include('admin.partials.management-number-cell', ['customer' => $settlementManagement->customer ?? $settlementManagement->flowManagement?->customer ?? $settlementManagement->flowManagement?->application?->customer])
+            @include('admin.partials.management-number-cell', [
+                'customer' => $settlementManagement->customer ?? $settlementManagement->flowManagement?->customer ?? $settlementManagement->flowManagement?->application?->customer,
+                'managementNumber' => $settlementManagement->management_number,
+            ])
             <label class="application-block__cell application-block__cell--editable">
                 <span class="application-block__cell-label">{{ $columnLabels['business_type'] }}</span>
                 <input type="text" class="settlement-detail-field application-inline-field"
