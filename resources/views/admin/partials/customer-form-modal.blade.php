@@ -9,7 +9,7 @@
             <div>
                 <h3 id="customer-info-modal-title" class="text-lg font-semibold text-slate-900">顧客情報入力</h3>
                 <p class="mt-1 text-sm text-slate-500">
-                    顧客ID: <span id="customer-info-case-number">未採番</span>
+                    管理番号: <span id="customer-info-case-number">未採番</span>
                 </p>
             </div>
         </div>

@@ -244,7 +244,7 @@ class FlowManagement extends Model
     {
         return [
             'id' => 'ID',
-            'customer_id' => '顧客ID',
+            'customer_id' => '管理番号',
             'application_id' => '申込ID',
             'flow_management_transition' => '書類管理移行チェック',
             'staff_in_charge' => '担当者',

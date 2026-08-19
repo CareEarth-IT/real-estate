@@ -147,7 +147,7 @@ class MasterTableRegistry
             'id' => 'ID',
             'created_at' => '作成日時',
             'updated_at' => '更新日時',
-            'customer_id' => '顧客ID',
+            'customer_id' => '管理番号',
             'application_id' => '申込ID',
             'flow_management_id' => '書類管理ID',
             'fee_type' => '手数料種別',

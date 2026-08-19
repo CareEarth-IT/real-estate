@@ -42,6 +42,7 @@
 
                 <div class="application-block__body">
                     <div class="application-block__cells">
+                        @include('admin.partials.management-number-cell', ['customer' => $settlementManagement->customer ?? $flow?->customer ?? $flow?->application?->customer])
                         <div class="application-block__cell">
                             <span class="application-block__cell-label">担当者</span>
                             <div class="application-block__cell-value">{{ $settlementManagement->staff_in_charge ?: '—' }}</div>
@@ -54,13 +55,13 @@
                             <span class="application-block__cell-label">記入方法</span>
                             <div class="application-block__cell-value">{{ $entryMethod ?: '—' }}</div>
                         </div>
-                        <div class="application-block__cell">
+                        <div class="application-block__cell {{ $settlementManagement->contract_date ? '' : 'application-block__cell--unfilled' }}">
                             <span class="application-block__cell-label">契約日</span>
-                            <div class="application-block__cell-value">{{ $settlementManagement->contract_date?->format('Y/m/d') ?? '—' }}</div>
+                            <div class="application-block__cell-value">{{ $settlementManagement->contract_date?->format('Y/m/d') ?? '未記載' }}</div>
                         </div>
-                        <div class="application-block__cell">
+                        <div class="application-block__cell {{ $settlementManagement->settlement_transfer_date ? '' : 'application-block__cell--unfilled' }}">
                             <span class="application-block__cell-label">決済振込日</span>
-                            <div class="application-block__cell-value">{{ $settlementManagement->settlement_transfer_date?->format('Y/m/d') ?? '—' }}</div>
+                            <div class="application-block__cell-value">{{ $settlementManagement->settlement_transfer_date?->format('Y/m/d') ?? '未記載' }}</div>
                         </div>
                     </div>
                 </div>

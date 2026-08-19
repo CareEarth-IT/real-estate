@@ -8,6 +8,8 @@ use App\Models\SettlementManagement;
 use App\Services\SettlementInvoiceCsvService;
 use App\Services\SettlementReceiptService;
 use App\Support\AdminListSearch;
+use App\Support\SettlementManagementListSort;
+use App\Support\YearMonth;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
@@ -24,6 +26,9 @@ class SettlementManagementController extends Controller
     public function index(Request $request): View
     {
         $search = AdminListSearch::term($request->input('search'));
+        $transferDate = SettlementManagementListSort::normalizeTransferDate($request->input('transfer_date'));
+        $sort = SettlementManagementListSort::normalizeSort($request->input('sort'));
+        $direction = SettlementManagementListSort::normalizeDirection($request->input('direction'));
 
         FlowManagement::query()
             ->where('flow_management_transition', true)
@@ -31,7 +36,7 @@ class SettlementManagementController extends Controller
             ->each(fn (FlowManagement $flowManagement) => SettlementManagement::syncFromFlowManagement($flowManagement));
 
         $settlementManagements = SettlementManagement::query()
-            ->with(['flowManagement.application', 'customer'])
+            ->with(['flowManagement.application.customer', 'customer'])
             ->whereHas('flowManagement', fn ($query) => $query
                 ->where('settlement_transition', true)
                 ->where('flow_management_transition', true)
@@ -39,13 +44,15 @@ class SettlementManagementController extends Controller
             ->join('flow_managements', 'settlement_managements.flow_management_id', '=', 'flow_managements.id')
             ->join('applications', 'flow_managements.application_id', '=', 'applications.id')
             ->tap(fn ($query) => AdminListSearch::applyToSettlementManagement($query, $search))
-            ->orderByDesc('applications.created_at')
+            ->when($transferDate !== null, fn ($query) => $query->whereDate('settlement_managements.settlement_transfer_date', $transferDate))
+            ->tap(fn ($query) => SettlementManagementListSort::apply($query, $sort, $direction))
             ->select('settlement_managements.*')
             ->paginate(10)
             ->withQueryString();
 
         $booleanFields = SettlementManagement::booleanFields();
         $columnLabels = SettlementManagement::columnLabels();
+        $sortOptions = SettlementManagementListSort::options();
         $upcomingTransferCount = $settlementManagements->getCollection()
             ->filter(fn (SettlementManagement $settlementManagement): bool => $settlementManagement->shouldShowSettlementTransferCountdown())
             ->count();
@@ -55,6 +62,10 @@ class SettlementManagementController extends Controller
             'booleanFields',
             'columnLabels',
             'search',
+            'transferDate',
+            'sort',
+            'direction',
+            'sortOptions',
             'upcomingTransferCount',
         ));
     }
@@ -101,9 +112,10 @@ class SettlementManagementController extends Controller
     public function updateField(Request $request, SettlementManagement $settlementManagement): JsonResponse
     {
         $field = $request->input('field');
-        $allowedTextFields = ['management_number', 'earned_points', 'remarks'];
+        $allowedTextFields = ['management_number', 'business_type', 'earned_points', 'remarks'];
         $allowedIntegerFields = ['estimated_sales', 'advertising_fee_amount', 'broker_fee_amount', 'sales_including_tax', 'sales_excluding_tax'];
         $allowedDateFields = ['contract_date', 'settlement_transfer_date'];
+        $allowedMonthFields = ['sales_recorded_month'];
 
         if (in_array($field, SettlementManagement::booleanFields(), true)) {
             $validated = $request->validate([
@@ -111,7 +123,11 @@ class SettlementManagementController extends Controller
                 'value' => ['required', 'boolean'],
             ]);
         } elseif (in_array($field, $allowedTextFields, true)) {
-            $maxLength = $field === 'remarks' ? 2000 : 255;
+            $maxLength = match ($field) {
+                'remarks' => 2000,
+                'business_type' => 100,
+                default => 255,
+            };
             $validated = $request->validate([
                 'field' => ['required', Rule::in($allowedTextFields)],
                 'value' => ['nullable', 'string', "max:{$maxLength}"],
@@ -132,6 +148,13 @@ class SettlementManagementController extends Controller
             if ($validated['value'] === '') {
                 $validated['value'] = null;
             }
+        } elseif (in_array($field, $allowedMonthFields, true)) {
+            $validated = $request->validate([
+                'field' => ['required', Rule::in($allowedMonthFields)],
+                'value' => ['nullable', 'string', 'max:7'],
+            ]);
+            $validated['value'] = YearMonth::fromInput((string) ($validated['value'] ?? ''))
+                ?? YearMonth::fromDate((string) ($validated['value'] ?? ''));
         } else {
             return response()->json(['message' => '不正な項目です。'], 422);
         }

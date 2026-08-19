@@ -40,6 +40,7 @@
                 <span class="application-block__cell-label">作成日時</span>
                 <div class="application-block__cell-value">{{ $flowManagement->application?->created_at?->format('Y/m/d H:i') ?? '—' }}</div>
             </div>
+            @include('admin.partials.management-number-cell', ['customer' => $flowManagement->customer ?? $flowManagement->application?->customer])
             <div class="application-block__cell">
                 <span class="application-block__cell-label">{{ $columnLabels['staff_in_charge'] }}</span>
                 <div class="application-block__cell-value">{{ $flowManagement->staff_in_charge ?: '—' }}</div>
@@ -382,6 +383,17 @@
             </label>
         </div>
     </div>
+
+    @if ($canEdit ?? false)
+        <div class="mt-4 flex flex-wrap items-center justify-end gap-3">
+            <p class="flow-detail-save-status text-sm text-slate-500" data-flow-detail-save-status hidden></p>
+            <button
+                type="button"
+                class="btn btn-primary"
+                data-flow-detail-save
+            >保存</button>
+        </div>
+    @endif
 </div>
 @endsection
 
@@ -720,6 +732,45 @@
             bindExtraItem(node);
             persistExtraLinks();
             nameInput?.focus();
+        });
+
+        const saveButton = container.querySelector('[data-flow-detail-save]');
+        const saveStatus = container.querySelector('[data-flow-detail-save-status]');
+
+        function setSaveStatus(message, isError = false) {
+            if (!saveStatus) {
+                return;
+            }
+            saveStatus.hidden = !message;
+            saveStatus.textContent = message || '';
+            saveStatus.classList.toggle('text-rose-600', isError);
+            saveStatus.classList.toggle('text-emerald-700', !isError);
+            saveStatus.classList.toggle('text-slate-500', false);
+        }
+
+        saveButton?.addEventListener('click', async () => {
+            saveButton.disabled = true;
+            setSaveStatus('保存中...');
+
+            try {
+                const fields = Array.from(container.querySelectorAll('.flow-detail-field'));
+                for (const field of fields) {
+                    if (field.readOnly || field.disabled) {
+                        continue;
+                    }
+                    await save(field.dataset.field, field.value || null);
+                    if (field.closest('[data-contract-doc-item]')) {
+                        syncContractDocumentOpenLink(field);
+                    }
+                }
+                await persistExtraLinks();
+                setSaveStatus('保存しました');
+            } catch (error) {
+                setSaveStatus(error.message || '保存に失敗しました。', true);
+                alert(error.message || '保存に失敗しました。');
+            } finally {
+                saveButton.disabled = false;
+            }
         });
     })();
 </script>

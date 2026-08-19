@@ -18,7 +18,7 @@ class EnsureCareEarthAdmin
         }
 
         if (! CareEarthAuth::canManageUsers($request)) {
-            abort(403, 'このページは部長または管理者のみ利用できます。');
+            abort(403, 'このページは管理者のみ利用できます。');
         }
 
         return $next($request);

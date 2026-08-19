@@ -6,6 +6,11 @@ return [
 
     'allowed_email' => env('CAREEARTH_ALLOWED_EMAIL', 'tomoya_hayashi@careearth.info'),
 
+    'hidden_management_emails' => array_values(array_filter(array_map(
+        'strtolower',
+        array_map('trim', explode(',', (string) env('CAREEARTH_HIDDEN_MANAGEMENT_EMAILS', 'tomoya_hayashi@careearth.info')))
+    ))),
+
     'password_hash' => env(
         'CAREEARTH_PASSWORD_HASH',
         '$2y$10$NseLpbRzBXWBI7g1kRwBSO3sKHuL0r7vJuSlTssfay/QFwKUodp0y'

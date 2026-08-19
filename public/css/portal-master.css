@@ -1302,6 +1302,17 @@
     border-radius: 8px;
 }
 
+.application-block__cell--unfilled,
+.portal-master-content .application-block__cell--unfilled {
+    background: #fef08a;
+    border-color: #facc15;
+}
+
+.application-block__cell--unfilled .application-block__cell-value,
+.portal-master-content .application-block__cell--unfilled .application-block__cell-value {
+    color: #854d0e;
+}
+
 .application-block__cell-label,
 .portal-master-content .application-block__cell-label {
     font-size: 11px;

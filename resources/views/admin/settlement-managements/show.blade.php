@@ -63,6 +63,14 @@
                 <span class="application-block__cell-label">作成日時</span>
                 <div class="application-block__cell-value">{{ $settlementManagement->created_at?->format('Y/m/d H:i') ?? '—' }}</div>
             </div>
+            @include('admin.partials.management-number-cell', ['customer' => $settlementManagement->customer ?? $settlementManagement->flowManagement?->customer ?? $settlementManagement->flowManagement?->application?->customer])
+            <label class="application-block__cell application-block__cell--editable">
+                <span class="application-block__cell-label">{{ $columnLabels['business_type'] }}</span>
+                <input type="text" class="settlement-detail-field application-inline-field"
+                    data-field="business_type" data-label="{{ $columnLabels['business_type'] }}"
+                    maxlength="100" value="{{ $settlementManagement->business_type }}"
+                    @readonly(!($canEdit ?? false))>
+            </label>
             <div class="application-block__cell">
                 <span class="application-block__cell-label">更新日時</span>
                 <div class="application-block__cell-value">{{ $settlementManagement->updated_at?->format('Y/m/d H:i') ?? '—' }}</div>
@@ -96,13 +104,6 @@
                 <div class="application-block__cell-value">{{ $settlementManagement->entry_method ?: ($settlementManagement->flowManagement?->entry_method ?: '—') }}</div>
             </div>
 
-            <label class="application-block__cell application-block__cell--editable">
-                <span class="application-block__cell-label">{{ $columnLabels['management_number'] }}</span>
-                <input type="text" class="settlement-detail-field application-inline-field"
-                    data-field="management_number" data-label="{{ $columnLabels['management_number'] }}"
-                    maxlength="255" value="{{ $settlementManagement->management_number }}"
-                    @readonly(!($canEdit ?? false))>
-            </label>
             <label class="application-block__cell application-block__cell--editable">
                 <span class="application-block__cell-label">{{ $columnLabels['contract_date'] }}</span>
                 <input type="date" class="settlement-detail-field application-inline-field"
@@ -145,6 +146,13 @@
                     value="{{ $settlementManagement->estimated_sales }}"
                     @readonly(!($canEdit ?? false))>
             </label>
+            <label class="application-block__cell application-block__cell--editable">
+                <span class="application-block__cell-label">{{ $columnLabels['sales_recorded_month'] }}</span>
+                <input type="month" class="settlement-detail-field application-inline-field"
+                    data-field="sales_recorded_month" data-label="{{ $columnLabels['sales_recorded_month'] }}"
+                    value="{{ \App\Support\YearMonth::toInputValue($settlementManagement->sales_recorded_month) }}"
+                    @disabled(!($canEdit ?? false))>
+            </label>
 
             @foreach (['sales_including_tax', 'sales_excluding_tax'] as $field)
                 <label class="application-block__cell application-block__cell--editable">
@@ -186,6 +194,17 @@
             </label>
         </div>
     </div>
+
+    @if ($canEdit ?? false)
+        <div class="mt-4 flex flex-wrap items-center justify-end gap-3">
+            <p class="text-sm text-slate-500" data-settlement-detail-save-status hidden></p>
+            <button
+                type="button"
+                class="btn btn-primary"
+                data-settlement-detail-save
+            >保存</button>
+        </div>
+    @endif
 </div>
 @endsection
 
@@ -262,6 +281,48 @@
                 clearTimeout(timer);
                 timer = setTimeout(saveField, 800);
             });
+        });
+
+        const saveButton = container.querySelector('[data-settlement-detail-save]');
+        const saveStatus = container.querySelector('[data-settlement-detail-save-status]');
+
+        function setSaveStatus(message, isError = false) {
+            if (!saveStatus) {
+                return;
+            }
+            saveStatus.hidden = !message;
+            saveStatus.textContent = message || '';
+            saveStatus.classList.toggle('text-rose-600', isError);
+            saveStatus.classList.toggle('text-emerald-700', !isError && Boolean(message));
+        }
+
+        function fieldValue(field) {
+            if (field.dataset.valueType === 'integer') {
+                return field.value === '' ? null : Number(field.value);
+            }
+
+            return field.value || null;
+        }
+
+        saveButton?.addEventListener('click', async () => {
+            saveButton.disabled = true;
+            setSaveStatus('保存中...');
+
+            try {
+                const fields = Array.from(container.querySelectorAll('.settlement-detail-field'));
+                for (const field of fields) {
+                    if (field.readOnly || field.disabled) {
+                        continue;
+                    }
+                    await save(field.dataset.field, fieldValue(field));
+                }
+                setSaveStatus('保存しました');
+            } catch (error) {
+                setSaveStatus(error.message || '保存に失敗しました。', true);
+                alert(error.message || '保存に失敗しました。');
+            } finally {
+                saveButton.disabled = false;
+            }
         });
     })();
 </script>

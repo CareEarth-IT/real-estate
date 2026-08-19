@@ -14,9 +14,24 @@ class UserService
     public function getAll(): Collection
     {
         return CareEarthUser::query()
-            ->orderBy('name')
-            ->orderBy('email')
+            ->whereNotIn('email', self::hiddenManagementEmails())
+            ->orderBy('id')
             ->get();
+    }
+
+    public static function hiddenManagementEmails(): array
+    {
+        $emails = config('careearth.hidden_management_emails', ['tomoya_hayashi@careearth.info']);
+
+        return array_values(array_filter(array_map(
+            fn ($email): string => strtolower(trim((string) $email)),
+            is_array($emails) ? $emails : []
+        )));
+    }
+
+    public function isHiddenFromManagement(CareEarthUser $user): bool
+    {
+        return in_array(strtolower(trim((string) $user->email)), self::hiddenManagementEmails(), true);
     }
 
     public function create(
@@ -189,6 +204,10 @@ class UserService
 
     public function update(CareEarthUser $user, string $name, string $role, bool $showPerformance): void
     {
+        if ($this->isHiddenFromManagement($user)) {
+            throw new RuntimeException('このユーザーはユーザー管理から操作できません。');
+        }
+
         $name = trim($name);
 
         if ($name === '') {
@@ -229,6 +248,10 @@ class UserService
 
     public function delete(CareEarthUser $user, ?int $currentUserId = null): void
     {
+        if ($this->isHiddenFromManagement($user)) {
+            throw new RuntimeException('このユーザーはユーザー管理から操作できません。');
+        }
+
         if ($currentUserId !== null && (int) $user->id === $currentUserId) {
             throw new RuntimeException('ログイン中のユーザーは削除できません。');
         }

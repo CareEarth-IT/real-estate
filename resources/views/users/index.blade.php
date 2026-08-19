@@ -164,7 +164,7 @@
                 $showPerformance = (bool) old('show_performance', $user->show_performance);
             @endphp
             <tr>
-                <td class="id-cell">{{ $user->id }}</td>
+                <td class="id-cell">{{ $loop->iteration }}</td>
                 <td>
                     <input
                         type="text"
@@ -246,7 +246,6 @@
     名前・成績表示・ロールは「更新」で変更できます。成績表示がONのユーザーはホームの担当者業績一覧に表示されます。メールアドレスはそのままログインに使います。
     「削除」はログイン権限だけを消し、担当した申込・書類・決済などのデータは残ります。
     <strong>管理者</strong>は開発用ロールで、すべての画面にアクセス・編集できます（本番前に削除予定）。
-    <strong>部長</strong>は物件マスターデータ・賃貸管理・ユーザー管理まで編集できます。
     <strong>編集者</strong>は物件マスターデータ一覧とユーザー管理以外を編集できます。
     <strong>閲覧者</strong>は各画面の閲覧のみ可能です。
     無操作が2時間続くと再ログインが必要になります（操作中は切れません）。

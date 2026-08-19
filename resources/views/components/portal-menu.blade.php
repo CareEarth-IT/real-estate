@@ -47,11 +47,7 @@
                 role="menuitem"
                 @class(['portal-menu-item', 'active' => request()->routeIs('admin.rental-property-archives.*')])
             >賃貸物件保管</a>
-            <a
-                href="{{ route('property.rental-income.index') }}"
-                role="menuitem"
-                @class(['portal-menu-item', 'active' => request()->routeIs('property.rental-income.*')])
-            >家賃管理一覧</a>
+            {{-- 家賃管理一覧はメニュー非表示。ルート・画面仕様はそのまま残す --}}
         </div>
 
         <div class="portal-menu-group" role="presentation">

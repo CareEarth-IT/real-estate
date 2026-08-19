@@ -30,7 +30,7 @@
     <link rel="icon" type="image/png" href="{{ asset('images/care-earth-home-logo.png') }}">
     <link rel="apple-touch-icon" href="{{ asset('images/care-earth-home-logo.png') }}">
     <link rel="stylesheet" href="{{ asset('css/portal-menu.css') }}">
-    <link rel="stylesheet" href="{{ asset('css/portal-master.css') }}?v=20260804-contract-docs">
+    <link rel="stylesheet" href="{{ asset('css/portal-master.css') }}?v=20260819-unfilled-dates">
     <link rel="stylesheet" href="{{ asset('css/style.css') }}">
     @stack('head')
     <style>

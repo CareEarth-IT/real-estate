@@ -23,6 +23,7 @@ class SettlementManagement extends Model
         'flow_management_id',
         'fee_type',
         'management_number',
+        'business_type',
         'staff_in_charge',
         'contractor',
         'property_name',
@@ -30,6 +31,7 @@ class SettlementManagement extends Model
         'entry_method',
         'contract_date',
         'estimated_sales',
+        'sales_recorded_month',
         'advertising_fee_amount',
         'broker_fee_amount',
         'settlement_transfer_request',
@@ -49,6 +51,7 @@ class SettlementManagement extends Model
         return [
             'contract_date' => 'date',
             'estimated_sales' => 'integer',
+            'sales_recorded_month' => 'integer',
             'advertising_fee_amount' => 'integer',
             'broker_fee_amount' => 'integer',
             'settlement_transfer_request' => 'boolean',
@@ -81,7 +84,8 @@ class SettlementManagement extends Model
             $types[] = self::FEE_TYPE_ADVERTISING;
         }
 
-        if ($flowManagement->has_broker_fee) {
+        if ($flowManagement->has_broker_fee
+            || ($application !== null && ($application->has_broker_fee === true || (int) $application->broker_fee >= 1))) {
             $types[] = self::FEE_TYPE_BROKER;
         }
 
@@ -117,14 +121,6 @@ class SettlementManagement extends Model
 
         $applicableTypes = self::applicableFeeTypesFromFlowManagement($flowManagement);
 
-        if ($applicableTypes === []) {
-            self::query()
-                ->where('flow_management_id', $flowManagement->id)
-                ->delete();
-
-            return;
-        }
-
         $settlementManagement = self::query()
             ->where('flow_management_id', $flowManagement->id)
             ->orderBy('id')
@@ -144,11 +140,16 @@ class SettlementManagement extends Model
             : null;
 
         $feeType = match (true) {
+            $applicableTypes === [] => null,
             count($applicableTypes) > 1 => self::FEE_TYPE_COMBINED,
             default => $applicableTypes[0],
         };
 
         $settlementManagement->customer_id = $flowManagement->customer_id;
+        if (blank($settlementManagement->management_number)) {
+            $flowManagement->loadMissing('customer');
+            $settlementManagement->management_number = $flowManagement->customer?->displayCustomerId();
+        }
         $settlementManagement->staff_in_charge = $flowManagement->staff_in_charge;
         $settlementManagement->contractor = $flowManagement->contractor;
         $settlementManagement->property_name = $flowManagement->property_name;
@@ -287,10 +288,11 @@ class SettlementManagement extends Model
     {
         return [
             'id' => 'ID',
-            'customer_id' => '顧客ID',
+            'customer_id' => '管理番号',
             'flow_management_id' => '書類管理ID',
             'fee_type' => '手数料種別',
             'management_number' => '管理番号',
+            'business_type' => '事業種別',
             'staff_in_charge' => '担当者',
             'contractor' => '契約者',
             'property_name' => '物件名',
@@ -298,6 +300,7 @@ class SettlementManagement extends Model
             'entry_method' => '記入方法',
             'contract_date' => '契約日',
             'estimated_sales' => '想定売上（合計）',
+            'sales_recorded_month' => '売上計上月',
             'advertising_fee_amount' => '広告料',
             'broker_fee_amount' => '仲介手数料',
             'settlement_transfer_request' => '決済金振込依頼',
