@@ -17,6 +17,10 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware) {
         $middleware->trustProxies(at: '*');
         $middleware->prepend(TrustEmployeePortalProxy::class);
+        $middleware->replace(
+            \Illuminate\Foundation\Http\Middleware\ValidateCsrfToken::class,
+            \App\Http\Middleware\ValidateCsrfToken::class,
+        );
         $middleware->validateCsrfTokens(except: [
             'internal/portal/*',
         ]);
