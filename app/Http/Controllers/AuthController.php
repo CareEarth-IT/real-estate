@@ -6,8 +6,8 @@ use App\Http\Middleware\CareEarthAuth;
 use App\Services\EmployeePortalSsoService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\View\View;
 use RuntimeException;
+use Symfony\Component\HttpFoundation\Response;
 
 class AuthController extends Controller
 {
@@ -15,7 +15,7 @@ class AuthController extends Controller
         private readonly EmployeePortalSsoService $ssoService,
     ) {}
 
-    public function showLogin(Request $request): View|RedirectResponse
+    public function showLogin(Request $request): RedirectResponse
     {
         if (CareEarthAuth::isLoggedIn($request)) {
             return redirect()->route(
@@ -23,57 +23,22 @@ class AuthController extends Controller
             );
         }
 
-        return view('auth.login', [
-            'redirect' => $request->query('redirect'),
-            'ssoEnabled' => $this->ssoService->isSsoEnabled(),
-            'portalLoginUrl' => $this->ssoService->portalLoginUrl(),
-            'localLoginAllowed' => $this->ssoService->isLocalLoginAllowed(),
-        ]);
+        return $this->leaveLoginScreen();
     }
 
-    public function login(Request $request): RedirectResponse
+    public function login(): Response
     {
-        if (! $this->ssoService->isLocalLoginAllowed()) {
-            return back()->withErrors([
-                'email' => 'ローカルログインは無効です。社員ポータルからサインインしてください。',
-            ]);
-        }
-
-        $validated = $request->validate([
-            'email' => ['required', 'email'],
-            'password' => ['required', 'string'],
-        ], [
-            'email.required' => 'メールアドレスを入力してください。',
-            'email.email' => 'メールアドレスの形式が正しくありません。',
-            'password.required' => 'パスワードを入力してください。',
-        ]);
-
-        if (! CareEarthAuth::attemptLogin($request, $validated['email'], $validated['password'])) {
-            return back()
-                ->withInput($request->only('email', 'redirect'))
-                ->withErrors(['email' => 'メールアドレスまたはパスワードが正しくありません。']);
-        }
-
-        $home = route(CareEarthAuth::homeRouteForRole(CareEarthAuth::currentRole($request)));
-        $redirect = $request->input('redirect');
-
-        if (is_string($redirect) && $redirect !== '' && str_starts_with($redirect, '/')) {
-            return redirect()->to($redirect);
-        }
-
-        return redirect()->intended($home);
+        abort(404);
     }
 
     /**
      * ログイン画面から社員ポータルへ誘導。
      */
-    public function redirectToPortal(Request $request): RedirectResponse
+    public function redirectToPortal(): RedirectResponse
     {
         $url = $this->ssoService->portalLoginUrl();
         if ($url === null || ! $this->ssoService->isSsoEnabled()) {
-            return redirect()
-                ->route('login')
-                ->withErrors(['email' => '社員ポータル連携が未設定、または無効です。']);
+            return $this->leaveLoginScreen();
         }
 
         return redirect()->away($url);
@@ -86,34 +51,36 @@ class AuthController extends Controller
     {
         $code = (string) $request->query('code', '');
         if ($code === '') {
-            return redirect()
-                ->route('login')
-                ->withErrors(['email' => 'ログイン用コードがありません。']);
+            return $this->leaveLoginScreen();
         }
 
         try {
             $user = $this->ssoService->consumeHandoffCode($code);
-        } catch (RuntimeException $e) {
-            return redirect()
-                ->route('login')
-                ->withErrors(['email' => $e->getMessage()]);
+        } catch (RuntimeException) {
+            return $this->leaveLoginScreen();
         }
 
         CareEarthAuth::loginAsUser($request, $user);
 
         $home = route(CareEarthAuth::homeRouteForRole(CareEarthAuth::currentRole($request)));
 
-        return redirect()
-            ->intended($home)
-            ->with('success', '社員ポータル経由でログインしました。');
+        return redirect()->intended($home);
     }
 
     public function logout(Request $request): RedirectResponse
     {
         CareEarthAuth::logout($request);
 
-        return redirect()
-            ->route('login')
-            ->with('success', 'ログアウトしました。');
+        return $this->leaveLoginScreen();
+    }
+
+    private function leaveLoginScreen(): RedirectResponse
+    {
+        $url = $this->ssoService->portalLoginUrl();
+        if ($url !== null) {
+            return redirect()->away($url);
+        }
+
+        abort(404);
     }
 }

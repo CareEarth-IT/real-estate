@@ -18,9 +18,9 @@ return [
 
     'sso_enabled' => filter_var(env('EMPLOYEE_PORTAL_SSO_ENABLED', false), FILTER_VALIDATE_BOOL),
 
-    /** 障害時・開発用にローカルメール＋パスワードログインを残す */
+    /** ローカルメール＋パスワードログイン（無効。社員ポータル SSO のみ） */
     'local_login_fallback_enabled' => filter_var(
-        env('LOCAL_LOGIN_FALLBACK_ENABLED', true),
+        env('LOCAL_LOGIN_FALLBACK_ENABLED', false),
         FILTER_VALIDATE_BOOL,
     ),
 

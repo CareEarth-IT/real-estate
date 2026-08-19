@@ -3,6 +3,7 @@
 namespace App\Http\Middleware;
 
 use App\Models\CareEarthUser;
+use App\Services\EmployeePortalSsoService;
 use App\Support\Role;
 use Closure;
 use Illuminate\Http\Request;
@@ -13,14 +14,24 @@ class CareEarthAuth
     public function handle(Request $request, Closure $next): Response
     {
         if (! self::isLoggedIn($request)) {
-            if ($request->expectsJson()) {
-                return response()->json(['message' => 'Unauthenticated.'], 401);
-            }
-
-            return redirect()->guest(route('login'));
+            return self::unauthenticatedResponse($request);
         }
 
         return $next($request);
+    }
+
+    public static function unauthenticatedResponse(Request $request): Response
+    {
+        if ($request->expectsJson()) {
+            return response()->json(['message' => 'Unauthenticated.'], 401);
+        }
+
+        $portalUrl = app(EmployeePortalSsoService::class)->portalLoginUrl();
+        if (is_string($portalUrl) && $portalUrl !== '') {
+            return redirect()->away($portalUrl);
+        }
+
+        abort(404);
     }
 
     /**
@@ -70,6 +81,10 @@ class CareEarthAuth
 
     public static function attemptLogin(Request $request, string $email, string $password): bool
     {
+        if (! app(EmployeePortalSsoService::class)->isLocalLoginAllowed()) {
+            return false;
+        }
+
         $user = CareEarthUser::query()
             ->where('email', strtolower(trim($email)))
             ->first();

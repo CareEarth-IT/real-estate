@@ -14,7 +14,7 @@ class EnsureCanEdit
     public function handle(Request $request, Closure $next): Response
     {
         if (! CareEarthAuth::isLoggedIn($request)) {
-            return redirect()->guest(route('login'));
+            return CareEarthAuth::unauthenticatedResponse($request);
         }
 
         if (! CareEarthAuth::canEdit($request)) {
