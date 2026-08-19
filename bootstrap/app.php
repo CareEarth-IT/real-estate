@@ -17,7 +17,8 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware) {
         $middleware->trustProxies(at: '*');
         $middleware->prepend(TrustEmployeePortalProxy::class);
-        $middleware->replace(
+        $middleware->replaceInGroup(
+            'web',
             \Illuminate\Foundation\Http\Middleware\ValidateCsrfToken::class,
             \App\Http\Middleware\ValidateCsrfToken::class,
         );
