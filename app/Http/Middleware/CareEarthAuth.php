@@ -31,7 +31,9 @@ class CareEarthAuth
             return redirect()->away($portalUrl);
         }
 
-        abort(404);
+        return response()->view('auth.unavailable', [
+            'portalLoginUrl' => null,
+        ]);
     }
 
     /**

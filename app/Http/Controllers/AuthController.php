@@ -6,6 +6,7 @@ use App\Http\Middleware\CareEarthAuth;
 use App\Services\EmployeePortalSsoService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\View\View;
 use RuntimeException;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -15,7 +16,7 @@ class AuthController extends Controller
         private readonly EmployeePortalSsoService $ssoService,
     ) {}
 
-    public function showLogin(Request $request): RedirectResponse
+    public function showLogin(Request $request): View|RedirectResponse
     {
         if (CareEarthAuth::isLoggedIn($request)) {
             return redirect()->route(
@@ -28,13 +29,16 @@ class AuthController extends Controller
 
     public function login(): Response
     {
-        abort(404);
+        // ローカルメール＋パスワードログインは停止
+        return response()->view('auth.unavailable', [
+            'portalLoginUrl' => $this->ssoService->portalLoginUrl(),
+        ], 403);
     }
 
     /**
      * ログイン画面から社員ポータルへ誘導。
      */
-    public function redirectToPortal(): RedirectResponse
+    public function redirectToPortal(): RedirectResponse|View
     {
         $url = $this->ssoService->portalLoginUrl();
         if ($url === null || ! $this->ssoService->isSsoEnabled()) {
@@ -47,7 +51,7 @@ class AuthController extends Controller
     /**
      * 社員ポータル handoff 後のブラウザ callback。ワンタイムコードでセッション発行。
      */
-    public function portalCallback(Request $request): RedirectResponse
+    public function portalCallback(Request $request): RedirectResponse|View
     {
         $code = (string) $request->query('code', '');
         if ($code === '') {
@@ -67,20 +71,22 @@ class AuthController extends Controller
         return redirect()->intended($home);
     }
 
-    public function logout(Request $request): RedirectResponse
+    public function logout(Request $request): RedirectResponse|View
     {
         CareEarthAuth::logout($request);
 
         return $this->leaveLoginScreen();
     }
 
-    private function leaveLoginScreen(): RedirectResponse
+    private function leaveLoginScreen(): RedirectResponse|View
     {
         $url = $this->ssoService->portalLoginUrl();
         if ($url !== null) {
             return redirect()->away($url);
         }
 
-        abort(404);
+        return view('auth.unavailable', [
+            'portalLoginUrl' => null,
+        ]);
     }
 }

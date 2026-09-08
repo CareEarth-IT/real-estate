@@ -21,7 +21,15 @@ class AppServiceProvider extends ServiceProvider
         if ($this->app->bound('request')) {
             $request = $this->app->make('request');
 
-            if ($request->hasHeader('Host')) {
+            if ($request->header('X-Employee-Portal') === '1') {
+                $publicUrl = rtrim((string) env(
+                    'PORTAL_PUBLIC_URL',
+                    'https://employee.careearth.net/realestate-portal',
+                ), '/');
+                if ($publicUrl !== '') {
+                    URL::forceRootUrl($publicUrl);
+                }
+            } elseif ($request->hasHeader('Host')) {
                 $configuredPath = parse_url((string) config('app.url'), PHP_URL_PATH) ?: '';
                 $root = rtrim($request->getSchemeAndHttpHost().rtrim($configuredPath, '/'), '/');
 

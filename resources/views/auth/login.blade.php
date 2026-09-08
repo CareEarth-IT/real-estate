@@ -3,5 +3,5 @@
 @section('title', config('app.name'))
 
 @section('content')
-    {{-- ログイン画面は停止。社員ポータル SSO のみ利用する。 --}}
+    {{-- ログイン画面は停止。showLogin はポータル誘導または auth.unavailable を表示する。 --}}
 @endsection

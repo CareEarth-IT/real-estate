@@ -35,8 +35,14 @@ final class EmployeePortalSsoService
     public function portalLoginUrl(): ?string
     {
         $url = trim((string) config('employee-portal.login_url'));
+        if ($url !== '') {
+            return $url;
+        }
 
-        return $url !== '' ? $url : null;
+        // login_url 未設定時は社員ポータル本体へ誘導（404 を避ける）
+        $apiUrl = trim((string) config('employee-portal.api_url'));
+
+        return $apiUrl !== '' ? $apiUrl : null;
     }
 
     /**

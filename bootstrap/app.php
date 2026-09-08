@@ -3,6 +3,7 @@
 use App\Http\Middleware\CareEarthAuth;
 use App\Http\Middleware\EnsureCanEdit;
 use App\Http\Middleware\EnsureCareEarthAdmin;
+use App\Http\Middleware\TrustEmployeePortalProxy;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
@@ -15,6 +16,12 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     ->withMiddleware(function (Middleware $middleware) {
         $middleware->trustProxies(at: '*');
+        $middleware->prepend(TrustEmployeePortalProxy::class);
+        $middleware->replaceInGroup(
+            'web',
+            \Illuminate\Foundation\Http\Middleware\ValidateCsrfToken::class,
+            \App\Http\Middleware\ValidateCsrfToken::class,
+        );
         $middleware->validateCsrfTokens(except: [
             'internal/portal/*',
         ]);
