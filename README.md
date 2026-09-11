@@ -43,7 +43,7 @@
 ```bash
 cd C:\xampp\htdocs\CareEarthHome
 php C:\xampp\php\composer.phar install
-copy .env.example .env
+# .env を用意する
 php artisan key:generate
 php artisan migrate
 ```
